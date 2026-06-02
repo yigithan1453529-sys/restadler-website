@@ -46,8 +46,8 @@
   <!-- Page Header -->
   <div class="page-header">
     <p class="ornament">✦ ✦ ✦</p>
-    <h1 style="margin: 1rem 0 0.5rem;">Reservierung</h1>
-    <p style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Wir freuen uns auf Ihren Besuch</p>
+    <h1 style="margin: 1rem 0 0.5rem;" data-i18n="res_page_title">Reservierung</h1>
+    <p style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);" data-i18n="res_page_sub">Wir freuen uns auf Ihren Besuch</p>
     <div class="divider-gold"></div>
   </div>
 
@@ -58,43 +58,43 @@
 
         <!-- Form -->
         <div class="fade-in">
-          <p class="section-label">Online Reservierung</p>
-          <h2 class="section-title" style="font-size:1.8rem;">Tisch reservieren</h2>
+          <p class="section-label" data-i18n="res_label">Online Reservierung</p>
+          <h2 class="section-title" style="font-size:1.8rem;" data-i18n="res_form_title">Tisch reservieren</h2>
           <div class="divider-gold left"></div>
-          <p style="margin-bottom:2rem; font-size:0.9rem;">Füllen Sie das Formular aus und wir bestätigen Ihre Reservierung per E-Mail oder Telefon.</p>
+          <p style="margin-bottom:2rem; font-size:0.9rem;" data-i18n="res_form_desc">Füllen Sie das Formular aus und wir bestätigen Ihre Reservierung per E-Mail oder Telefon.</p>
 
           <form id="reservationForm" onsubmit="submitReservation(event)">
             <div class="form-row">
               <div class="form-group">
-                <label for="vorname">Vorname *</label>
+                <label for="vorname" data-i18n="res_vorname">Vorname *</label>
                 <input type="text" id="vorname" name="vorname" placeholder="Max" required>
               </div>
               <div class="form-group">
-                <label for="nachname">Nachname *</label>
+                <label for="nachname" data-i18n="res_nachname">Nachname *</label>
                 <input type="text" id="nachname" name="nachname" placeholder="Mustermann" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="telefon">Telefon *</label>
+                <label for="telefon" data-i18n="res_telefon">Telefon *</label>
                 <input type="tel" id="telefon" name="telefon" placeholder="+41 79 000 00 00" required>
               </div>
               <div class="form-group">
-                <label for="email">E-Mail *</label>
+                <label for="email" data-i18n="res_email">E-Mail *</label>
                 <input type="email" id="email" name="email" placeholder="max@beispiel.ch" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="datum">Datum *</label>
+                <label for="datum" data-i18n="res_datum">Datum *</label>
                 <input type="date" id="datum" name="datum" required>
               </div>
               <div class="form-group">
-                <label for="uhrzeit">Uhrzeit *</label>
+                <label for="uhrzeit" data-i18n="res_uhrzeit">Uhrzeit *</label>
                 <select id="uhrzeit" name="uhrzeit" required>
-                  <option value="" disabled selected>Bitte wählen</option>
+                  <option value="" disabled selected data-i18n="res_select_time">Bitte wählen</option>
                   <option>11:30</option>
                   <option>12:00</option>
                   <option>12:30</option>
@@ -114,9 +114,9 @@
             </div>
 
             <div class="form-group">
-              <label for="personen">Anzahl Personen *</label>
+              <label for="personen" data-i18n="res_personen">Anzahl Personen *</label>
               <select id="personen" name="personen" required>
-                <option value="" disabled selected>Bitte wählen</option>
+                <option value="" disabled selected data-i18n="res_select_person">Bitte wählen</option>
                 <option>1 Person</option>
                 <option>2 Personen</option>
                 <option>3 Personen</option>
@@ -130,11 +130,11 @@
             </div>
 
             <div class="form-group">
-              <label for="bemerkungen">Bemerkungen / Wünsche</label>
-              <textarea id="bemerkungen" name="bemerkungen" placeholder="z.B. Allergien, besondere Anlässe, Sitzwünsche..."></textarea>
+              <label for="bemerkungen" data-i18n="res_bemerkungen">Bemerkungen / Wünsche</label>
+              <textarea id="bemerkungen" name="bemerkungen" placeholder="z.B. Allergien, besondere Anlässe, Sitzwünsche..." data-i18n-placeholder="res_bemerkungen_ph"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-gold" style="width:100%;">Reservierung anfragen</button>
+            <button type="submit" class="btn btn-gold" style="width:100%;" data-i18n="res_submit">Reservierung anfragen</button>
 
             <p id="formMsg" style="display:none; margin-top:1rem; padding:1rem; border:1px solid var(--gold); color:var(--gold); font-size:0.9rem; text-align:center;"></p>
           </form>
@@ -143,46 +143,46 @@
         <!-- Info Box -->
         <div class="fade-in">
           <div class="res-info-box" style="margin-bottom:1.5rem;">
-            <h3>Öffnungszeiten</h3>
+            <h3 data-i18n="res_hours_title">Öffnungszeiten</h3>
             <table style="width:100%; font-size:0.9rem; border-collapse:collapse;">
               <tr style="border-bottom:1px solid rgba(201,165,90,0.12);">
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Montag</td>
-                <td style="padding:0.5rem 0; text-align:right; color:#c96060;">Geschlossen</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_mon">Montag</td>
+                <td style="padding:0.5rem 0; text-align:right; color:#c96060;" data-i18n="closed">Geschlossen</td>
               </tr>
               <tr style="border-bottom:1px solid rgba(201,165,90,0.12);">
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Dienstag</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_tue">Dienstag</td>
                 <td style="padding:0.5rem 0; text-align:right; color:var(--cream);">13:30 – 22:00</td>
               </tr>
               <tr style="border-bottom:1px solid rgba(201,165,90,0.12);">
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Mittwoch</td>
-                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);">Morgens – 22:00</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_wed">Mittwoch</td>
+                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);" data-i18n="morning_hrs">Morgens – 22:00</td>
               </tr>
               <tr style="border-bottom:1px solid rgba(201,165,90,0.12);">
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Donnerstag</td>
-                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);">Morgens – 22:00</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_thu">Donnerstag</td>
+                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);" data-i18n="morning_hrs">Morgens – 22:00</td>
               </tr>
               <tr style="border-bottom:1px solid rgba(201,165,90,0.12);">
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Freitag</td>
-                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);">Morgens – 22:00</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_fri">Freitag</td>
+                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);" data-i18n="morning_hrs">Morgens – 22:00</td>
               </tr>
               <tr style="border-bottom:1px solid rgba(201,165,90,0.12);">
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Samstag</td>
-                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);">Morgens – 22:00</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_sat">Samstag</td>
+                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);" data-i18n="morning_hrs">Morgens – 22:00</td>
               </tr>
               <tr>
-                <td style="padding:0.5rem 0; color:var(--cream-muted);">Sonntag</td>
-                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);">Morgens – 22:00</td>
+                <td style="padding:0.5rem 0; color:var(--cream-muted);" data-i18n="day_sun">Sonntag</td>
+                <td style="padding:0.5rem 0; text-align:right; color:var(--cream);" data-i18n="morning_hrs">Morgens – 22:00</td>
               </tr>
             </table>
           </div>
 
           <div class="res-info-box" style="margin-bottom:1.5rem;">
-            <h3>Telefonisch reservieren</h3>
+            <h3 data-i18n="res_phone_title">Telefonisch reservieren</h3>
             <div class="res-info-row">
               <span class="res-info-icon">📞</span>
               <div>
                 <a href="tel:+41717871389" style="font-size:1.1rem; font-family:'Playfair Display',serif; color:var(--gold);">+41 71 787 13 89</a>
-                <p style="font-size:0.82rem; margin-top:0.2rem;">Wir nehmen gerne Ihre Reservierung telefonisch entgegen.</p>
+                <p style="font-size:0.82rem; margin-top:0.2rem;" data-i18n="res_phone_desc">Wir nehmen gerne Ihre Reservierung telefonisch entgegen.</p>
               </div>
             </div>
             <div class="res-info-row">
@@ -194,10 +194,10 @@
           </div>
 
           <div class="res-info-box">
-            <h3>Hinweise</h3>
-            <p style="font-size:0.85rem; margin-bottom:0.75rem;">Für Gruppen ab 8 Personen bitten wir um eine Voranmeldung. Wir berücksichtigen gerne besondere Wünsche und Anlässe.</p>
-            <p style="font-size:0.85rem; margin-bottom:0.75rem;">Bei Allergien oder Unverträglichkeiten beraten wir Sie gerne persönlich.</p>
-            <p style="font-size:0.85rem;">Das Cafe Restaurant Adler befindet sich im Adler Hotel, Weissbadstrasse 2, 9050 Appenzell.</p>
+            <h3 data-i18n="res_hints_title">Hinweise</h3>
+            <p style="font-size:0.85rem; margin-bottom:0.75rem;" data-i18n="res_hint1">Für Gruppen ab 8 Personen bitten wir um eine Voranmeldung. Wir berücksichtigen gerne besondere Wünsche und Anlässe.</p>
+            <p style="font-size:0.85rem; margin-bottom:0.75rem;" data-i18n="res_hint2">Bei Allergien oder Unverträglichkeiten beraten wir Sie gerne persönlich.</p>
+            <p style="font-size:0.85rem;" data-i18n="res_hint3">Das Cafe Restaurant Adler befindet sich im Adler Hotel, Weissbadstrasse 2, 9050 Appenzell.</p>
           </div>
         </div>
 
