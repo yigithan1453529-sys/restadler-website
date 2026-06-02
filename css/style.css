@@ -760,8 +760,8 @@ a:hover { color: var(--gold-light); }
 /* ─── Chatbot ─── */
 .cb-toggle {
   position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
+  bottom: 5.5rem;
+  right: 1.5rem;
   width: 58px;
   height: 58px;
   border-radius: 50%;
@@ -784,8 +784,8 @@ a:hover { color: var(--gold-light); }
 
 .cb-window {
   position: fixed;
-  bottom: 5.5rem;
-  left: 1.5rem;
+  bottom: 9.5rem;
+  right: 1.5rem;
   width: 340px;
   max-height: 500px;
   background: var(--dark-mid);
@@ -963,7 +963,7 @@ a:hover { color: var(--gold-light); }
 .cb-send:hover { background: var(--gold-light); }
 
 @media (max-width: 768px) {
-  .cb-window { width: calc(100vw - 3rem); left: 1.5rem; }
-  .cb-toggle { bottom: 1.25rem; left: 1.25rem; width: 52px; height: 52px; }
+  .cb-window { width: calc(100vw - 3rem); right: 1.5rem; left: auto; }
+  .cb-toggle { bottom: 5rem; right: 1.25rem; width: 52px; height: 52px; }
   .cb-toggle svg { width: 23px; height: 23px; }
 }
