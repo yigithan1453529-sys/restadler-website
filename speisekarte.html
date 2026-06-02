@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speisekarte · Cafe Restaurant Adler Appenzell</title>
+  <meta name="description" content="Speisekarte des Cafe Restaurant Adler in Appenzell — frisch zubereitet mit regionalen Zutaten.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        Cafe Restaurant Adler
+        <span>Appenzell · Seit 1825</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" data-i18n="nav_start">Startseite</a></li>
+        <li><a href="speisekarte.html" class="active" data-i18n="nav_menu">Speisekarte</a></li>
+        <li><a href="reservierung.html" data-i18n="nav_res">Reservierung</a></li>
+        <li><a href="kontakt.html" data-i18n="nav_contact">Kontakt</a></li>
+        <li><a href="team.html" data-i18n="nav_team">Team</a></li>
+        <li><a href="galerie.html" data-i18n="nav_galerie">Galerie</a></li>
+      </ul>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="de" onclick="setLang('de')">DE</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="nav-burger" id="burger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="nav-mobile" id="mobileMenu">
+      <a href="index.html">Startseite</a>
+      <a href="speisekarte.html">Speisekarte</a>
+      <a href="reservierung.html">Reservierung</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="team.html">Team</a>
+      <a href="galerie.html">Galerie</a>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <p class="ornament">✦ ✦ ✦</p>
+    <h1 style="margin: 1rem 0 0.5rem;">Speisekarte</h1>
+    <p style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Frisch zubereitet · Regionale Zutaten · Mit Leidenschaft gekocht</p>
+    <div class="divider-gold"></div>
+    <p style="font-size:0.82rem; color:var(--cream-muted);">🌿 = Vegetarisches Gericht &nbsp;·&nbsp; Alle Preise in CHF inkl. MwSt. &nbsp;·&nbsp; Bei Allergien beraten wir Sie gerne.</p>
+  </div>
+
+  <!-- Speisekarte Content -->
+  <section class="section" style="padding-top: 3rem;">
+    <div class="section-inner">
+
+      <!-- Starter Platten & Zwischendurch -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Starter Platten & Zwischendurch</div>
+        <h2 class="menu-category-title">Starter & Zwischendurch</h2>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Adler Platte <span style="font-size:0.75rem; color:var(--cream-muted);">(2 Personen)</span></strong>
+            <span class="item-fr">Plateau Adler · Adler Platter</span>
+            <span class="item-desc">Appenzeller Käse-Variation · Appenzeller Mostbröckli · Geräucherter Schinken · Galizien Melonen · Appenzeller Käse Fladen · grüne Oliven</span>
+          </div>
+          <div class="menu-item-price">CHF 38.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Appenzeller Käse Fladen</strong>
+            <span class="item-fr">Fladen au fromage d'Appenzell · Appenzell Cheese Fladen</span>
+            <span class="item-desc">Mit Tomatenwürfeln und frischem Basilikum Pesto</span>
+          </div>
+          <div class="menu-item-price">CHF 9.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Chicken Nuggets</strong>
+            <span class="item-fr">Nuggets de poulet · Chicken Nuggets</span>
+            <span class="item-desc">Serviert mit Pommes frites</span>
+          </div>
+          <div class="menu-item-price">CHF 18.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Portion Pommes frites</strong>
+            <span class="item-fr">Portion de frites · Portion of French Fries</span>
+          </div>
+          <div class="menu-item-price">CHF 9.00</div>
+        </div>
+      </div>
+
+      <!-- Vorspeisen & Suppen -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Vorspeisen & Suppen</div>
+        <h2 class="menu-category-title">Vorspeisen & Suppen</h2>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Tagessuppe</strong>
+            <span class="item-fr">Soupe du jour · Soup of the Day</span>
+            <span class="item-desc">Unsere täglich wechselnde Kreation aus frischen Marktzutaten</span>
+          </div>
+          <div class="menu-item-price">CHF 11.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Rüebl-Kokosnuss-Ingwer-Suppe</strong>
+            <span class="item-fr">Soupe carotte-coco-gingembre · Carrot Coconut Ginger Soup</span>
+            <span class="item-desc">Aus regionalen Karotten, mit leichter Ingwerschärfe und Schnittlauch</span>
+          </div>
+          <div class="menu-item-price">CHF 14.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Grüner Salat 🌿</strong>
+            <span class="item-fr">Salade verte · Green Salad</span>
+            <span class="item-desc">Frische Blattsalate mit unserer Haussauce</span>
+          </div>
+          <div class="menu-item-price">CHF 8.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Gemischter Salat 🌿</strong>
+            <span class="item-fr">Salade mixte · Mixed Salad</span>
+            <span class="item-desc">Knackige Blattsalate und Saisonale Rohkost, serviert an unserer Haussauce</span>
+          </div>
+          <div class="menu-item-price">CHF 12.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Tatar vom Schweizer Rind (CH) — 70g</strong>
+            <span class="item-fr">Tartare de bœuf suisse · Swiss Beef Tartare</span>
+            <span class="item-desc">Mit Kapern, Zwiebeln, Toast und Butter</span>
+          </div>
+          <div class="menu-item-price">CHF 24.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Wurstsalat</strong>
+            <span class="item-fr">Salade de saucisse · Sausage Salad</span>
+          </div>
+          <div class="menu-item-price">CHF 14.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Wurstkäsesalat</strong>
+            <span class="item-fr">Salade saucisse-fromage · Sausage Cheese Salad</span>
+          </div>
+          <div class="menu-item-price">CHF 22.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Hausgemachter Käsezwiebel Kuchen mit gemischtem Salat 🌿</strong>
+            <span class="item-fr">Tarte au fromage-oignon maison · Homemade Cheese Onion Cake</span>
+          </div>
+          <div class="menu-item-price">CHF 16.50</div>
+        </div>
+      </div>
+
+      <!-- Hauptgänge -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Hauptgänge</div>
+        <h2 class="menu-category-title">Hauptgänge</h2>
+        <p class="menu-category-note">Alle Hauptgänge werden mit Saisonalem Gemüse serviert</p>
+
+        <!-- Fisch -->
+        <div style="display:inline-block; background:var(--dark-card); border:1px solid var(--divider); padding:0.25rem 0.75rem; margin-bottom:1rem; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Fisch</div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Eglifilets im Backteig</strong>
+            <span class="item-fr">Filets de perche en friture · Perch Fillets in Batter</span>
+            <span class="item-desc">Mit Pommes frites, Saisonalem Gemüse, Sauce Tartar und Zitrone</span>
+          </div>
+          <div class="menu-item-price">CHF 32.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Gebratenes Forellefilet (CH)</strong>
+            <span class="item-fr">Filet de truite poêlé · Pan-fried Trout Fillet</span>
+            <span class="item-desc">An Petersilien-Kräutersauce mit neuen Kartoffeln und Saisonalem Gemüse</span>
+          </div>
+          <div class="menu-item-price">CHF 38.00</div>
+        </div>
+
+        <!-- Poulet -->
+        <div style="display:inline-block; background:var(--dark-card); border:1px solid var(--divider); padding:0.25rem 0.75rem; margin: 1.5rem 0 1rem; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Poulet</div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Maiz Poularde (CH)</strong>
+            <span class="item-fr">Poularde de maïs · Corn-fed Poularde</span>
+            <span class="item-desc">Zart gegarte Pouletbrust an kräftigem Jus mit hausgemachten Spätzli und Saisonalem Gemüse</span>
+          </div>
+          <div class="menu-item-price">CHF 32.00</div>
+        </div>
+
+        <!-- Fleisch -->
+        <div style="display:inline-block; background:var(--dark-card); border:1px solid var(--divider); padding:0.25rem 0.75rem; margin: 1.5rem 0 1rem; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Fleisch</div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Gebratenes Kalbshohrückensteak (CH)</strong>
+            <span class="item-fr">Entrecôte de veau rôtie · Roasted Veal Rib Steak</span>
+            <span class="item-desc">Mit hausgemachten Spätzli und Saisonalem Gemüse an Morchelrahmsauce</span>
+          </div>
+          <div class="menu-item-price">CHF 42.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Züri Geschnetzeltes (CH)</strong>
+            <span class="item-fr">Émincé à la zurichoise · Zurich-style Veal Strips</span>
+            <span class="item-desc">Zartes Kalbsfleisch in feiner Rahmsauce mit Champignons, dazu Rösti</span>
+          </div>
+          <div class="menu-item-price">CHF 36.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Kalbsbratwurst mit Rösti (CH)</strong>
+            <span class="item-fr">Bratwurst de veau avec rösti · Veal Bratwurst with Rösti</span>
+            <span class="item-desc">Grillierte Kalbsbratwurst auf knuspriger Rösti, dazu Apfelmus und Zwiebelconfit</span>
+          </div>
+          <div class="menu-item-price">CHF 24.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Schweinschnitzel mit Pommes frites (CH)</strong>
+            <span class="item-fr">Schnitzel avec frites · Schnitzel with Fries</span>
+            <span class="item-desc">Schweinschnitzel, serviert mit Pommes frites und Saisonalem Gemüse</span>
+          </div>
+          <div class="menu-item-price">CHF 29.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Tatar vom Schweizer Rind (CH) — 140g</strong>
+            <span class="item-fr">Tartare de bœuf suisse · Swiss Beef Tartare</span>
+            <span class="item-desc">Mit Kapern, Zwiebeln, Toast und Butter</span>
+          </div>
+          <div class="menu-item-price">CHF 34.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Rindsfilet (Angus) (CH)</strong>
+            <span class="item-fr">Filet de bœuf (Angus) · Beef Fillet (Angus)</span>
+            <span class="item-desc">Mit Pommes frites, Pfeffersauce und Saisonalem Gemüse</span>
+          </div>
+          <div class="menu-item-price">CHF 48.00</div>
+        </div>
+
+        <!-- Vegetarisch -->
+        <div style="display:inline-block; background:var(--dark-card); border:1px solid var(--divider); padding:0.25rem 0.75rem; margin: 1.5rem 0 1rem; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Vegetarisch</div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Gebackene Randen-Falafel 🌿</strong>
+            <span class="item-fr">Falafel de betterave rôti · Baked Beetroot Falafel</span>
+            <span class="item-desc">Auf Randen-Couscous mit Datteln, Cashewkernen und Granatapfel, verfeinert mit frischer Minze, Joghurt und Zitronenöl</span>
+          </div>
+          <div class="menu-item-price">CHF 33.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Käsespätzli 🌿</strong>
+            <span class="item-fr">Spätzli au fromage · Cheese Spätzli</span>
+            <span class="item-desc">Hausgemachte Spätzli mit cremigem Appenzeller Käse und knusprigen Röstzwiebeln, dazu Apfelmus</span>
+          </div>
+          <div class="menu-item-price">CHF 24.50</div>
+        </div>
+      </div>
+
+      <!-- Salat-Fitnessteller -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Salat-Fitnessteller</div>
+        <h2 class="menu-category-title">Salat-Fitnessteller</h2>
+        <p class="menu-category-note">Frische Blattsalate mit Haussauce — wählen Sie Ihren Belag</p>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Forellefilet an Petersilien-Kräutersauce (CH)</strong>
+            <span class="item-fr">Filet de truite aux herbes · Trout Fillet with Herb Sauce</span>
+          </div>
+          <div class="menu-item-price">CHF 33.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Kalbssteak mit Kräuterbutter (CH)</strong>
+            <span class="item-fr">Steak de veau au beurre aux herbes · Veal Steak with Herb Butter</span>
+          </div>
+          <div class="menu-item-price">CHF 41.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Maiz Poularde mit Kräuterbutter (CH)</strong>
+            <span class="item-fr">Poularde de maïs au beurre aux herbes · Corn-fed Poularde with Herb Butter</span>
+          </div>
+          <div class="menu-item-price">CHF 28.50</div>
+        </div>
+      </div>
+
+      <!-- Burger Auswahl -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Burger Auswahl</div>
+        <h2 class="menu-category-title">Burger Auswahl</h2>
+        <p class="menu-category-note">Alle Burger werden mit Pommes frites serviert</p>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Classic Burger</strong>
+            <span class="item-fr">Burger classique · Classic Burger</span>
+            <span class="item-desc">Beef (CH), Haussauce, Tomate, Zwiebeln, Gewürzgurken und Salat</span>
+          </div>
+          <div class="menu-item-price">CHF 26.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Cheeseburger</strong>
+            <span class="item-fr">Cheeseburger · Cheeseburger</span>
+            <span class="item-desc">Beef (CH), Appenzeller Käse, Haussauce, Tomate, Zwiebeln, Gewürzgurken und Salat</span>
+          </div>
+          <div class="menu-item-price">CHF 29.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>El Gaucho</strong>
+            <span class="item-fr">El Gaucho · El Gaucho</span>
+            <span class="item-desc">Beef (CH), Appenzeller Käse, knusprige Mostbröckli-Scheiben, Chimichurri-Sauce, Tomate, Zwiebeln und Salat</span>
+          </div>
+          <div class="menu-item-price">CHF 33.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Vegi Burger 🌿</strong>
+            <span class="item-fr">Burger végétarien · Veggie Burger</span>
+            <span class="item-desc">Plant-based Patty, Haussauce, Guacamole, Tomate, Zwiebeln, Röstzwiebeln, Gewürzgurken und Salat</span>
+          </div>
+          <div class="menu-item-price">CHF 28.50</div>
+        </div>
+      </div>
+
+      <!-- Desserts -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Desserts</div>
+        <h2 class="menu-category-title">Desserts & Glacé</h2>
+        <p class="menu-category-note">Unsere Hausglacé — nach Originalrezept von Konditormeister Hans Leu, ohne Chemie & Farbstoffe, hergestellt wie in den «1960er Jahren»</p>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Coupe «Dänemark»</strong>
+            <span class="item-fr">Coupe Danemark · Denmark Sundae</span>
+            <span class="item-desc">3 Kugeln Vanilleglacé & Rahm mit warmer Chocosauce</span>
+          </div>
+          <div class="menu-item-price">CHF 13.80</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Bananensplit</strong>
+            <span class="item-fr">Banana Split · Banana Split</span>
+            <span class="item-desc">3 Kugeln Vanille, Choco & Banane mit Rahm, einer Banane und warmer Chocosauce</span>
+          </div>
+          <div class="menu-item-price">CHF 14.80</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Coupe Romanoff</strong>
+            <span class="item-fr">Coupe Romanoff · Romanoff Sundae</span>
+            <span class="item-desc">3 Kugeln Vanille, Erdbeer & Rahm mit Van-Erdbeer, frischen Erdbeeren und Topping</span>
+          </div>
+          <div class="menu-item-price">CHF 14.80</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Coupe Alexander</strong>
+            <span class="item-fr">Coupe Alexander · Alexander Sundae</span>
+            <span class="item-desc">1½ Kugeln Vanille & 1½ Kugeln Haselnuss mit Karamel-Topping</span>
+          </div>
+          <div class="menu-item-price">CHF 13.80</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Meringues-Glacé</strong>
+            <span class="item-fr">Meringue glacée · Meringue with Ice Cream</span>
+            <span class="item-desc">Je eine Kugel Vanille und Erdbeer</span>
+          </div>
+          <div class="menu-item-price">CHF 11.80</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Wiener-Kaffee</strong>
+            <span class="item-fr">Café viennois · Viennese Coffee</span>
+            <span class="item-desc">Mit Espresso und 2 Kugeln Vanilleglacé</span>
+          </div>
+          <div class="menu-item-price">CHF 9.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Eiscafé</strong>
+            <span class="item-fr">Café glacé · Iced Coffee</span>
+            <span class="item-desc">2½ Kugeln Mocca-Glacé</span>
+          </div>
+          <div class="menu-item-price">CHF 8.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Frappé</strong>
+            <span class="item-fr">Frappé · Frappé</span>
+            <span class="item-desc">5 dl Milchmix mit 2 Kugeln Glacé nach Wahl</span>
+          </div>
+          <div class="menu-item-price">CHF 9.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Kugel Glacé nach Wahl</strong>
+            <span class="item-fr">Boule de glace au choix · Scoop of Ice Cream</span>
+            <span class="item-desc">Vanille · Choco · Mocca · Erdbeer · Banane · Zitrone</span>
+          </div>
+          <div class="menu-item-price">CHF 3.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Kindertraum</strong>
+            <span class="item-fr">Rêve d'enfant · Children's Dream</span>
+            <span class="item-desc">½ Kugel Schokolade & ½ Kugel Vanille mit Schoko-Topping — serviert mit einer Spielzeugfigur</span>
+          </div>
+          <div class="menu-item-price">CHF 6.80</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Rahm Zuschlag</strong>
+            <span class="item-fr">Supplément crème · Cream Supplement</span>
+          </div>
+          <div class="menu-item-price">CHF 1.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Portion Meringues</strong>
+            <span class="item-fr">Portion de meringues · Portion of Meringues</span>
+          </div>
+          <div class="menu-item-price">CHF 6.80</div>
+        </div>
+      </div>
+
+      <!-- Kuchen -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Kuchen</div>
+        <h2 class="menu-category-title">Kuchen</h2>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Hausgemachte Schwarzwälder & Quarktorte</strong>
+            <span class="item-fr">Forêt-Noire & tarte au fromage blanc · Black Forest & Quark Cake</span>
+          </div>
+          <div class="menu-item-price">CHF 7.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Fladen Aprikosen / Zwetschgen</strong>
+            <span class="item-fr">Tarte abricots / prunes · Apricot / Plum Tart</span>
+          </div>
+          <div class="menu-item-price">CHF 5.00</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Käsezwiebel Kuchen</strong>
+            <span class="item-fr">Tarte au fromage-oignon · Cheese Onion Cake</span>
+            <span class="item-desc">Heiss serviert</span>
+          </div>
+          <div class="menu-item-price">CHF 7.50</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-item-body">
+            <strong>Unsere beliebte Chrempfli zum Mitnehmen</strong>
+          </div>
+          <div class="menu-item-price">CHF 13.50</div>
+        </div>
+      </div>
+
+      <!-- Unsere Lieferanten -->
+      <div class="menu-category fade-in">
+        <div class="menu-section-title">Unsere Lieferanten</div>
+        <h2 class="menu-category-title">Unsere Lieferanten</h2>
+        <p class="menu-category-note">Wir setzen auf regionale Partner und kurze Lieferwege — für maximale Frische und Qualität auf Ihrem Teller.</p>
+        <div class="lieferanten-grid">
+          <div class="lieferant-item"><strong>Brot</strong><span>Eigene Hausbäckerei & Bäckerei Schäfli, Steinegg</span></div>
+          <div class="lieferant-item"><strong>Fleisch</strong><span>Metzgerei Wetter & Metzgerei Fässler</span></div>
+          <div class="lieferant-item"><strong>Fisch</strong><span>Bianchi</span></div>
+          <div class="lieferant-item"><strong>Gemüse & Früchte</strong><span>Saviva</span></div>
+          <div class="lieferant-item"><strong>Milchprodukte</strong><span>Molkerei Wetter</span></div>
+          <div class="lieferant-item"><strong>Eier</strong><span>Rütihof — Rolf Inauen</span></div>
+          <div class="lieferant-item"><strong>Getränke</strong><span>GOBA & Brauerei Locher</span></div>
+        </div>
+      </div>
+
+      <div class="fade-in" style="text-align:center; margin-top:3rem; padding: 2rem; border: 1px solid var(--divider); background:var(--dark-card);">
+        <p style="font-size:0.82rem; color:var(--cream-muted); margin-bottom:0;">Alle Preise in CHF inkl. 8.1% MwSt. · Bei Allergien oder Unverträglichkeiten beraten wir Sie gerne.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-logo">Cafe Restaurant Adler</div>
+    <div class="footer-sub">Appenzell · Seit 1825</div>
+    <div class="footer-divider"></div>
+
+  </footer>
+
+  <a href="https://wa.me/41717871389" target="_blank" class="whatsapp-btn" title="WhatsApp">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <script src="js/main.js"></script>
+</body>
+</html>
