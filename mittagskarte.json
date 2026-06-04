@@ -1,0 +1,150 @@
+{
+  "kw": "23",
+  "von_display": "2. Juni",
+  "bis_display": "7. Juni 2026",
+  "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
+  "kategorien": [
+    {
+      "id": "suppen",
+      "name_de": "Suppen",
+      "name_fr": "Soupes",
+      "name_en": "Soups",
+      "icon": "🥣",
+      "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
+      "hinweis_en": "Soup or green leaf salad with sauce of your choice",
+      "gerichte": [
+        { "tag": "Mi", "name_de": "Kartoffellauchsuppe", "name_en": "Potato Leek Soup", "allergene": "A, C, G" },
+        { "tag": "Do", "name_de": "Broccolisuppe", "name_en": "Broccoli Soup", "allergene": "A, G" },
+        { "tag": "Fr", "name_de": "Randensuppe", "name_en": "Beetroot Soup", "allergene": "G" }
+      ]
+    },
+    {
+      "id": "fleisch",
+      "name_de": "Fleisch Menü",
+      "name_fr": "Menu Viande",
+      "name_en": "Meat Menu",
+      "icon": "🥩",
+      "gerichte": [
+        {
+          "name_de": "Fleischvogel an kräftigem Jussauce",
+          "name_en": "Beef Roulade in Rich Jus",
+          "beilage_de": "Serviert mit Kartoffelstock und Saisonalem Gemüse",
+          "beilage_en": "Served with Mashed Potatoes and Seasonal Vegetables",
+          "allergene": "A, G, J",
+          "preis": "22.50"
+        },
+        {
+          "name_de": "Schweinssteak mit Kräuterbutter",
+          "name_en": "Pork Steak with Herb Butter",
+          "beilage_de": "Serviert mit Basmatireis und Saisonalem Gemüse",
+          "beilage_en": "Served with Basmati Rice and Seasonal Vegetables",
+          "allergene": "G, J",
+          "preis": "23.50"
+        }
+      ]
+    },
+    {
+      "id": "fisch",
+      "name_de": "Fisch Menü",
+      "name_fr": "Menu Poisson",
+      "name_en": "Fish Menu",
+      "icon": "🐟",
+      "gerichte": [
+        {
+          "name_de": "Fisch Knusperli",
+          "name_en": "Crispy Fish Strips",
+          "beilage_de": "Knusprig frittierte Fischstreifen mit Pommes frites, Sauce Tartar und Zitrone",
+          "beilage_en": "Served with French Fries, Tartar Sauce and Lemon",
+          "allergene": "A, C, D, J",
+          "preis": "19.50"
+        }
+      ]
+    },
+    {
+      "id": "vegi",
+      "name_de": "Vegi Menü",
+      "name_fr": "Menu Végétarien",
+      "name_en": "Veggie Menu",
+      "icon": "🌿",
+      "gerichte": [
+        {
+          "name_de": "Gebackene Randen-Falafel",
+          "name_en": "Baked Beetroot Falafel",
+          "beilage_de": "Auf Randen-Couscous mit Datteln, Cashewkernen und Granatapfel, verfeinert mit frischer Minze, Joghurt und Zitronenöl",
+          "beilage_en": "On Beetroot Couscous with Dates, Cashews and Pomegranate, refined with fresh Mint, Yoghurt and Lemon Oil",
+          "allergene": "A, G, H",
+          "vegi": true,
+          "preis": "19.50"
+        },
+        {
+          "name_de": "Käsespätzli",
+          "name_en": "Cheese Spätzli",
+          "beilage_de": "Hausgemachte Spätzli mit cremigem Appenzeller Käse und knusprigen Röstzwiebeln, dazu Apfelmus",
+          "beilage_en": "Homemade Spätzli with creamy Appenzell Cheese and crispy Roasted Onions, with Apple Sauce",
+          "allergene": "A, C, G",
+          "vegi": true,
+          "preis": "18.50"
+        },
+        {
+          "name_de": "Vegi Burger",
+          "name_en": "Veggie Burger",
+          "beilage_de": "Plant-based Patty, Haussauce, Guacamole, Tomate, Zwiebeln, Röstzwiebeln, Gewürzgurken und Salat",
+          "beilage_en": "Plant-based Patty, House Sauce, Guacamole, Tomato, Onions, Crispy Onions, Pickles and Salad",
+          "allergene": "A, F, J",
+          "vegi": true,
+          "preis": "20.50"
+        }
+      ]
+    },
+    {
+      "id": "fitness",
+      "name_de": "Fitness Menü",
+      "name_fr": "Menu Fitness",
+      "name_en": "Fitness Menu",
+      "icon": "🥗",
+      "hinweis_de": "Frische Blattsalate mit Haussauce nach Ihrer Wahl",
+      "hinweis_en": "Fresh leaf salads with house sauce of your choice",
+      "gerichte": [
+        {
+          "name_de": "Maispoularde mit Kräuterbutter",
+          "name_en": "Corn-fed Chicken with Herb Butter",
+          "beilage_de": "Saftig gegrillte Maispoularde auf gemischtem Blattsalat",
+          "beilage_en": "Juicy grilled Corn-fed Chicken on mixed Green Salad",
+          "allergene": "G, J",
+          "preis": "23.50"
+        },
+        {
+          "name_de": "Kalbssteak mit Kräuterbutter",
+          "name_en": "Veal Steak with Herb Butter",
+          "beilage_de": "Zartes Kalbssteak auf gemischtem Blattsalat",
+          "beilage_en": "Tender Veal Steak on mixed Green Salad",
+          "allergene": "G, J",
+          "preis": "25.50"
+        }
+      ]
+    },
+    {
+      "id": "burger",
+      "name_de": "Burger",
+      "name_fr": "Burger",
+      "name_en": "Burger",
+      "icon": "🍔",
+      "gerichte": [
+        {
+          "name_de": "Azteca Mexicana",
+          "name_en": "Azteca Mexicana Burger",
+          "beilage_de": "Chipotle Sauce, Guacamole, Tomaten und rote Zwiebeln",
+          "beilage_en": "Chipotle Sauce, Guacamole, Tomatoes and Red Onions",
+          "allergene": "A, C, G, J",
+          "preis": "21.50"
+        }
+      ]
+    }
+  ],
+  "allergene_legende": {
+    "A": "Gluten (Weizen)", "B": "Krebstiere", "C": "Eier", "D": "Fisch",
+    "E": "Erdnüsse", "F": "Soja", "G": "Milch / Laktose", "H": "Schalenfrüchte / Nüsse",
+    "I": "Sellerie", "J": "Senf", "K": "Sesam", "L": "Schwefeldioxid / Sulfite",
+    "M": "Lupinen", "N": "Weichtiere"
+  }
+}

@@ -1,8 +1,8 @@
 // ─── Translations ───
 const translations = {
   de: {
-    nav_start:'Startseite', nav_menu:'Speisekarte', nav_res:'Reservierung',
-    nav_contact:'Kontakt', nav_team:'Team', nav_galerie:'Galerie',
+    nav_start:'Startseite', nav_menu:'Speisekarte', nav_mittag:'Mittagskarte',
+    nav_res:'Reservierung', nav_contact:'Kontakt', nav_team:'Team', nav_galerie:'Galerie',
     day_mon:'Montag', day_tue:'Dienstag', day_wed:'Mittwoch',
     day_thu:'Donnerstag', day_fri:'Freitag', day_sat:'Samstag', day_sun:'Sonntag',
     closed:'Geschlossen', morning_hrs:'Morgens – 22:00 Uhr',
@@ -37,6 +37,10 @@ const translations = {
     dish5_desc:'Beef, Appenzeller Käse, knusprige Mostbröckli-Scheiben, Chimichurri-Sauce',
     dish6_desc:'3 Kugeln Vanilleglacé & Rahm mit warmer Chocosauce',
     menu_cta:'Vollständige Speisekarte',
+
+    mk_label:'Diese Woche', mk_home_title:'Mittagskarte',
+    mk_page_title:'Mittagskarte', mk_page_sub:'Täglich frisch · Produkte aus der Region',
+    mk_cta:'Zur vollständigen Mittagskarte',
 
     cta_title:'Reservieren Sie Ihren Tisch',
     cta_text:'Wir freuen uns auf Ihren Besuch. Reservieren Sie jetzt bequem online oder rufen Sie uns an.',
@@ -113,8 +117,8 @@ const translations = {
   },
 
   fr: {
-    nav_start:'Accueil', nav_menu:'Menu', nav_res:'Réservation',
-    nav_contact:'Contact', nav_team:'Équipe', nav_galerie:'Galerie',
+    nav_start:'Accueil', nav_menu:'Menu', nav_mittag:'Carte du Midi',
+    nav_res:'Réservation', nav_contact:'Contact', nav_team:'Équipe', nav_galerie:'Galerie',
     day_mon:'Lundi', day_tue:'Mardi', day_wed:'Mercredi',
     day_thu:'Jeudi', day_fri:'Vendredi', day_sat:'Samedi', day_sun:'Dimanche',
     closed:'Fermé', morning_hrs:'Matin – 22:00',
@@ -149,6 +153,10 @@ const translations = {
     dish5_desc:"Bœuf, fromage d'Appenzell, tranches croustillantes de mostbröckli, sauce chimichurri",
     dish6_desc:'3 boules de glace à la vanille & crème avec sauce chaude au chocolat',
     menu_cta:'Menu complet',
+
+    mk_label:'Cette semaine', mk_home_title:'Carte du Midi',
+    mk_page_title:'Carte du Midi', mk_page_sub:'Fraîchement préparé · Produits régionaux',
+    mk_cta:'Voir la carte complète du midi',
 
     cta_title:'Réservez votre table',
     cta_text:'Nous nous réjouissons de votre visite. Réservez maintenant en ligne ou appelez-nous.',
@@ -225,8 +233,8 @@ const translations = {
   },
 
   en: {
-    nav_start:'Home', nav_menu:'Menu', nav_res:'Reservation',
-    nav_contact:'Contact', nav_team:'Team', nav_galerie:'Gallery',
+    nav_start:'Home', nav_menu:'Menu', nav_mittag:'Lunch Menu',
+    nav_res:'Reservation', nav_contact:'Contact', nav_team:'Team', nav_galerie:'Gallery',
     day_mon:'Monday', day_tue:'Tuesday', day_wed:'Wednesday',
     day_thu:'Thursday', day_fri:'Friday', day_sat:'Saturday', day_sun:'Sunday',
     closed:'Closed', morning_hrs:'Morning – 22:00',
@@ -261,6 +269,10 @@ const translations = {
     dish5_desc:'Beef, Appenzell cheese, crispy mostbröckli slices, chimichurri sauce',
     dish6_desc:'3 scoops of vanilla ice cream & cream with warm chocolate sauce',
     menu_cta:'Full menu',
+
+    mk_label:'This Week', mk_home_title:'Lunch Menu',
+    mk_page_title:'Lunch Menu', mk_page_sub:'Freshly prepared · Regional products',
+    mk_cta:'View full lunch menu',
 
     cta_title:'Reserve your table',
     cta_text:'We look forward to your visit. Reserve online or give us a call.',
@@ -371,6 +383,8 @@ function setLang(lang) {
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
   });
+
+  if (window.mkRender) window.mkRender();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
