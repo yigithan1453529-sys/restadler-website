@@ -422,33 +422,81 @@ const observer = new IntersectionObserver((entries) => {
 fadeEls.forEach(el => observer.observe(el));
 
 // ─── Reservation form
+const WEB3FORMS_KEY = 'HIER_DEINEN_KEY_EINTRAGEN';
+
 function submitReservation(e) {
   e.preventDefault();
   const form = document.getElementById('reservationForm');
   const msg = document.getElementById('formMsg');
+  const btn = form.querySelector('button[type="submit"]');
   const lang = window.currentLang || 'de';
-  const t = translations[lang];
 
   const vorname = document.getElementById('vorname').value.trim();
   const nachname = document.getElementById('nachname').value.trim();
+  const telefon = document.getElementById('telefon').value.trim();
+  const email = document.getElementById('email').value.trim();
   const datum = document.getElementById('datum').value;
   const uhrzeit = document.getElementById('uhrzeit').value;
   const personen = document.getElementById('personen').value;
+  const bemerkungen = document.getElementById('bemerkungen').value.trim();
 
-  if (!vorname || !nachname || !datum || !uhrzeit || !personen) {
-    msg.textContent = t.form_error;
-    msg.style.borderColor = '#c96060';
-    msg.style.color = '#c96060';
-    msg.style.display = 'block';
+  if (!vorname || !telefon || !email) {
+    showMsg(msg, 'Bitte füllen Sie alle Pflichtfelder aus (Vorname, Telefon, E-Mail).', '#c96060');
     return;
   }
 
-  msg.textContent = `${vorname} — ${personen} · ${formatDate(datum)} · ${uhrzeit}`;
-  msg.style.borderColor = 'var(--gold)';
-  msg.style.color = 'var(--gold)';
-  msg.style.display = 'block';
-  form.reset();
-  msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  btn.disabled = true;
+  btn.textContent = lang === 'en' ? 'Sending…' : lang === 'fr' ? 'Envoi…' : 'Wird gesendet…';
+
+  const lines = [
+    '👤 Name: ' + vorname + (nachname ? ' ' + nachname : ''),
+    '📞 Telefon: ' + telefon,
+    '✉️ E-Mail: ' + email,
+    datum   ? '📅 Datum: ' + formatDate(datum) : '',
+    uhrzeit ? '🕐 Uhrzeit: ' + uhrzeit : '',
+    personen ? '👥 Personen: ' + personen : '',
+    bemerkungen ? '💬 Bemerkungen: ' + bemerkungen : ''
+  ].filter(Boolean).join('\n');
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      access_key: WEB3FORMS_KEY,
+      subject: '🍽️ Neue Reservierungsanfrage – ' + vorname + (nachname ? ' ' + nachname : ''),
+      from_name: 'Adler Reservierung',
+      name: vorname + (nachname ? ' ' + nachname : ''),
+      email: email,
+      message: lines
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.success) {
+      const ok = lang === 'en' ? 'Thank you! We will confirm your reservation shortly.'
+                : lang === 'fr' ? 'Merci ! Nous confirmerons votre réservation rapidement.'
+                : 'Vielen Dank! Wir bestätigen Ihre Reservierung in Kürze.';
+      showMsg(msg, ok, 'var(--gold)');
+      form.reset();
+    } else {
+      showMsg(msg, 'Fehler beim Senden. Bitte rufen Sie uns an: +41 71 787 53 38', '#c96060');
+    }
+    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  })
+  .catch(function() {
+    showMsg(msg, 'Fehler beim Senden. Bitte rufen Sie uns an: +41 71 787 53 38', '#c96060');
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = lang === 'en' ? 'Request reservation' : lang === 'fr' ? 'Demander une réservation' : 'Reservierung anfragen';
+  });
+}
+
+function showMsg(el, text, color) {
+  el.textContent = text;
+  el.style.borderColor = color;
+  el.style.color = color;
+  el.style.display = 'block';
 }
 
 function formatDate(dateStr) {
