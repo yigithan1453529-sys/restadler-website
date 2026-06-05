@@ -50,37 +50,29 @@
     </div>
   </nav>
 
-  <!-- Mittagskarte Preview -->
-  <section class="section" style="background: var(--dark-mid);">
-    <div class="section-inner">
-      <div style="text-align:center;" class="fade-in">
-        <p class="section-label" data-i18n="mk_label">Diese Woche</p>
-        <h2 class="section-title" data-i18n="mk_home_title">Mittagskarte</h2>
-        <div class="divider-gold"></div>
+  <!-- Hero Fullscreen -->
+  <section class="hero-full">
+    <img src="hero-restaurant.jpg" alt="Cafe Restaurant Adler Appenzell" class="hero-full-img">
+    <div class="hero-full-overlay"></div>
+
+    <!-- Mittagskarte Slideshow im Hero -->
+    <div class="mk-hero-overlay">
+      <div class="mk-hero-top-row">
+        <span class="mk-hero-label" data-i18n="mk_label">Diese Woche</span>
         <span id="mk-week-badge" class="mk-week-pill">Wird geladen…</span>
-        <p id="mk-incl" class="mk-incl-text"></p>
       </div>
-      <div class="mk-slideshow-outer fade-in">
+      <div class="mk-slideshow-outer">
         <button class="mk-slide-btn" onclick="mkSlidePrev()">&#8249;</button>
         <div id="mk-slideshow" class="mk-slideshow-stage"></div>
         <button class="mk-slide-btn" onclick="mkSlideNext()">&#8250;</button>
       </div>
       <div id="mk-dots" class="mk-dots"></div>
-      <div style="text-align:center; margin-top:2.5rem;" class="fade-in">
-        <a href="mittagskarte.html" class="btn btn-gold" data-i18n="mk_cta">Zur vollständigen Mittagskarte</a>
-      </div>
+      <a href="mittagskarte.html" class="mk-hero-link" data-i18n="mk_cta">Zur vollständigen Mittagskarte →</a>
     </div>
-  </section>
 
-  <!-- Hero Fullscreen -->
-  <section class="hero-full">
-    <!-- Bild als echtes img-Tag: scharf, kein CSS-Strecken -->
-    <img src="hero-restaurant.jpg" alt="Cafe Restaurant Adler Appenzell" class="hero-full-img">
-    <!-- Overlay -->
-    <div class="hero-full-overlay"></div>
-    <!-- Inhalt -->
+    <!-- Titel unten -->
     <div class="hero-full-content">
-<h1 class="hero-full-title">Cafe Restaurant<br><em>Adler</em></h1>
+      <h1 class="hero-full-title">Cafe Restaurant<br><em>Adler</em></h1>
       <div class="divider-gold"></div>
       <p class="hero-full-sub" data-i18n="hero_sub">Frisch zubereitet · Regionale Zutaten · Mit Leidenschaft gekocht</p>
       <div class="hero-cta">
