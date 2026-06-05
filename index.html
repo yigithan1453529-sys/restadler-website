@@ -107,7 +107,12 @@
         <span id="mk-week-badge" class="mk-week-pill">Wird geladen…</span>
         <p id="mk-incl" class="mk-incl-text"></p>
       </div>
-      <div id="mk-preview-cards" class="mk-preview-grid"></div>
+      <div class="mk-slideshow-outer fade-in">
+        <button class="mk-slide-btn" onclick="mkSlidePrev()">&#8249;</button>
+        <div id="mk-slideshow" class="mk-slideshow-stage"></div>
+        <button class="mk-slide-btn" onclick="mkSlideNext()">&#8250;</button>
+      </div>
+      <div id="mk-dots" class="mk-dots"></div>
       <div style="text-align:center; margin-top:2.5rem;" class="fade-in">
         <a href="mittagskarte.html" class="btn btn-gold" data-i18n="mk_cta">Zur vollständigen Mittagskarte</a>
       </div>

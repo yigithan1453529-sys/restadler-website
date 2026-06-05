@@ -22,6 +22,75 @@
     return l === 'en' ? (item.beilage_en || item.beilage_de || '') : (item.beilage_de || '');
   }
 
+  var slideshowTimer = null;
+
+  function renderSlideshow(data) {
+    const stage = document.getElementById('mk-slideshow');
+    if (!stage) return;
+
+    const badge = document.getElementById('mk-week-badge');
+    if (badge) badge.textContent = 'KW ' + data.kw + ' · ' + data.von_display + ' – ' + data.bis_display;
+    const inclEl = document.getElementById('mk-incl');
+    if (inclEl) inclEl.textContent = data.inklusive;
+
+    const slides = [];
+    data.kategorien.filter(function (k) { return k.id !== 'suppen'; }).forEach(function (cat) {
+      cat.gerichte.forEach(function (dish) { slides.push({ cat: cat, dish: dish }); });
+    });
+
+    if (!slides.length) return;
+    var current = 0;
+
+    function showSlide(idx) {
+      current = (idx + slides.length) % slides.length;
+      var s = slides[current];
+      var l = getLang();
+      var name = l === 'en' ? (s.dish.name_en || s.dish.name_de) : s.dish.name_de;
+      var beilage = l === 'en' ? (s.dish.beilage_en || s.dish.beilage_de || '') : (s.dish.beilage_de || '');
+      var catName = getCatName(s.cat);
+      var html = '<div class="mk-slide">';
+      html += '<div class="mk-slide-cat">' + s.cat.icon + ' ' + catName + '</div>';
+      html += '<div class="mk-slide-name">' + name + (s.dish.vegi ? ' 🌿' : '') + '</div>';
+      if (beilage) html += '<div class="mk-slide-beilage">' + beilage + '</div>';
+      if (s.dish.preis) html += '<div class="mk-slide-price">CHF ' + s.dish.preis + '</div>';
+      html += '</div>';
+      stage.innerHTML = html;
+
+      var dotsEl = document.getElementById('mk-dots');
+      if (dotsEl) {
+        var dots = dotsEl.querySelectorAll('.mk-dot');
+        dots.forEach(function (d, i) { d.classList.toggle('active', i === current); });
+      }
+    }
+
+    var dotsEl = document.getElementById('mk-dots');
+    if (dotsEl) {
+      dotsEl.innerHTML = slides.map(function (_, i) {
+        return '<button class="mk-dot" onclick="mkGoTo(' + i + ')"></button>';
+      }).join('');
+    }
+
+    function goTo(idx) {
+      showSlide(idx);
+      resetTimer();
+    }
+
+    function resetTimer() {
+      clearInterval(slideshowTimer);
+      slideshowTimer = setInterval(function () { goTo(current + 1); }, 4500);
+    }
+
+    window.mkSlidePrev = function () { goTo(current - 1); };
+    window.mkSlideNext = function () { goTo(current + 1); };
+    window.mkGoTo = goTo;
+
+    stage.addEventListener('mouseenter', function () { clearInterval(slideshowTimer); });
+    stage.addEventListener('mouseleave', resetTimer);
+
+    showSlide(0);
+    resetTimer();
+  }
+
   function renderPreview(data) {
     const container = document.getElementById('mk-preview-cards');
     if (!container) return;
@@ -113,6 +182,7 @@
 
   function render(data) {
     if (!data) return;
+    renderSlideshow(data);
     renderPreview(data);
     renderFull(data);
   }
