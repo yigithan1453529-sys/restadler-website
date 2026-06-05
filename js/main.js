@@ -463,6 +463,7 @@ function submitReservation(e) {
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
       access_key: WEB3FORMS_KEY,
+      to: 'info@adler-appenzell.ch',
       subject: '🍽️ Neue Reservierungsanfrage – ' + vorname + (nachname ? ' ' + nachname : ''),
       from_name: 'Adler Reservierung',
       name: vorname + (nachname ? ' ' + nachname : ''),
