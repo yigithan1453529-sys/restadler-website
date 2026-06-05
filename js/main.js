@@ -422,7 +422,7 @@ const observer = new IntersectionObserver((entries) => {
 fadeEls.forEach(el => observer.observe(el));
 
 // ─── Reservation form
-const WEB3FORMS_KEY = 'HIER_DEINEN_KEY_EINTRAGEN';
+const WEB3FORMS_KEY = 'ac8551bf-f388-4b3d-a271-996d7e11cdde';
 
 function submitReservation(e) {
   e.preventDefault();
