@@ -628,7 +628,7 @@ a:hover { color: var(--gold-light); }
 }
 
 /* ─── WhatsApp Button ─── */
-.whatsapp-btn {
+.call-btn {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
@@ -645,11 +645,11 @@ a:hover { color: var(--gold-light); }
   transition: transform 0.2s, box-shadow 0.2s;
   text-decoration: none;
 }
-.whatsapp-btn:hover {
+.call-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 28px rgba(37, 211, 102, 0.65);
 }
-.whatsapp-btn svg {
+.call-btn svg {
   width: 30px;
   height: 30px;
   fill: #fff;
@@ -740,8 +740,8 @@ a:hover { color: var(--gold-light); }
   .btn { padding: 0.8rem 1.75rem; font-size: 0.72rem; }
 
   /* WhatsApp */
-  .whatsapp-btn { width: 52px; height: 52px; bottom: 1.25rem; right: 1.25rem; }
-  .whatsapp-btn svg { width: 26px; height: 26px; }
+  .call-btn { width: 52px; height: 52px; bottom: 1.25rem; right: 1.25rem; }
+  .call-btn svg { width: 26px; height: 26px; }
 
   /* Team */
   .team-values { grid-template-columns: 1fr 1fr; }
@@ -968,6 +968,70 @@ a:hover { color: var(--gold-light); }
   .cb-window { width: calc(100vw - 3rem); right: 1.25rem; left: auto; bottom: 5rem; }
   .cb-toggle { bottom: 1.25rem; right: 5.25rem; width: 52px; height: 52px; }
   .cb-toggle svg { width: 23px; height: 23px; }
+}
+
+/* ─── Rating Bar ─── */
+.rating-bar {
+  background: var(--dark-card);
+  border-bottom: 1px solid var(--divider);
+  padding: 0.9rem 2rem;
+}
+
+.rating-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.rating-google {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--cream-muted);
+  letter-spacing: 0.05em;
+}
+
+.rating-stars {
+  color: #f4b942;
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.rating-info {
+  font-size: 0.88rem;
+  color: var(--cream-muted);
+}
+
+.rating-info strong {
+  color: var(--cream);
+  font-size: 1rem;
+  font-family: 'Playfair Display', serif;
+}
+
+.rating-sub { font-size: 0.82rem; }
+
+.rating-cta {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--divider);
+  padding: 0.3rem 0.85rem;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.rating-cta:hover { border-color: var(--gold); }
+
+@media (max-width: 480px) {
+  .rating-sub { display: none; }
+  .rating-bar { padding: 0.75rem 1.25rem; }
 }
 
 /* ─── Mittagskarte ─── */

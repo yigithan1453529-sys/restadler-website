@@ -1,4 +1,4 @@
-// ─── Chatbot Data ───
+﻿// ─── Chatbot Data ───
 const chatbotData = {
   de: {
     title: 'Adler Assistent',
@@ -13,7 +13,7 @@ const chatbotData = {
       },
       {
         keys: ['reservier', 'tisch', 'buchen', 'platz', 'buchung'],
-        text: '🍽️ Tisch reservieren:\n\n📱 Online: Auf unserer Reservierungsseite\n📞 Telefon: +41 71 787 13 89\n\nFür Gruppen ab 8 Personen bitten wir um Voranmeldung.',
+        text: '🍽️ Tisch reservieren:\n\n📱 Online: Auf unserer Reservierungsseite\n📞 Telefon: +41 71 787 53 38\n\nFür Gruppen ab 8 Personen bitten wir um Voranmeldung.',
         link: { label: 'Online reservieren →', href: 'reservierung.html' }
       },
       {
@@ -22,7 +22,7 @@ const chatbotData = {
       },
       {
         keys: ['telefon', 'nummer', 'anrufen', 'kontakt', 'mail', 'email'],
-        text: '📞 Kontakt:\n\nTelefon: +41 71 787 13 89\nE-Mail: info@adlerhotel.ch\n\nOder schreiben Sie uns via WhatsApp!'
+        text: '📞 Kontakt:\n\nTelefon: +41 71 787 53 38\nE-Mail: info@adler-appenzell.ch\n\nOder schreiben Sie uns telefonisch!'
       },
       {
         keys: ['speisekarte', 'menu', 'essen', 'gericht', 'küche', 'was gibt'],
@@ -39,7 +39,7 @@ const chatbotData = {
       },
       {
         keys: ['hotel', 'zimmer', 'übernacht', 'schlafen', 'nacht', 'suite'],
-        text: '🛏️ Das Adler Hotel:\n\n19 gemütliche Zimmer & Suiten, alle mit eigenem Bad.\n\n✅ Reichhaltiges Frühstück\n✅ Gratis WLAN\n✅ Digital-TV\n\nAb 3 Nächten: Appenzeller Ferienkarte gratis!\n\nBuchung: +41 71 787 13 89'
+        text: '🛏️ Das Adler Hotel:\n\n19 gemütliche Zimmer & Suiten, alle mit eigenem Bad.\n\n✅ Reichhaltiges Frühstück\n✅ Gratis WLAN\n✅ Digital-TV\n\nAb 3 Nächten: Appenzeller Ferienkarte gratis!\n\nBuchung: +41 71 787 53 38'
       },
       {
         keys: ['1825', 'geschichte', 'generation', 'familie', 'tradition', 'co2', 'nachhaltig'],
@@ -47,7 +47,7 @@ const chatbotData = {
       },
       {
         keys: ['allergie', 'unverträglich', 'gluten', 'laktose'],
-        text: '⚠️ Bei Allergien beraten wir Sie gerne persönlich!\n\n📞 +41 71 787 13 89\n✉️ info@adlerhotel.ch\n\nOder sprechen Sie unser Service-Team an.'
+        text: '⚠️ Bei Allergien beraten wir Sie gerne persönlich!\n\n📞 +41 71 787 53 38\n✉️ info@adler-appenzell.ch\n\nOder sprechen Sie unser Service-Team an.'
       },
       {
         keys: ['preis', 'kosten', 'chf', 'teuer', 'wie viel'],
@@ -58,7 +58,7 @@ const chatbotData = {
         text: '📶 Gratis WLAN für alle Gäste.\n🚂 Direktverbindungen via Appenzeller Bahnen.\nVom Bahnhof nur wenige Minuten zu Fuss!'
       },
     ],
-    fallback: 'Für diese Frage helfe ich Ihnen gerne persönlich weiter:\n📞 +41 71 787 13 89\n✉️ info@adlerhotel.ch'
+    fallback: 'Für diese Frage helfe ich Ihnen gerne persönlich weiter:\n📞 +41 71 787 53 38\n✉️ info@adler-appenzell.ch'
   },
 
   fr: {
@@ -74,7 +74,7 @@ const chatbotData = {
       },
       {
         keys: ['réserv', 'table', 'réserver', 'place'],
-        text: "🍽️ Réserver une table:\n\n📱 En ligne: Sur notre page de réservation\n📞 Téléphone: +41 71 787 13 89\n\nPour les groupes de 8+, merci de nous prévenir à l'avance.",
+        text: "🍽️ Réserver une table:\n\n📱 En ligne: Sur notre page de réservation\n📞 Téléphone: +41 71 787 53 38\n\nPour les groupes de 8+, merci de nous prévenir à l'avance.",
         link: { label: 'Réserver en ligne →', href: 'reservierung.html' }
       },
       {
@@ -83,7 +83,7 @@ const chatbotData = {
       },
       {
         keys: ['téléphone', 'numéro', 'contact', 'email', 'mail'],
-        text: '📞 Contact:\n\nTéléphone: +41 71 787 13 89\nE-Mail: info@adlerhotel.ch\n\nOu écrivez-nous via WhatsApp!'
+        text: '📞 Contact:\n\nTéléphone: +41 71 787 53 38\nE-Mail: info@adler-appenzell.ch\n\nOu écrivez-nous telefonisch!'
       },
       {
         keys: ['menu', 'manger', 'plat', 'cuisine', 'carte'],
@@ -100,7 +100,7 @@ const chatbotData = {
       },
       {
         keys: ['hôtel', 'chambre', 'nuit', 'séjour', 'suite'],
-        text: "🛏️ L'Adler Hotel:\n\n19 chambres & suites, toutes avec salle de bains.\n\n✅ Riche petit-déjeuner\n✅ WLAN gratuit\n✅ TV numérique\n\nDès 3 nuits: Carte de vacances d'Appenzell offerte!\n\nRéservations: +41 71 787 13 89"
+        text: "🛏️ L'Adler Hotel:\n\n19 chambres & suites, toutes avec salle de bains.\n\n✅ Riche petit-déjeuner\n✅ WLAN gratuit\n✅ TV numérique\n\nDès 3 nuits: Carte de vacances d'Appenzell offerte!\n\nRéservations: +41 71 787 53 38"
       },
       {
         keys: ['1825', 'histoire', 'génération', 'famille', 'tradition'],
@@ -108,14 +108,14 @@ const chatbotData = {
       },
       {
         keys: ['allergi', 'intolér', 'gluten', 'lactose'],
-        text: '⚠️ Pour les allergies, nous vous conseillons volontiers!\n\n📞 +41 71 787 13 89\n✉️ info@adlerhotel.ch'
+        text: '⚠️ Pour les allergies, nous vous conseillons volontiers!\n\n📞 +41 71 787 53 38\n✉️ info@adler-appenzell.ch'
       },
       {
         keys: ['prix', 'combien', 'chf', 'coût'],
         text: '💰 Aperçu des prix:\n\nSpätzli au fromage: CHF 24.50\nÉmincé zurichois: CHF 36.50\nFilet de bœuf: CHF 48.00\nBurger dès: CHF 26.50\nCoupe glace: CHF 13.80'
       },
     ],
-    fallback: "Pour cette question, contactez-nous:\n📞 +41 71 787 13 89\n✉️ info@adlerhotel.ch"
+    fallback: "Pour cette question, contactez-nous:\n📞 +41 71 787 53 38\n✉️ info@adler-appenzell.ch"
   },
 
   en: {
@@ -131,7 +131,7 @@ const chatbotData = {
       },
       {
         keys: ['reserv', 'table', 'book', 'seat', 'booking'],
-        text: '🍽️ Reserve a table:\n\n📱 Online: On our reservation page\n📞 Phone: +41 71 787 13 89\n\nFor groups of 8+, please let us know in advance.',
+        text: '🍽️ Reserve a table:\n\n📱 Online: On our reservation page\n📞 Phone: +41 71 787 53 38\n\nFor groups of 8+, please let us know in advance.',
         link: { label: 'Reserve online →', href: 'reservierung.html' }
       },
       {
@@ -140,7 +140,7 @@ const chatbotData = {
       },
       {
         keys: ['phone', 'number', 'call', 'contact', 'email', 'mail'],
-        text: '📞 Contact:\n\nPhone: +41 71 787 13 89\nE-Mail: info@adlerhotel.ch\n\nOr message us via WhatsApp!'
+        text: '📞 Contact:\n\nPhone: +41 71 787 53 38\nE-Mail: info@adler-appenzell.ch\n\nOr message us telefonisch!'
       },
       {
         keys: ['menu', 'food', 'eat', 'dish', 'cuisine', 'serve'],
@@ -157,7 +157,7 @@ const chatbotData = {
       },
       {
         keys: ['hotel', 'room', 'stay', 'night', 'sleep', 'suite'],
-        text: '🛏️ The Adler Hotel:\n\n19 comfortable rooms & suites, all with private bathroom.\n\n✅ Rich breakfast included\n✅ Free WLAN\n✅ Digital TV\n\nFrom 3 nights: Free Appenzell holiday card!\n\nBookings: +41 71 787 13 89'
+        text: '🛏️ The Adler Hotel:\n\n19 comfortable rooms & suites, all with private bathroom.\n\n✅ Rich breakfast included\n✅ Free WLAN\n✅ Digital TV\n\nFrom 3 nights: Free Appenzell holiday card!\n\nBookings: +41 71 787 53 38'
       },
       {
         keys: ['1825', 'history', 'generation', 'family', 'tradition', 'since'],
@@ -165,14 +165,14 @@ const chatbotData = {
       },
       {
         keys: ['allerg', 'intoleran', 'gluten', 'lactose'],
-        text: '⚠️ For allergies, we are happy to advise you!\n\n📞 +41 71 787 13 89\n✉️ info@adlerhotel.ch'
+        text: '⚠️ For allergies, we are happy to advise you!\n\n📞 +41 71 787 53 38\n✉️ info@adler-appenzell.ch'
       },
       {
         keys: ['price', 'cost', 'how much', 'chf', 'expensive'],
         text: '💰 Price overview:\n\nCheese Spätzli: CHF 24.50\nZurich-style Veal: CHF 36.50\nBeef Fillet: CHF 48.00\nBurger from: CHF 26.50\nIce cream coupe: CHF 13.80'
       },
     ],
-    fallback: 'For further questions please contact us:\n📞 +41 71 787 13 89\n✉️ info@adlerhotel.ch'
+    fallback: 'For further questions please contact us:\n📞 +41 71 787 53 38\n✉️ info@adler-appenzell.ch'
   }
 };
 
