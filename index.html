@@ -50,6 +50,28 @@
     </div>
   </nav>
 
+  <!-- Mittagskarte Preview -->
+  <section class="section" style="background: var(--dark-mid);">
+    <div class="section-inner">
+      <div style="text-align:center;" class="fade-in">
+        <p class="section-label" data-i18n="mk_label">Diese Woche</p>
+        <h2 class="section-title" data-i18n="mk_home_title">Mittagskarte</h2>
+        <div class="divider-gold"></div>
+        <span id="mk-week-badge" class="mk-week-pill">Wird geladen…</span>
+        <p id="mk-incl" class="mk-incl-text"></p>
+      </div>
+      <div class="mk-slideshow-outer fade-in">
+        <button class="mk-slide-btn" onclick="mkSlidePrev()">&#8249;</button>
+        <div id="mk-slideshow" class="mk-slideshow-stage"></div>
+        <button class="mk-slide-btn" onclick="mkSlideNext()">&#8250;</button>
+      </div>
+      <div id="mk-dots" class="mk-dots"></div>
+      <div style="text-align:center; margin-top:2.5rem;" class="fade-in">
+        <a href="mittagskarte.html" class="btn btn-gold" data-i18n="mk_cta">Zur vollständigen Mittagskarte</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Hero Fullscreen -->
   <section class="hero-full">
     <!-- Bild als echtes img-Tag: scharf, kein CSS-Strecken -->
@@ -93,28 +115,6 @@
           <h3 data-i18n="hl4_title">Hausgemachte Glacé</h3>
           <p data-i18n="hl4_desc">Unsere legendäre Hausglacé — nach Originalrezept von Konditormeister Hans Leu, ohne Chemie & Farbstoffe.</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mittagskarte Preview -->
-  <section class="section" style="background: var(--dark-mid);">
-    <div class="section-inner">
-      <div style="text-align:center;" class="fade-in">
-        <p class="section-label" data-i18n="mk_label">Diese Woche</p>
-        <h2 class="section-title" data-i18n="mk_home_title">Mittagskarte</h2>
-        <div class="divider-gold"></div>
-        <span id="mk-week-badge" class="mk-week-pill">Wird geladen…</span>
-        <p id="mk-incl" class="mk-incl-text"></p>
-      </div>
-      <div class="mk-slideshow-outer fade-in">
-        <button class="mk-slide-btn" onclick="mkSlidePrev()">&#8249;</button>
-        <div id="mk-slideshow" class="mk-slideshow-stage"></div>
-        <button class="mk-slide-btn" onclick="mkSlideNext()">&#8250;</button>
-      </div>
-      <div id="mk-dots" class="mk-dots"></div>
-      <div style="text-align:center; margin-top:2.5rem;" class="fade-in">
-        <a href="mittagskarte.html" class="btn btn-gold" data-i18n="mk_cta">Zur vollständigen Mittagskarte</a>
       </div>
     </div>
   </section>
