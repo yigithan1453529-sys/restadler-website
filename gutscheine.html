@@ -16,16 +16,21 @@
         <span>Appenzell</span>
       </a>
       <ul class="nav-links">
-        <li><a href="index.html">Startseite</a></li>
-        <li><a href="speisekarte.html">Speisekarte</a></li>
-        <li><a href="mittagskarte.html">Mittagskarte</a></li>
-        <li><a href="reservierung.html">Reservierung</a></li>
-        <li><a href="kontakt.html">Kontakt</a></li>
-        <li><a href="team.html">Team</a></li>
-        <li><a href="galerie.html">Galerie</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="gutscheine.html" class="active">Gutscheine</a></li>
+        <li><a href="index.html" data-i18n="nav_start">Startseite</a></li>
+        <li><a href="speisekarte.html" data-i18n="nav_menu">Speisekarte</a></li>
+        <li><a href="mittagskarte.html" data-i18n="nav_mittag">Mittagskarte</a></li>
+        <li><a href="reservierung.html" data-i18n="nav_res">Reservierung</a></li>
+        <li><a href="kontakt.html" data-i18n="nav_contact">Kontakt</a></li>
+        <li><a href="team.html" data-i18n="nav_team">Team</a></li>
+        <li><a href="galerie.html" data-i18n="nav_galerie">Galerie</a></li>
+        <li><a href="events.html" data-i18n="nav_events">Events</a></li>
+        <li><a href="gutscheine.html" class="active" data-i18n="nav_gutscheine">Gutscheine</a></li>
       </ul>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="de" onclick="setLang('de')">DE</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
       <div class="nav-burger" id="burger">
         <span></span><span></span><span></span>
       </div>
@@ -45,8 +50,8 @@
 
   <div class="page-header">
     <p class="ornament">✦ ✦ ✦</p>
-    <h1 style="margin: 1rem 0 0.5rem;">Gutscheine</h1>
-    <p style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Das perfekte Geschenk für jeden Anlass</p>
+    <h1 style="margin: 1rem 0 0.5rem;" data-i18n="gut_page_title">Gutscheine</h1>
+    <p style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);" data-i18n="gut_page_sub">Das perfekte Geschenk für jeden Anlass</p>
     <div class="divider-gold"></div>
   </div>
 
@@ -54,35 +59,35 @@
     <div class="section-inner" style="max-width: 900px;">
 
       <div style="text-align:center; max-width:580px; margin:0 auto 1rem;">
-        <p>Beschenken Sie Ihre Liebsten mit einem Erlebnis — einem Abend voller Genuss im Cafe Restaurant Adler. Unsere Gutscheine sind für alle Leistungen im Restaurant einlösbar und haben keine Verfallszeit.</p>
+        <p data-i18n="gut_intro">Beschenken Sie Ihre Liebsten mit einem Erlebnis — einem Abend voller Genuss im Cafe Restaurant Adler. Unsere Gutscheine sind für alle Leistungen im Restaurant einlösbar und haben keine Verfallszeit.</p>
       </div>
 
       <div class="gutschein-grid">
         <div class="gutschein-card fade-in">
-          <p class="gutschein-card-label">Gutschein</p>
+          <p class="gutschein-card-label" data-i18n="gut_label">Gutschein</p>
           <div class="gutschein-amount">CHF 50</div>
-          <p class="gutschein-card-note">Ideal für ein Mittagessen oder einen gemütlichen Kaffeebesuch.</p>
+          <p class="gutschein-card-note" data-i18n="gut_50">Ideal für ein Mittagessen oder einen gemütlichen Kaffeebesuch.</p>
         </div>
         <div class="gutschein-card fade-in">
-          <p class="gutschein-card-label">Gutschein</p>
+          <p class="gutschein-card-label" data-i18n="gut_label">Gutschein</p>
           <div class="gutschein-amount">CHF 100</div>
-          <p class="gutschein-card-note">Perfekt für ein entspanntes Abendessen zu zweit.</p>
+          <p class="gutschein-card-note" data-i18n="gut_100">Perfekt für ein entspanntes Abendessen zu zweit.</p>
         </div>
         <div class="gutschein-card fade-in">
-          <p class="gutschein-card-label">Gutschein</p>
+          <p class="gutschein-card-label" data-i18n="gut_label">Gutschein</p>
           <div class="gutschein-amount">CHF 200</div>
-          <p class="gutschein-card-note">Ein grosszügiges Geschenk für besondere Anlässe und Familienfeste.</p>
+          <p class="gutschein-card-note" data-i18n="gut_200">Ein grosszügiges Geschenk für besondere Anlässe und Familienfeste.</p>
         </div>
         <div class="gutschein-card gutschein-custom fade-in">
-          <p class="gutschein-card-label">Wunschbetrag</p>
-          <div class="gutschein-amount">Individuell</div>
-          <p class="gutschein-card-note">Teilen Sie uns Ihren Wunschbetrag mit — wir stellen den Gutschein gerne persönlich aus.</p>
+          <p class="gutschein-card-label" data-i18n="gut_custom_label">Wunschbetrag</p>
+          <div class="gutschein-amount" data-i18n="gut_custom_val">Individuell</div>
+          <p class="gutschein-card-note" data-i18n="gut_custom">Teilen Sie uns Ihren Wunschbetrag mit — wir stellen den Gutschein gerne persönlich aus.</p>
         </div>
       </div>
 
       <div class="gutschein-order-box fade-in">
-        <h3>Gutschein bestellen</h3>
-        <p>Gutscheine sind direkt im Restaurant erhältlich oder können telefonisch bzw. per E-Mail bestellt werden. Wir senden Ihnen den Gutschein auf Wunsch auch per Post zu.</p>
+        <h3 data-i18n="gut_order_title">Gutschein bestellen</h3>
+        <p data-i18n="gut_order_desc">Gutscheine sind direkt im Restaurant erhältlich oder können telefonisch bzw. per E-Mail bestellt werden. Wir senden Ihnen den Gutschein auf Wunsch auch per Post zu.</p>
         <div class="gutschein-contacts">
           <span class="gutschein-contact-item">
             📞 <a href="tel:+41717875338">+41 71 787 53 38</a>

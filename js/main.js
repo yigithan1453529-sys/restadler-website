@@ -4,6 +4,29 @@ const translations = {
     nav_start:'Startseite', nav_menu:'Speisekarte', nav_mittag:'Mittagskarte',
     nav_res:'Reservierung', nav_contact:'Kontakt', nav_team:'Team', nav_galerie:'Galerie',
     nav_events:'Events', nav_gutscheine:'Gutscheine',
+    status_open:'Geöffnet', status_closed:'Geschlossen',
+    cookie_msg:'Diese Website verwendet Cookies für einen optimalen Betrieb. Mehr dazu in unserer',
+    cookie_link:'Datenschutzerklärung',
+    cookie_accept:'Akzeptieren', cookie_decline:'Ablehnen',
+    footer_impressum:'Impressum & Datenschutz',
+    ev_page_title:'Events', ev_page_sub:'Veranstaltungen & besondere Abende',
+    ev_label:'Sonderveranstaltung', ev_title:'Freibier-Abend',
+    ev_date_month:'Juni 2026',
+    ev_time:'18:00 – 19:00 Uhr', ev_loc:'Cafe Restaurant Adler, Appenzell', ev_age:'Ab 18 Jahren',
+    ev_desc:'Wir laden herzlich zu einem besonderen Abend ein: Von 18 bis 19 Uhr gibt es Freibier — dazu servieren wir frische Pinsa und saftige Burger. Kommt vorbei, geniesst die Gemeinschaft und lasst den Abend mit uns ausklingen.',
+    ev_more:'Weitere Events folgen',
+    ev_more_desc:'Wir planen regelmässig besondere Abende und saisonale Veranstaltungen. Folgen Sie uns oder fragen Sie direkt im Restaurant nach.',
+    ev_cta_title:'Tisch für den Abend reservieren',
+    ev_cta_desc:'Planen Sie Ihren Besuch zu einem unserer Events — wir empfehlen eine frühzeitige Reservierung.',
+    gut_page_title:'Gutscheine', gut_page_sub:'Das perfekte Geschenk für jeden Anlass',
+    gut_intro:'Beschenken Sie Ihre Liebsten mit einem Erlebnis — einem Abend voller Genuss im Cafe Restaurant Adler. Unsere Gutscheine sind für alle Leistungen im Restaurant einlösbar und haben keine Verfallszeit.',
+    gut_label:'Gutschein', gut_custom_label:'Wunschbetrag', gut_custom_val:'Individuell',
+    gut_50:'Ideal für ein Mittagessen oder einen gemütlichen Kaffeebesuch.',
+    gut_100:'Perfekt für ein entspanntes Abendessen zu zweit.',
+    gut_200:'Ein grosszügiges Geschenk für besondere Anlässe und Familienfeste.',
+    gut_custom:'Teilen Sie uns Ihren Wunschbetrag mit — wir stellen den Gutschein gerne persönlich aus.',
+    gut_order_title:'Gutschein bestellen',
+    gut_order_desc:'Gutscheine sind direkt im Restaurant erhältlich oder können telefonisch bzw. per E-Mail bestellt werden. Wir senden Ihnen den Gutschein auf Wunsch auch per Post zu.',
     day_mon:'Montag', day_tue:'Dienstag', day_wed:'Mittwoch',
     day_thu:'Donnerstag', day_fri:'Freitag', day_sat:'Samstag', day_sun:'Sonntag',
     closed:'Geschlossen', morning_hrs:'Morgens – 22:00 Uhr',
@@ -121,6 +144,29 @@ const translations = {
     nav_start:'Accueil', nav_menu:'Menu', nav_mittag:'Carte du Midi',
     nav_res:'Réservation', nav_contact:'Contact', nav_team:'Équipe', nav_galerie:'Galerie',
     nav_events:'Événements', nav_gutscheine:'Bons cadeaux',
+    status_open:'Ouvert', status_closed:'Fermé',
+    cookie_msg:'Ce site utilise des cookies pour un fonctionnement optimal. Plus de détails dans notre',
+    cookie_link:'politique de confidentialité',
+    cookie_accept:'Accepter', cookie_decline:'Refuser',
+    footer_impressum:'Mentions légales & confidentialité',
+    ev_page_title:'Événements', ev_page_sub:'Soirées spéciales & événements',
+    ev_label:'Événement spécial', ev_title:'Soirée bière offerte',
+    ev_date_month:'Juin 2026',
+    ev_time:'18:00 – 19:00', ev_loc:'Café Restaurant Adler, Appenzell', ev_age:'Dès 18 ans',
+    ev_desc:"Nous vous invitons chaleureusement à une soirée spéciale : de 18h à 19h, la bière est offerte — nous servons également des pinsas fraîches et des burgers juteux. Venez profiter de la convivialité et terminez la soirée avec nous.",
+    ev_more:"D'autres événements à venir",
+    ev_more_desc:"Nous organisons régulièrement des soirées spéciales et des événements saisonniers. Suivez-nous ou renseignez-vous directement au restaurant.",
+    ev_cta_title:'Réserver une table pour la soirée',
+    ev_cta_desc:"Planifiez votre visite à l'occasion d'un de nos événements — nous recommandons de réserver à l'avance.",
+    gut_page_title:'Bons cadeaux', gut_page_sub:'Le cadeau parfait pour toutes les occasions',
+    gut_intro:"Offrez à vos proches une expérience — une soirée de plaisir au Café Restaurant Adler. Nos bons cadeaux sont échangeables pour toutes les prestations du restaurant et n'ont pas de date d'expiration.",
+    gut_label:'Bon cadeau', gut_custom_label:'Montant libre', gut_custom_val:'Individuel',
+    gut_50:'Idéal pour un déjeuner ou une agréable pause café.',
+    gut_100:'Parfait pour un dîner détendu en amoureux.',
+    gut_200:'Un cadeau généreux pour des occasions spéciales et des fêtes en famille.',
+    gut_custom:"Communiquez-nous votre montant souhaité — nous établissons volontiers le bon personnellement.",
+    gut_order_title:'Commander un bon cadeau',
+    gut_order_desc:"Les bons cadeaux sont disponibles directement au restaurant ou peuvent être commandés par téléphone ou e-mail. Sur demande, nous vous envoyons le bon par courrier.",
     day_mon:'Lundi', day_tue:'Mardi', day_wed:'Mercredi',
     day_thu:'Jeudi', day_fri:'Vendredi', day_sat:'Samedi', day_sun:'Dimanche',
     closed:'Fermé', morning_hrs:'Matin – 22:00',
@@ -238,6 +284,29 @@ const translations = {
     nav_start:'Home', nav_menu:'Menu', nav_mittag:'Lunch Menu',
     nav_res:'Reservation', nav_contact:'Contact', nav_team:'Team', nav_galerie:'Gallery',
     nav_events:'Events', nav_gutscheine:'Vouchers',
+    status_open:'Open', status_closed:'Closed',
+    cookie_msg:'This website uses cookies for optimal operation. Learn more in our',
+    cookie_link:'privacy policy',
+    cookie_accept:'Accept', cookie_decline:'Decline',
+    footer_impressum:'Legal notice & privacy',
+    ev_page_title:'Events', ev_page_sub:'Special evenings & events',
+    ev_label:'Special event', ev_title:'Free beer evening',
+    ev_date_month:'June 2026',
+    ev_time:'6:00 PM – 7:00 PM', ev_loc:'Cafe Restaurant Adler, Appenzell', ev_age:'18+ only',
+    ev_desc:"We warmly invite you to a special evening: from 6 to 7 PM, beer is on us — we'll also be serving fresh pinsa and juicy burgers. Come along, enjoy the community and end the evening with us.",
+    ev_more:'More events to come',
+    ev_more_desc:'We regularly plan special evenings and seasonal events. Follow us or ask directly at the restaurant.',
+    ev_cta_title:'Reserve a table for the evening',
+    ev_cta_desc:'Plan your visit for one of our events — we recommend booking in advance.',
+    gut_page_title:'Vouchers', gut_page_sub:'The perfect gift for every occasion',
+    gut_intro:"Treat your loved ones to an experience — an evening of pleasure at Cafe Restaurant Adler. Our vouchers are redeemable for all restaurant services and have no expiry date.",
+    gut_label:'Voucher', gut_custom_label:'Custom amount', gut_custom_val:'Individual',
+    gut_50:'Ideal for a lunch or a relaxed coffee visit.',
+    gut_100:'Perfect for a relaxed dinner for two.',
+    gut_200:'A generous gift for special occasions and family celebrations.',
+    gut_custom:'Let us know your desired amount — we are happy to issue the voucher personally.',
+    gut_order_title:'Order a voucher',
+    gut_order_desc:'Vouchers are available directly at the restaurant or can be ordered by phone or email. We can also send the voucher by post on request.',
     day_mon:'Monday', day_tue:'Tuesday', day_wed:'Wednesday',
     day_thu:'Thursday', day_fri:'Friday', day_sat:'Saturday', day_sun:'Sunday',
     closed:'Closed', morning_hrs:'Morning – 22:00',
@@ -387,6 +456,15 @@ function setLang(lang) {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
   });
 
+  // Update open-status badge text
+  var openBadge = document.querySelector('.open-status');
+  if (openBadge) {
+    var openTextEl = openBadge.querySelector('.open-status-text');
+    if (openTextEl) {
+      openTextEl.textContent = openBadge.classList.contains('is-open') ? t.status_open : t.status_closed;
+    }
+  }
+
   if (window.mkRender) window.mkRender();
 }
 
@@ -437,13 +515,26 @@ function setLang(lang) {
   function injectFooterLinks() {
     var footer = document.querySelector('.footer');
     if (!footer || footer.querySelector('.footer-links')) return;
+    var lang = localStorage.getItem('lang') || 'de';
+    var tr = translations[lang] || translations['de'];
     var divider = footer.querySelector('.footer-divider');
     var linksDiv = document.createElement('div');
     linksDiv.className = 'footer-links';
-    linksDiv.innerHTML =
-      '<a href="impressum.html">Impressum & Datenschutz</a>' +
-      '<a href="events.html">Events</a>' +
-      '<a href="gutscheine.html">Gutscheine</a>';
+    var a1 = document.createElement('a');
+    a1.href = 'impressum.html';
+    a1.setAttribute('data-i18n', 'footer_impressum');
+    a1.textContent = tr.footer_impressum;
+    var a2 = document.createElement('a');
+    a2.href = 'events.html';
+    a2.setAttribute('data-i18n', 'nav_events');
+    a2.textContent = tr.nav_events;
+    var a3 = document.createElement('a');
+    a3.href = 'gutscheine.html';
+    a3.setAttribute('data-i18n', 'nav_gutscheine');
+    a3.textContent = tr.nav_gutscheine;
+    linksDiv.appendChild(a1);
+    linksDiv.appendChild(a2);
+    linksDiv.appendChild(a3);
     if (divider) footer.insertBefore(linksDiv, divider);
     else footer.appendChild(linksDiv);
   }
@@ -458,11 +549,13 @@ function setLang(lang) {
     if (day === 1) open = false;
     else if (day === 2) open = t >= 810 && t < 1320;
     else open = t >= 480 && t < 1320;
+    var lang = localStorage.getItem('lang') || 'de';
+    var tr = translations[lang] || translations['de'];
     var badge = document.createElement('span');
     badge.className = 'open-status ' + (open ? 'is-open' : 'is-closed');
     badge.innerHTML =
       '<span class="open-status-dot"></span>' +
-      '<span>' + (open ? 'Geöffnet' : 'Geschlossen') + '</span>';
+      '<span class="open-status-text">' + (open ? tr.status_open : tr.status_closed) + '</span>';
     var logoSpan = navLogo.querySelector('span');
     if (logoSpan) logoSpan.appendChild(badge);
     else navLogo.appendChild(badge);
@@ -470,13 +563,15 @@ function setLang(lang) {
 
   function injectCookieBanner() {
     if (localStorage.getItem('adler_cookie')) return;
+    var lang = localStorage.getItem('lang') || 'de';
+    var tr = translations[lang] || translations['de'];
     var banner = document.createElement('div');
     banner.className = 'cookie-banner';
     banner.innerHTML =
-      '<p class="cookie-banner-text">Diese Website verwendet Cookies und ähnliche Technologien für einen optimalen Betrieb. Mehr dazu in unserer <a href="impressum.html">Datenschutzerklärung</a>.</p>' +
+      '<p class="cookie-banner-text">' + tr.cookie_msg + ' <a href="impressum.html">' + tr.cookie_link + '</a>.</p>' +
       '<div class="cookie-banner-btns">' +
-        '<button class="cookie-decline" onclick="cookieDecline()">Ablehnen</button>' +
-        '<button class="cookie-accept" onclick="cookieAccept()">Akzeptieren</button>' +
+        '<button class="cookie-decline" onclick="cookieDecline()">' + tr.cookie_decline + '</button>' +
+        '<button class="cookie-accept" onclick="cookieAccept()">' + tr.cookie_accept + '</button>' +
       '</div>';
     document.body.appendChild(banner);
     setTimeout(function () { banner.classList.add('cb-visible'); }, 400);
@@ -500,6 +595,7 @@ function setLang(lang) {
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    window.currentLang = window.currentLang || localStorage.getItem('lang') || 'de';
     injectNavExtras();
     injectFooterLinks();
     injectOpenStatus();
