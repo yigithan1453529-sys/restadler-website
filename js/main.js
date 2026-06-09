@@ -3,6 +3,7 @@ const translations = {
   de: {
     nav_start:'Startseite', nav_menu:'Speisekarte', nav_mittag:'Mittagskarte',
     nav_res:'Reservierung', nav_contact:'Kontakt', nav_team:'Team', nav_galerie:'Galerie',
+    nav_events:'Events', nav_gutscheine:'Gutscheine',
     day_mon:'Montag', day_tue:'Dienstag', day_wed:'Mittwoch',
     day_thu:'Donnerstag', day_fri:'Freitag', day_sat:'Samstag', day_sun:'Sonntag',
     closed:'Geschlossen', morning_hrs:'Morgens – 22:00 Uhr',
@@ -119,6 +120,7 @@ const translations = {
   fr: {
     nav_start:'Accueil', nav_menu:'Menu', nav_mittag:'Carte du Midi',
     nav_res:'Réservation', nav_contact:'Contact', nav_team:'Équipe', nav_galerie:'Galerie',
+    nav_events:'Événements', nav_gutscheine:'Bons cadeaux',
     day_mon:'Lundi', day_tue:'Mardi', day_wed:'Mercredi',
     day_thu:'Jeudi', day_fri:'Vendredi', day_sat:'Samedi', day_sun:'Dimanche',
     closed:'Fermé', morning_hrs:'Matin – 22:00',
@@ -235,6 +237,7 @@ const translations = {
   en: {
     nav_start:'Home', nav_menu:'Menu', nav_mittag:'Lunch Menu',
     nav_res:'Reservation', nav_contact:'Contact', nav_team:'Team', nav_galerie:'Gallery',
+    nav_events:'Events', nav_gutscheine:'Vouchers',
     day_mon:'Monday', day_tue:'Tuesday', day_wed:'Wednesday',
     day_thu:'Thursday', day_fri:'Friday', day_sat:'Saturday', day_sun:'Sunday',
     closed:'Closed', morning_hrs:'Morning – 22:00',
@@ -386,6 +389,115 @@ function setLang(lang) {
 
   if (window.mkRender) window.mkRender();
 }
+
+// ─── Nav / Footer / Open-Status / Cookie injection
+(function () {
+  var NAV_EXTRAS = [
+    { href: 'events.html',     key: 'nav_events',     de: 'Events',      fr: 'Événements', en: 'Events' },
+    { href: 'gutscheine.html', key: 'nav_gutscheine', de: 'Gutscheine',  fr: 'Bons cadeaux', en: 'Vouchers' }
+  ];
+
+  function injectNavExtras() {
+    var currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+    var navLinks = document.querySelector('.nav-links');
+    if (navLinks) {
+      NAV_EXTRAS.forEach(function (item) {
+        if (navLinks.querySelector('a[href="' + item.href + '"]')) return;
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = item.href;
+        a.setAttribute('data-i18n', item.key);
+        a.textContent = item.de;
+        if (currentPage === item.href) a.classList.add('active');
+        li.appendChild(a);
+        navLinks.appendChild(li);
+      });
+    }
+
+    var mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu) {
+      NAV_EXTRAS.forEach(function (item) {
+        if (mobileMenu.querySelector('a[href="' + item.href + '"]')) return;
+        var a = document.createElement('a');
+        a.href = item.href;
+        a.setAttribute('data-i18n', item.key);
+        a.textContent = item.de;
+        a.addEventListener('click', function () {
+          var bburger = document.getElementById('burger');
+          var menu = document.getElementById('mobileMenu');
+          if (bburger) bburger.classList.remove('open');
+          if (menu) menu.classList.remove('open');
+        });
+        mobileMenu.appendChild(a);
+      });
+    }
+  }
+
+  function injectFooterLinks() {
+    var footer = document.querySelector('.footer');
+    if (!footer || footer.querySelector('.footer-links')) return;
+    var divider = footer.querySelector('.footer-divider');
+    var linksDiv = document.createElement('div');
+    linksDiv.className = 'footer-links';
+    linksDiv.innerHTML =
+      '<a href="impressum.html">Impressum & Datenschutz</a>' +
+      '<a href="events.html">Events</a>' +
+      '<a href="gutscheine.html">Gutscheine</a>';
+    if (divider) footer.insertBefore(linksDiv, divider);
+    else footer.appendChild(linksDiv);
+  }
+
+  function injectOpenStatus() {
+    var navLogo = document.querySelector('.nav-logo');
+    if (!navLogo || navLogo.querySelector('.open-status')) return;
+    var now = new Date();
+    var day = now.getDay();
+    var t = now.getHours() * 60 + now.getMinutes();
+    var open = false;
+    if (day === 1) open = false;
+    else if (day === 2) open = t >= 810 && t < 1320;
+    else open = t >= 480 && t < 1320;
+    var badge = document.createElement('span');
+    badge.className = 'open-status ' + (open ? 'is-open' : 'is-closed');
+    badge.innerHTML =
+      '<span class="open-status-dot"></span>' +
+      '<span>' + (open ? 'Geöffnet' : 'Geschlossen') + '</span>';
+    navLogo.appendChild(badge);
+  }
+
+  function injectCookieBanner() {
+    if (localStorage.getItem('adler_cookie')) return;
+    var banner = document.createElement('div');
+    banner.className = 'cookie-banner';
+    banner.innerHTML =
+      '<p class="cookie-banner-text">Diese Website verwendet Cookies und ähnliche Technologien für einen optimalen Betrieb. Mehr dazu in unserer <a href="impressum.html">Datenschutzerklärung</a>.</p>' +
+      '<div class="cookie-banner-btns">' +
+        '<button class="cookie-decline" onclick="cookieDecline()">Ablehnen</button>' +
+        '<button class="cookie-accept" onclick="cookieAccept()">Akzeptieren</button>' +
+      '</div>';
+    document.body.appendChild(banner);
+    setTimeout(function () { banner.classList.add('cb-visible'); }, 400);
+  }
+
+  window.cookieAccept = function () {
+    localStorage.setItem('adler_cookie', '1');
+    var b = document.querySelector('.cookie-banner');
+    if (b) { b.classList.remove('cb-visible'); setTimeout(function () { b.remove(); }, 420); }
+  };
+  window.cookieDecline = function () {
+    localStorage.setItem('adler_cookie', '0');
+    var b = document.querySelector('.cookie-banner');
+    if (b) { b.classList.remove('cb-visible'); setTimeout(function () { b.remove(); }, 420); }
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    injectNavExtras();
+    injectFooterLinks();
+    injectOpenStatus();
+    injectCookieBanner();
+  });
+})();
 
 document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('lang') || 'de';

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gutscheine · Cafe Restaurant Adler Appenzell</title>
+  <meta name="description" content="Gutscheine als Geschenkidee — Cafe Restaurant Adler Appenzell. Erhältlich in verschiedenen Werten.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        Cafe Restaurant Adler
+        <span>Appenzell · Seit 1825</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Startseite</a></li>
+        <li><a href="speisekarte.html">Speisekarte</a></li>
+        <li><a href="mittagskarte.html">Mittagskarte</a></li>
+        <li><a href="reservierung.html">Reservierung</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="galerie.html">Galerie</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="gutscheine.html" class="active">Gutscheine</a></li>
+      </ul>
+      <div class="nav-burger" id="burger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="nav-mobile" id="mobileMenu">
+      <a href="index.html">Startseite</a>
+      <a href="speisekarte.html">Speisekarte</a>
+      <a href="mittagskarte.html">Mittagskarte</a>
+      <a href="reservierung.html">Reservierung</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="team.html">Team</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="events.html">Events</a>
+      <a href="gutscheine.html">Gutscheine</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <p class="ornament">✦ ✦ ✦</p>
+    <h1 style="margin: 1rem 0 0.5rem;">Gutscheine</h1>
+    <p style="font-size:0.85rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--cream-muted);">Das perfekte Geschenk für jeden Anlass</p>
+    <div class="divider-gold"></div>
+  </div>
+
+  <section class="section" style="padding-top: 2rem;">
+    <div class="section-inner" style="max-width: 900px;">
+
+      <div style="text-align:center; max-width:580px; margin:0 auto 1rem;">
+        <p>Beschenken Sie Ihre Liebsten mit einem Erlebnis — einem Abend voller Genuss im Cafe Restaurant Adler. Unsere Gutscheine sind für alle Leistungen im Restaurant einlösbar und haben keine Verfallszeit.</p>
+      </div>
+
+      <div class="gutschein-grid">
+        <div class="gutschein-card fade-in">
+          <p class="gutschein-card-label">Gutschein</p>
+          <div class="gutschein-amount">CHF 50</div>
+          <p class="gutschein-card-note">Ideal für ein Mittagessen oder einen gemütlichen Kaffeebesuch.</p>
+        </div>
+        <div class="gutschein-card fade-in">
+          <p class="gutschein-card-label">Gutschein</p>
+          <div class="gutschein-amount">CHF 100</div>
+          <p class="gutschein-card-note">Perfekt für ein entspanntes Abendessen zu zweit.</p>
+        </div>
+        <div class="gutschein-card fade-in">
+          <p class="gutschein-card-label">Gutschein</p>
+          <div class="gutschein-amount">CHF 200</div>
+          <p class="gutschein-card-note">Ein grosszügiges Geschenk für besondere Anlässe und Familienfeste.</p>
+        </div>
+        <div class="gutschein-card gutschein-custom fade-in">
+          <p class="gutschein-card-label">Wunschbetrag</p>
+          <div class="gutschein-amount">Individuell</div>
+          <p class="gutschein-card-note">Teilen Sie uns Ihren Wunschbetrag mit — wir stellen den Gutschein gerne persönlich aus.</p>
+        </div>
+      </div>
+
+      <div class="gutschein-order-box fade-in">
+        <h3>Gutschein bestellen</h3>
+        <p>Gutscheine sind direkt im Restaurant erhältlich oder können telefonisch bzw. per E-Mail bestellt werden. Wir senden Ihnen den Gutschein auf Wunsch auch per Post zu.</p>
+        <div class="gutschein-contacts">
+          <span class="gutschein-contact-item">
+            📞 <a href="tel:+41717875338">+41 71 787 53 38</a>
+          </span>
+          <span class="gutschein-contact-item">
+            ✉️ <a href="mailto:info@adlerappenzell.ch">info@adlerappenzell.ch</a>
+          </span>
+          <span class="gutschein-contact-item">
+            📍 Weissbadstrasse 2, 9050 Appenzell
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo">Cafe Restaurant Adler</div>
+    <div class="footer-sub">Appenzell · Seit 1825</div>
+    <div class="footer-divider"></div>
+  </footer>
+
+  <button class="like-btn" id="likeBtn" onclick="toggleLike()" title="Gefällt mir">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+    <span class="like-count" id="likeCount">247</span>
+  </button>
+  <a href="tel:+41717875338" class="call-btn" title="Anrufen">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+  </a>
+
+  <script src="js/main.js"></script>
+  <script src="js/chatbot.js"></script>
+</body>
+</html>
