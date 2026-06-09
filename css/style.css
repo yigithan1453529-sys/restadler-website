@@ -1287,7 +1287,39 @@ a:hover { color: var(--gold-light); }
   margin-top: 0.5rem;
 }
 
-/* ─── Mittagskarte Hero Overlay ─── */
+/* ─── Freibier Hero Overlay ─── */
+.fb-hero-overlay {
+  position: absolute;
+  z-index: 3;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 520px;
+  text-align: center;
+  background: rgba(12, 8, 2, 0.74);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 28px 32px 22px;
+  overflow: hidden;
+}
+.fb-hero-overlay .fb-frame {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(200,146,42,.28);
+}
+.fb-hero-overlay .fb-corner { width: 22px; height: 22px; }
+.fb-hero-overlay .fb-corner svg { width: 22px; height: 22px; }
+.fb-hero-overlay .fb-c-tl { top: 4px; left: 4px; }
+.fb-hero-overlay .fb-c-tr { top: 4px; right: 4px; }
+.fb-hero-overlay .fb-c-bl { bottom: 4px; left: 4px; }
+.fb-hero-overlay .fb-c-br { bottom: 4px; right: 4px; }
+@media (max-width: 600px) {
+  .fb-hero-overlay { top: 44%; padding: 20px 18px 16px; }
+  .fb-hero-overlay .fb-info-block .fb-cell-value { font-size: 17px !important; }
+}
+
+/* ─── Mittagskarte Hero Overlay (legacy) ─── */
 .mk-hero-overlay {
   position: absolute;
   z-index: 3;
