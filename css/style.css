@@ -1291,7 +1291,7 @@ a:hover { color: var(--gold-light); }
 .fb-hero-overlay {
   position: absolute;
   z-index: 3;
-  top: 46%;
+  top: 42%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%;
