@@ -160,44 +160,65 @@
 
       <div class="galerie-grid" id="galerieGrid">
 
-        <!-- Vorhandene Bilder -->
         <div class="galerie-item fade-in" onclick="openLightbox(0)">
-          <img src="hero-restaurant.jpg" alt="Cafe Restaurant Adler Appenzell">
+          <img src="hero-restaurant.jpg" alt="Cafe Restaurant Adler Appenzell" loading="lazy">
           <div class="galerie-item-overlay"><span>+</span></div>
         </div>
-
         <div class="galerie-item fade-in" onclick="openLightbox(1)">
-          <img src="hero-appenzell.jpg" alt="Alpabfahrt Appenzell">
+          <img src="hero-appenzell.jpg" alt="Alpabfahrt Appenzell" loading="lazy">
           <div class="galerie-item-overlay"><span>+</span></div>
         </div>
-
-        <!-- Platzhalter für weitere Fotos -->
-        <div class="galerie-item fade-in">
-          <div class="galerie-placeholder">
-            <span>📷</span>
-            Foto hinzufügen
-          </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(2)">
+          <img src="galerie-01.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
         </div>
-
-        <div class="galerie-item fade-in">
-          <div class="galerie-placeholder">
-            <span>📷</span>
-            Foto hinzufügen
-          </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(3)">
+          <img src="galerie-02.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
         </div>
-
-        <div class="galerie-item fade-in">
-          <div class="galerie-placeholder">
-            <span>📷</span>
-            Foto hinzufügen
-          </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(4)">
+          <img src="galerie-03.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
         </div>
-
-        <div class="galerie-item fade-in">
-          <div class="galerie-placeholder">
-            <span>📷</span>
-            Foto hinzufügen
-          </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(5)">
+          <img src="galerie-04.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(6)">
+          <img src="galerie-05.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(7)">
+          <img src="galerie-06.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(8)">
+          <img src="galerie-07.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(9)">
+          <img src="galerie-08.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(10)">
+          <img src="galerie-09.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(11)">
+          <img src="galerie-10.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(12)">
+          <img src="galerie-11.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(13)">
+          <img src="galerie-12.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
+        </div>
+        <div class="galerie-item fade-in" onclick="openLightbox(14)">
+          <img src="galerie-13.jpg" alt="Cafe Restaurant Adler" loading="lazy">
+          <div class="galerie-item-overlay"><span>+</span></div>
         </div>
 
       </div>
@@ -232,6 +253,19 @@
     const images = [
       { src: 'hero-restaurant.jpg', alt: 'Cafe Restaurant Adler Appenzell' },
       { src: 'hero-appenzell.jpg',  alt: 'Alpabfahrt Appenzell' },
+      { src: 'galerie-01.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-02.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-03.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-04.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-05.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-06.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-07.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-08.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-09.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-10.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-11.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-12.jpg',  alt: 'Cafe Restaurant Adler' },
+      { src: 'galerie-13.jpg',  alt: 'Cafe Restaurant Adler' },
     ];
     let current = 0;
 
