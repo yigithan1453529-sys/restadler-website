@@ -59,19 +59,32 @@
   </div>
 
   <!-- Hero Fullscreen -->
-  <section class="hero-full">
+  <section class="hero-full hero-full--mk">
     <img src="hero-restaurant.jpg" alt="Cafe Restaurant Adler Appenzell" class="hero-full-img">
     <div class="hero-full-overlay"></div>
 
-    <!-- hidden mk elements so JS doesn't error -->
-    <span id="mk-week-badge" style="display:none;"></span>
-    <div id="mk-slideshow" style="display:none;"></div>
-    <div id="mk-dots" style="display:none;"></div>
+    <!-- Mittagskarte Panel -->
+    <div class="hero-mk-panel">
+      <div class="hero-mk-head">
+        <span class="hero-mk-label">Mittagskarte</span>
+        <span id="mk-week-badge" class="hero-mk-kw"></span>
+      </div>
+      <div class="hero-mk-rule"></div>
+      <div id="mk-slideshow" class="hero-mk-body"></div>
+      <div class="hero-mk-foot">
+        <div id="mk-dots" class="hero-mk-dots-row"></div>
+        <div class="hero-mk-arrows">
+          <button class="hero-mk-arr" onclick="mkSlidePrev()">‹</button>
+          <button class="hero-mk-arr" onclick="mkSlideNext()">›</button>
+        </div>
+      </div>
+      <a href="mittagskarte.html" class="hero-mk-link-bar">Vollständige Mittagskarte →</a>
+    </div>
 
-    <!-- Titel unten -->
+    <!-- Titel unten links -->
     <div class="hero-full-content">
       <h1 class="hero-full-title">Cafe Restaurant<br><em>Adler</em></h1>
-      <div class="divider-gold"></div>
+      <div class="divider-gold left"></div>
       <p class="hero-full-sub" data-i18n="hero_sub">Frisch zubereitet · Regionale Zutaten · Mit Leidenschaft gekocht</p>
       <div class="hero-cta">
         <a href="reservierung.html" class="btn btn-gold" data-i18n="hero_btn_res">Tisch reservieren</a>

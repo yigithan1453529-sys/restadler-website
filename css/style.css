@@ -289,6 +289,187 @@ a:hover { color: var(--gold-light); }
 }
 .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
+/* ─── Hero split layout (with Mittagskarte panel) ─── */
+.hero-full--mk {
+  justify-content: flex-start;
+}
+.hero-full--mk .hero-full-content {
+  text-align: left;
+  padding: 0 2rem 4.5rem 5%;
+  max-width: 52%;
+}
+.hero-full--mk .hero-cta {
+  justify-content: flex-start;
+}
+
+/* ─── Hero Mittagskarte Panel ─── */
+.hero-mk-panel {
+  position: absolute;
+  right: 4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 296px;
+  background: rgba(8, 6, 2, 0.80);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 2px solid var(--gold);
+  border-left: 1px solid rgba(201, 165, 90, 0.22);
+  border-right: 1px solid rgba(201, 165, 90, 0.22);
+  border-bottom: 1px solid rgba(201, 165, 90, 0.22);
+  overflow: hidden;
+}
+.hero-mk-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem 0.8rem;
+}
+.hero-mk-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+}
+.hero-mk-kw {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  color: var(--cream-muted);
+}
+.hero-mk-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,165,90,0.4) 20%, rgba(201,165,90,0.4) 80%, transparent);
+  margin: 0 1.5rem;
+}
+.hero-mk-body {
+  min-height: 158px;
+  padding: 1.2rem 1.5rem 0.75rem;
+}
+.hero-mk-panel .mk-slide {
+  background: none;
+  border: none;
+  padding: 0;
+  gap: 0.5rem;
+  animation: mkFadeIn 0.4s ease forwards;
+}
+.hero-mk-panel .mk-slide-cat {
+  font-size: 0.57rem;
+  letter-spacing: 0.24em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+.hero-mk-panel .mk-slide-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.12rem;
+  line-height: 1.25;
+  color: var(--cream);
+}
+.hero-mk-panel .mk-slide-beilage {
+  font-size: 0.77rem;
+  color: rgba(184,178,164,0.72);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hero-mk-panel .mk-slide-price {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--gold);
+  padding: 0;
+  border: none;
+  background: none;
+  margin-top: 0.4rem;
+}
+.hero-mk-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 1.5rem 0.6rem;
+  border-top: 1px solid rgba(201,165,90,0.12);
+}
+.hero-mk-dots-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.hero-mk-panel .mk-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(201,165,90,0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+.hero-mk-panel .mk-dot.active {
+  background: var(--gold);
+  transform: scale(1.5);
+}
+.hero-mk-arrows {
+  display: flex;
+  gap: 5px;
+}
+.hero-mk-arr {
+  background: none;
+  border: 1px solid rgba(201,165,90,0.3);
+  color: rgba(201,165,90,0.8);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.hero-mk-arr:hover {
+  background: rgba(201,165,90,0.12);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.hero-mk-link-bar {
+  display: block;
+  text-align: center;
+  padding: 0.6rem 1.5rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(201,165,90,0.65);
+  text-decoration: none;
+  background: rgba(201,165,90,0.04);
+  border-top: 1px solid rgba(201,165,90,0.12);
+  transition: color 0.2s, background 0.2s;
+}
+.hero-mk-link-bar:hover {
+  color: var(--gold);
+  background: rgba(201,165,90,0.09);
+}
+
+@media (max-width: 1060px) {
+  .hero-mk-panel { display: none; }
+  .hero-full--mk { justify-content: center; }
+  .hero-full--mk .hero-full-content {
+    text-align: center;
+    padding: 0 1.25rem 3.5rem;
+    max-width: 750px;
+  }
+  .hero-full--mk .hero-cta { justify-content: center; }
+  .hero-full--mk .divider-gold.left { margin: 1.5rem auto; }
+}
+
 /* ─── Buttons ─── */
 .btn {
   display: inline-block;
