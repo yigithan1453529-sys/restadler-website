@@ -1,7 +1,7 @@
 {
-  "kw": "23",
-  "von_display": "2. Juni",
-  "bis_display": "7. Juni 2026",
+  "kw": "25",
+  "von_display": "10. Juni",
+  "bis_display": "16. Juni 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,9 +13,9 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Kartoffellauchsuppe", "name_en": "Potato Leek Soup", "allergene": "A, C, G" },
-        { "tag": "Do", "name_de": "Broccolisuppe", "name_en": "Broccoli Soup", "allergene": "A, G" },
-        { "tag": "Fr", "name_de": "Randensuppe", "name_en": "Beetroot Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Rindsbouillon", "name_en": "Beef Broth", "allergene": "A, C, G" },
+        { "tag": "Do", "name_de": "Gemüsesuppe", "name_en": "Vegetable Soup", "allergene": "A, G" },
+        { "tag": "Fr", "name_de": "Tomatensuppe", "name_en": "Tomato Soup", "allergene": "G" }
       ]
     },
     {
@@ -26,19 +26,11 @@
       "icon": "🥩",
       "gerichte": [
         {
-          "name_de": "Fleischvogel an kräftigem Jussauce",
-          "name_en": "Beef Roulade in Rich Jus",
-          "beilage_de": "Serviert mit Kartoffelstock und Saisonalem Gemüse",
-          "beilage_en": "Served with Mashed Potatoes and Seasonal Vegetables",
-          "allergene": "A, G, J",
-          "preis": "22.50"
-        },
-        {
-          "name_de": "Schweinssteak mit Kräuterbutter",
-          "name_en": "Pork Steak with Herb Butter",
-          "beilage_de": "Serviert mit Basmatireis und Saisonalem Gemüse",
-          "beilage_en": "Served with Basmati Rice and Seasonal Vegetables",
-          "allergene": "G, J",
+          "name_de": "Rindswürfeli an Paprikarahmsauce",
+          "name_en": "Beef Tips in Paprika Cream Sauce",
+          "beilage_de": "Serviert mit Tagliatelle und Saisonalem Gemüse",
+          "beilage_en": "Served with Tagliatelle and Seasonal Vegetables",
+          "allergene": "A, C, G, J",
           "preis": "23.50"
         }
       ]
@@ -51,12 +43,12 @@
       "icon": "🐟",
       "gerichte": [
         {
-          "name_de": "Fisch Knusperli",
-          "name_en": "Crispy Fish Strips",
-          "beilage_de": "Knusprig frittierte Fischstreifen mit Pommes frites, Sauce Tartar und Zitrone",
-          "beilage_en": "Served with French Fries, Tartar Sauce and Lemon",
-          "allergene": "A, C, D, J",
-          "preis": "19.50"
+          "name_de": "Forellefilet an Kräuterrahmsauce",
+          "name_en": "Trout Fillet in Herb Cream Sauce",
+          "beilage_de": "Serviert mit Raclette Kartoffeln und gebratenen Cherrytomaten",
+          "beilage_en": "Served with Raclette Potatoes and sautéed Cherry Tomatoes",
+          "allergene": "A, C, D, G",
+          "preis": "24.50"
         }
       ]
     },
@@ -86,13 +78,13 @@
           "preis": "18.50"
         },
         {
-          "name_de": "Vegi Burger",
-          "name_en": "Veggie Burger",
-          "beilage_de": "Plant-based Patty, Haussauce, Guacamole, Tomate, Zwiebeln, Röstzwiebeln, Gewürzgurken und Salat",
-          "beilage_en": "Plant-based Patty, House Sauce, Guacamole, Tomato, Onions, Crispy Onions, Pickles and Salad",
-          "allergene": "A, F, J",
+          "name_de": "Weisswein Risotto mit Mascarpone",
+          "name_en": "White Wine Risotto with Mascarpone",
+          "beilage_de": "An Kräuterrahmsauce",
+          "beilage_en": "In Herb Cream Sauce",
+          "allergene": "A, G",
           "vegi": true,
-          "preis": "20.50"
+          "preis": "19.50"
         }
       ]
     },
