@@ -463,7 +463,9 @@ function setLang(lang) {
     badge.innerHTML =
       '<span class="open-status-dot"></span>' +
       '<span>' + (open ? 'Geöffnet' : 'Geschlossen') + '</span>';
-    navLogo.appendChild(badge);
+    var logoSpan = navLogo.querySelector('span');
+    if (logoSpan) logoSpan.appendChild(badge);
+    else navLogo.appendChild(badge);
   }
 
   function injectCookieBanner() {
