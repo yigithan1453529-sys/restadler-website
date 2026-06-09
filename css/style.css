@@ -290,25 +290,15 @@ a:hover { color: var(--gold-light); }
 .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
 /* ─── Hero split layout (with Mittagskarte panel) ─── */
-.hero-full--mk {
-  justify-content: center;
-  padding-right: 336px;
-}
-.hero-full--mk .hero-full-content {
-  text-align: left;
-  padding: 0 2rem 4.5rem 2rem;
-  max-width: 480px;
-}
-.hero-full--mk .hero-cta {
-  justify-content: flex-start;
-}
+/* Title stays centered — only the panel is repositioned */
 
 /* ─── Hero Mittagskarte Panel ─── */
 .hero-mk-panel {
   position: absolute;
-  right: 4rem;
+  left: 50%;
+  right: auto;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   z-index: 3;
   width: 296px;
   background: rgba(8, 6, 2, 0.80);
@@ -460,15 +450,8 @@ a:hover { color: var(--gold-light); }
 }
 
 @media (max-width: 1060px) {
-  /* Reset desktop split layout */
-  .hero-full--mk { justify-content: center; padding-right: 0; }
-  .hero-full--mk .hero-full-content {
-    text-align: center;
-    padding: 0 1.25rem 6rem;
-    max-width: 750px;
-  }
-  .hero-full--mk .hero-cta { justify-content: center; }
-  .hero-full--mk .divider-gold.left { margin: 1.5rem auto; }
+  /* Mobile: hero content needs extra bottom padding for the strip */
+  .hero-full--mk .hero-full-content { padding-bottom: 6rem; }
 
   /* Mobile: compact strip at bottom of hero */
   .hero-mk-panel {
