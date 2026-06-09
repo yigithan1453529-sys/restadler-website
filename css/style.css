@@ -290,7 +290,20 @@ a:hover { color: var(--gold-light); }
 .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
 /* ─── Hero split layout (with Mittagskarte panel) ─── */
-/* Title stays centered — only the panel is repositioned */
+.hero-full--mk {
+  justify-content: flex-start;
+}
+.hero-full--mk .hero-full-content {
+  text-align: left;
+  padding: 0 2rem 4.5rem 5%;
+  max-width: 52%;
+}
+.hero-full--mk .hero-cta {
+  justify-content: flex-start;
+}
+.hero-full--mk .divider-gold {
+  margin: 1.5rem 0;
+}
 
 /* ─── Hero Mittagskarte Panel ─── */
 .hero-mk-panel {
@@ -450,8 +463,15 @@ a:hover { color: var(--gold-light); }
 }
 
 @media (max-width: 1060px) {
-  /* Mobile: hero content needs extra bottom padding for the strip */
-  .hero-full--mk .hero-full-content { padding-bottom: 6rem; }
+  /* Mobile: revert to centered title */
+  .hero-full--mk { justify-content: center; }
+  .hero-full--mk .hero-full-content {
+    text-align: center;
+    padding: 0 1.25rem 6rem;
+    max-width: 750px;
+  }
+  .hero-full--mk .hero-cta { justify-content: center; }
+  .hero-full--mk .divider-gold { margin: 1.5rem auto; }
 
   /* Mobile: compact strip at bottom of hero */
   .hero-mk-panel {
