@@ -393,44 +393,74 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(saved);
 });
 
-// ─── Like button
+// ─── Like button (Firebase Realtime Database)
 (function () {
+  var DB = 'https://restadler-likes-default-rtdb.europe-west1.firebasedatabase.app';
   var LIKED_KEY = 'adler_liked';
-  var COUNT_KEY = 'adler_like_count';
-  var BASE_COUNT = 247;
 
-  function getCount() { return parseInt(localStorage.getItem(COUNT_KEY) || BASE_COUNT, 10); }
-
-  function updateLikeUI() {
+  function updateLikeUI(count, liked) {
     var btn = document.getElementById('likeBtn');
     var countEl = document.getElementById('likeCount');
     if (!btn) return;
-    var liked = localStorage.getItem(LIKED_KEY) === '1';
     btn.classList.toggle('liked', liked);
-    if (countEl) countEl.textContent = getCount();
+    if (countEl && count != null) countEl.textContent = count;
+  }
+
+  function listenRealtime() {
+    if (!window.EventSource) return;
+    try {
+      var es = new EventSource(DB + '/likes/count.json?accept=text/event-stream');
+      es.addEventListener('put', function (e) {
+        try {
+          var d = JSON.parse(e.data);
+          if (d.data != null) updateLikeUI(d.data, localStorage.getItem(LIKED_KEY) === '1');
+        } catch (x) {}
+      });
+    } catch (x) {}
   }
 
   window.toggleLike = function () {
     var liked = localStorage.getItem(LIKED_KEY) === '1';
-    var count = getCount();
-    if (!liked) {
-      localStorage.setItem(LIKED_KEY, '1');
-      localStorage.setItem(COUNT_KEY, count + 1);
-    } else {
-      localStorage.setItem(LIKED_KEY, '0');
-      localStorage.setItem(COUNT_KEY, Math.max(0, count - 1));
-    }
     var btn = document.getElementById('likeBtn');
+
     if (btn) {
       btn.classList.remove('pop');
       void btn.offsetWidth;
       btn.classList.add('pop');
       setTimeout(function () { btn.classList.remove('pop'); }, 450);
     }
-    updateLikeUI();
+
+    localStorage.setItem(LIKED_KEY, liked ? '0' : '1');
+
+    fetch(DB + '/likes.json', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ count: { '.sv': { increment: liked ? -1 : 1 } } })
+    }).catch(function () {});
   };
 
-  document.addEventListener('DOMContentLoaded', updateLikeUI);
+  document.addEventListener('DOMContentLoaded', function () {
+    var liked = localStorage.getItem(LIKED_KEY) === '1';
+    var btn = document.getElementById('likeBtn');
+    if (btn) btn.classList.toggle('liked', liked);
+
+    fetch(DB + '/likes/count.json')
+      .then(function (r) { return r.json(); })
+      .then(function (val) {
+        if (val === null) {
+          return fetch(DB + '/likes/count.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: '247'
+          }).then(function () { return 247; });
+        }
+        return val;
+      })
+      .then(function (count) { updateLikeUI(count, liked); })
+      .catch(function () { updateLikeUI(247, liked); });
+
+    listenRealtime();
+  });
 })();
 
 // ─── Mobile navigation toggle
