@@ -493,12 +493,20 @@ function setLang(lang) {
     if (b) { b.classList.remove('cb-visible'); setTimeout(function () { b.remove(); }, 420); }
   };
 
+  function positionTicker() {
+    var nav = document.querySelector('.nav');
+    var ticker = document.querySelector('.fb-ticker');
+    if (nav && ticker) ticker.style.top = nav.offsetHeight + 'px';
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     injectNavExtras();
     injectFooterLinks();
     injectOpenStatus();
     injectCookieBanner();
+    positionTicker();
   });
+  window.addEventListener('resize', function () { positionTicker(); });
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

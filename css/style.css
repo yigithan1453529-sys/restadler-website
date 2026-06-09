@@ -1069,6 +1069,11 @@ a:hover { color: var(--gold-light); }
   .nav-logo span { display: none; }
 }
 
+/* Hide "· Seit 1825" in logo on small screens to prevent wrapping */
+@media (max-width: 560px) {
+  .nav-since { display: none; }
+}
+
 /* ─── Chatbot ─── */
 .cb-toggle {
   position: fixed;
@@ -1805,7 +1810,7 @@ a:hover { color: var(--gold-light); }
   overflow: hidden;
   padding: 11px 0;
   position: fixed;
-  top: 58px;
+  top: 58px; /* updated by JS via positionTicker() */
   left: 0;
   right: 0;
   z-index: 999;
