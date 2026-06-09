@@ -662,6 +662,58 @@ a:hover { color: var(--gold-light); }
   100% { box-shadow: 0 4px 20px rgba(37,211,102,0.45), 0 0 0 0 rgba(37,211,102,0); }
 }
 
+/* ─── Like Button ─── */
+.like-btn {
+  position: fixed;
+  bottom: calc(2rem + 58px + 12px);
+  right: 2rem;
+  z-index: 999;
+  width: 58px;
+  height: 58px;
+  background: var(--dark-card);
+  border: 1px solid var(--divider);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.3s;
+}
+.like-btn:hover { transform: scale(1.1); }
+.like-btn.liked {
+  border-color: rgba(240, 80, 130, 0.55);
+  box-shadow: 0 4px 20px rgba(240, 80, 130, 0.3);
+}
+.like-btn svg {
+  width: 26px;
+  height: 26px;
+  fill: var(--cream-muted);
+  transition: fill 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+.like-btn.liked svg { fill: #f05082; }
+.like-count {
+  font-size: 9px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--cream-muted);
+  line-height: 1;
+  pointer-events: none;
+  transition: color 0.25s;
+}
+.like-btn.liked .like-count { color: #f05082; }
+@keyframes likePop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.5); }
+  65%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+.like-btn.pop svg { animation: likePop 0.42s ease; }
+
 /* ─── Animations ─── */
 .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.65s ease, transform 0.65s ease; }
 .fade-in.visible { opacity: 1; transform: none; }
@@ -744,6 +796,10 @@ a:hover { color: var(--gold-light); }
   /* WhatsApp */
   .call-btn { width: 52px; height: 52px; bottom: 1.25rem; right: 1.25rem; }
   .call-btn svg { width: 26px; height: 26px; }
+
+  /* Like button */
+  .like-btn { width: 52px; height: 52px; bottom: calc(1.25rem + 52px + 10px); right: 1.25rem; }
+  .like-btn svg { width: 23px; height: 23px; }
 
   /* Team */
   .team-values { grid-template-columns: 1fr 1fr; }

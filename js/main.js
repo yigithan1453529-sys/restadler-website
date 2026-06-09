@@ -393,6 +393,46 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(saved);
 });
 
+// ─── Like button
+(function () {
+  var LIKED_KEY = 'adler_liked';
+  var COUNT_KEY = 'adler_like_count';
+  var BASE_COUNT = 247;
+
+  function getCount() { return parseInt(localStorage.getItem(COUNT_KEY) || BASE_COUNT, 10); }
+
+  function updateLikeUI() {
+    var btn = document.getElementById('likeBtn');
+    var countEl = document.getElementById('likeCount');
+    if (!btn) return;
+    var liked = localStorage.getItem(LIKED_KEY) === '1';
+    btn.classList.toggle('liked', liked);
+    if (countEl) countEl.textContent = getCount();
+  }
+
+  window.toggleLike = function () {
+    var liked = localStorage.getItem(LIKED_KEY) === '1';
+    var count = getCount();
+    if (!liked) {
+      localStorage.setItem(LIKED_KEY, '1');
+      localStorage.setItem(COUNT_KEY, count + 1);
+    } else {
+      localStorage.setItem(LIKED_KEY, '0');
+      localStorage.setItem(COUNT_KEY, Math.max(0, count - 1));
+    }
+    var btn = document.getElementById('likeBtn');
+    if (btn) {
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+      setTimeout(function () { btn.classList.remove('pop'); }, 450);
+    }
+    updateLikeUI();
+  };
+
+  document.addEventListener('DOMContentLoaded', updateLikeUI);
+})();
+
 // ─── Mobile navigation toggle
 const burger = document.getElementById('burger');
 const mobileMenu = document.getElementById('mobileMenu');
