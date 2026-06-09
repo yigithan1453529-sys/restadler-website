@@ -1804,8 +1804,7 @@ a:hover { color: var(--gold-light); }
 
 /* ─── Freibier Ticker ─── */
 .fb-ticker {
-  background: #0e0a03;
-  border-top: 1px solid rgba(200,146,42,.35);
+  background: #16140f;
   border-bottom: 1px solid rgba(200,146,42,.35);
   overflow: hidden;
   padding: 11px 0;
@@ -1826,11 +1825,11 @@ a:hover { color: var(--gold-light); }
 }
 .fb-ticker::before {
   left: 0;
-  background: linear-gradient(to right, #0e0a03, transparent);
+  background: linear-gradient(to right, #16140f, transparent);
 }
 .fb-ticker::after {
   right: 0;
-  background: linear-gradient(to left, #0e0a03, transparent);
+  background: linear-gradient(to left, #16140f, transparent);
 }
 .fb-ticker-track {
   display: flex;
