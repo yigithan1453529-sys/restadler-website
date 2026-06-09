@@ -291,12 +291,13 @@ a:hover { color: var(--gold-light); }
 
 /* ─── Hero split layout (with Mittagskarte panel) ─── */
 .hero-full--mk {
-  justify-content: flex-start;
+  justify-content: center;
+  padding-right: 336px;
 }
 .hero-full--mk .hero-full-content {
   text-align: left;
-  padding: 0 2rem 4.5rem 5%;
-  max-width: 52%;
+  padding: 0 2rem 4.5rem 2rem;
+  max-width: 480px;
 }
 .hero-full--mk .hero-cta {
   justify-content: flex-start;
@@ -459,15 +460,78 @@ a:hover { color: var(--gold-light); }
 }
 
 @media (max-width: 1060px) {
-  .hero-mk-panel { display: none; }
-  .hero-full--mk { justify-content: center; }
+  /* Reset desktop split layout */
+  .hero-full--mk { justify-content: center; padding-right: 0; }
   .hero-full--mk .hero-full-content {
     text-align: center;
-    padding: 0 1.25rem 3.5rem;
+    padding: 0 1.25rem 6rem;
     max-width: 750px;
   }
   .hero-full--mk .hero-cta { justify-content: center; }
   .hero-full--mk .divider-gold.left { margin: 1.5rem auto; }
+
+  /* Mobile: compact strip at bottom of hero */
+  .hero-mk-panel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: absolute;
+    bottom: 0; left: 0; right: 0; top: auto;
+    transform: none;
+    width: 100%;
+    height: 58px;
+    border-top: 2px solid var(--gold);
+    border-left: none; border-right: none; border-bottom: none;
+    background: rgba(6, 5, 2, 0.88);
+    padding: 0;
+    overflow: hidden;
+  }
+  .hero-mk-head {
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(201,165,90,0.2);
+  }
+  .hero-mk-kw { display: none; }
+  .hero-mk-rule { display: none; }
+  .hero-mk-body {
+    flex: 1;
+    min-height: 0;
+    padding: 0 0.75rem;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .hero-mk-panel .mk-slide {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    animation: none;
+  }
+  .hero-mk-panel .mk-slide-cat { display: none; }
+  .hero-mk-panel .mk-slide-name {
+    font-size: 0.88rem;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hero-mk-panel .mk-slide-beilage { display: none; }
+  .hero-mk-panel .mk-slide-price {
+    font-size: 0.88rem;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .hero-mk-foot {
+    padding: 0 0.75rem;
+    border-top: none;
+    flex-shrink: 0;
+  }
+  .hero-mk-dots-row { display: none; }
+  .hero-mk-link-bar { display: none; }
 }
 
 /* ─── Buttons ─── */
