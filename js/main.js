@@ -29,7 +29,7 @@ const translations = {
     gut_order_desc:'Gutscheine sind direkt im Restaurant erhältlich oder können telefonisch bzw. per E-Mail bestellt werden. Wir senden Ihnen den Gutschein auf Wunsch auch per Post zu.',
     day_mon:'Montag', day_tue:'Dienstag', day_wed:'Mittwoch',
     day_thu:'Donnerstag', day_fri:'Freitag', day_sat:'Samstag', day_sun:'Sonntag',
-    closed:'Geschlossen', morning_hrs:'Morgens – 22:00 Uhr',
+    closed:'Geschlossen', morning_hrs:'10:00 – 22:00 Uhr',
 
     hero_sub:'Frisch zubereitet · Regionale Zutaten · Mit Leidenschaft gekocht',
     hero_btn_res:'Tisch reservieren', hero_btn_menu:'Speisekarte',
@@ -169,7 +169,7 @@ const translations = {
     gut_order_desc:"Les bons cadeaux sont disponibles directement au restaurant ou peuvent être commandés par téléphone ou e-mail. Sur demande, nous vous envoyons le bon par courrier.",
     day_mon:'Lundi', day_tue:'Mardi', day_wed:'Mercredi',
     day_thu:'Jeudi', day_fri:'Vendredi', day_sat:'Samedi', day_sun:'Dimanche',
-    closed:'Fermé', morning_hrs:'Matin – 22:00',
+    closed:'Fermé', morning_hrs:'10:00 – 22:00',
 
     hero_sub:'Fraîchement préparé · Ingrédients régionaux · Cuisiné avec passion',
     hero_btn_res:'Réserver une table', hero_btn_menu:'Menu',
@@ -309,7 +309,7 @@ const translations = {
     gut_order_desc:'Vouchers are available directly at the restaurant or can be ordered by phone or email. We can also send the voucher by post on request.',
     day_mon:'Monday', day_tue:'Tuesday', day_wed:'Wednesday',
     day_thu:'Thursday', day_fri:'Friday', day_sat:'Saturday', day_sun:'Sunday',
-    closed:'Closed', morning_hrs:'Morning – 22:00',
+    closed:'Closed', morning_hrs:'10:00 – 22:00',
 
     hero_sub:'Freshly prepared · Regional ingredients · Cooked with passion',
     hero_btn_res:'Reserve a table', hero_btn_menu:'Menu',
@@ -547,8 +547,7 @@ function setLang(lang) {
     var t = now.getHours() * 60 + now.getMinutes();
     var open = false;
     if (day === 1) open = false;
-    else if (day === 2) open = t >= 810 && t < 1320;
-    else open = t >= 480 && t < 1320;
+    else open = t >= 600 && t < 1320;
     var lang = localStorage.getItem('lang') || 'de';
     var tr = translations[lang] || translations['de'];
     var badge = document.createElement('span');

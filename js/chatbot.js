@@ -9,7 +9,7 @@ const chatbotData = {
     responses: [
       {
         keys: ['öffnung', 'offen', 'wann', 'geschlossen', 'uhrzeit', 'zeiten'],
-        text: '🕐 Unsere Öffnungszeiten:\n\nMontag: Geschlossen\nDienstag: 13:30 – 22:00 Uhr\nMittwoch – Sonntag: Morgens – 22:00 Uhr\n\nWir freuen uns auf Ihren Besuch!'
+        text: '🕐 Unsere Öffnungszeiten:\n\nMontag: Geschlossen\nDienstag – Sonntag: 10:00 – 22:00 Uhr\n\nWir freuen uns auf Ihren Besuch!'
       },
       {
         keys: ['reservier', 'tisch', 'buchen', 'platz', 'buchung'],
@@ -70,7 +70,7 @@ const chatbotData = {
     responses: [
       {
         keys: ['heure', 'ouvert', 'quand', 'fermé', 'horaire'],
-        text: "🕐 Heures d'ouverture:\n\nLundi: Fermé\nMardi: 13:30 – 22:00\nMercredi – Dimanche: Matin – 22:00\n\nNous nous réjouissons de votre visite!"
+        text: "🕐 Heures d'ouverture:\n\nLundi: Fermé\nMardi – Dimanche: 10:00 – 22:00\n\nNous nous réjouissons de votre visite!"
       },
       {
         keys: ['réserv', 'table', 'réserver', 'place'],
@@ -127,7 +127,7 @@ const chatbotData = {
     responses: [
       {
         keys: ['hour', 'open', 'when', 'closed', 'time', 'schedule'],
-        text: '🕐 Opening hours:\n\nMonday: Closed\nTuesday: 13:30 – 22:00\nWednesday – Sunday: Morning – 22:00\n\nWe look forward to your visit!'
+        text: '🕐 Opening hours:\n\nMonday: Closed\nTuesday – Sunday: 10:00 – 22:00\n\nWe look forward to your visit!'
       },
       {
         keys: ['reserv', 'table', 'book', 'seat', 'booking'],
