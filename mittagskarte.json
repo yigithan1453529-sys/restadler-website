@@ -1,7 +1,7 @@
 {
-  "kw": "25",
-  "von_display": "10. Juni",
-  "bis_display": "16. Juni 2026",
+  "kw": "26",
+  "von_display": "22. Juni",
+  "bis_display": "27. Juni 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,23 +13,23 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Rindsbouillon", "name_en": "Beef Broth", "allergene": "A, C, G" },
-        { "tag": "Do", "name_de": "Gemüsesuppe", "name_en": "Vegetable Soup", "allergene": "A, G" },
-        { "tag": "Fr", "name_de": "Tomatensuppe", "name_en": "Tomato Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Blumenkohlsuppe mit Parmesan", "name_en": "Cauliflower Soup with Parmesan", "allergene": "A, G" },
+        { "tag": "Do", "name_de": "Erbsensuppe", "name_en": "Pea Soup", "allergene": "A, G" },
+        { "tag": "Fr", "name_de": "Broccolisuppe", "name_en": "Broccoli Soup", "allergene": "G" }
       ]
     },
     {
-      "id": "fleisch",
-      "name_de": "Fleisch Menü",
-      "name_fr": "Menu Viande",
-      "name_en": "Meat Menu",
-      "icon": "🥩",
+      "id": "poulet",
+      "name_de": "Poulet Menü",
+      "name_fr": "Menu Poulet",
+      "name_en": "Chicken Menu",
+      "icon": "🍗",
       "gerichte": [
         {
-          "name_de": "Rindswürfeli an Paprikarahmsauce",
-          "name_en": "Beef Tips in Paprika Cream Sauce",
-          "beilage_de": "Serviert mit Tagliatelle und Saisonalem Gemüse",
-          "beilage_en": "Served with Tagliatelle and Seasonal Vegetables",
+          "name_de": "Pouletgeschnetzeltes an Jussauce",
+          "name_en": "Sliced Chicken in Jus Sauce",
+          "beilage_de": "Serviert mit Basmatireis und Saisonalem Gemüse",
+          "beilage_en": "Served with Basmati Rice and Seasonal Vegetables",
           "allergene": "A, C, G, J",
           "preis": "23.50"
         }
@@ -43,12 +43,20 @@
       "icon": "🐟",
       "gerichte": [
         {
-          "name_de": "Forellefilet an Kräuterrahmsauce",
-          "name_en": "Trout Fillet in Herb Cream Sauce",
-          "beilage_de": "Serviert mit Raclette Kartoffeln und gebratenen Cherrytomaten",
-          "beilage_en": "Served with Raclette Potatoes and sautéed Cherry Tomatoes",
-          "allergene": "A, C, D, G",
+          "name_de": "Welsfilet an Oliven, Kapern und gebratenen Tomaten",
+          "name_en": "Catfish Fillet with Olives, Capers and roasted Tomatoes",
+          "beilage_de": "Serviert mit Weissweinrisotto und Saisonalem Gemüse",
+          "beilage_en": "Served with White Wine Risotto and Seasonal Vegetables",
+          "allergene": "D, G, N",
           "preis": "24.50"
+        },
+        {
+          "name_de": "Egliknusperli",
+          "name_en": "Crispy Perch Fillets",
+          "beilage_de": "Serviert mit Pommes frites und Saisonalem Gemüse",
+          "beilage_en": "Served with French Fries and Seasonal Vegetables",
+          "allergene": "A, C, D, G",
+          "preis": "20.50"
         }
       ]
     },
@@ -116,18 +124,19 @@
       ]
     },
     {
-      "id": "burger",
-      "name_de": "Burger",
-      "name_fr": "Burger",
-      "name_en": "Burger",
-      "icon": "🍔",
+      "id": "pinsa",
+      "name_de": "Pinsa",
+      "name_fr": "Pinsa",
+      "name_en": "Pinsa",
+      "icon": "🍕",
       "gerichte": [
         {
-          "name_de": "Azteca Mexicana",
-          "name_en": "Azteca Mexicana Burger",
-          "beilage_de": "Chipotle Sauce, Guacamole, Tomaten und rote Zwiebeln",
-          "beilage_en": "Chipotle Sauce, Guacamole, Tomatoes and Red Onions",
-          "allergene": "A, C, G, J",
+          "name_de": "Pinsa Margherita",
+          "name_en": "Pinsa Margherita",
+          "beilage_de": "Tomatensauce, Mozzarella, frisches Basilikum",
+          "beilage_en": "Tomato Sauce, Mozzarella, fresh Basil",
+          "allergene": "A, G",
+          "vegi": true,
           "preis": "21.50"
         }
       ]
