@@ -1,7 +1,7 @@
 {
-  "kw": "25",
-  "von_display": "17. Juni",
-  "bis_display": "23. Juni 2026",
+  "kw": "26",
+  "von_display": "24. Juni",
+  "bis_display": "30. Juni 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,25 +13,50 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Blumenkohlsuppe mit Parmesan", "name_en": "Cauliflower Soup with Parmesan", "allergene": "A, G" },
-        { "tag": "Do", "name_de": "Erbsensuppe", "name_en": "Pea Soup", "allergene": "A, G" },
-        { "tag": "Fr", "name_de": "Broccolisuppe", "name_en": "Broccoli Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Maissuppe", "name_en": "Corn Soup", "allergene": "G" },
+        { "tag": "Do", "name_de": "Apfelselleriesuppe", "name_en": "Apple Celery Soup", "allergene": "G, I" },
+        { "tag": "Fr", "name_de": "Randensuppe", "name_en": "Beetroot Soup", "allergene": "G" }
       ]
     },
     {
-      "id": "poulet",
-      "name_de": "Poulet Menü",
-      "name_fr": "Menu Poulet",
-      "name_en": "Chicken Menu",
-      "icon": "🍗",
+      "id": "fleisch",
+      "name_de": "Fleisch Menü",
+      "name_fr": "Menu Viande",
+      "name_en": "Meat Menu",
+      "icon": "🍔",
       "gerichte": [
         {
-          "name_de": "Pouletgeschnetzeltes an Jussauce",
-          "name_en": "Sliced Chicken in Jus Sauce",
-          "beilage_de": "Serviert mit Basmatireis und Saisonalem Gemüse",
-          "beilage_en": "Served with Basmati Rice and Seasonal Vegetables",
+          "name_de": "Classic Burger",
+          "name_en": "Classic Burger",
+          "beilage_de": "Beef (CH), Haussauce, Tomate, Zwiebeln, Gewürzgurken und Salat",
+          "beilage_en": "Beef (CH), House Sauce, Tomato, Onions, Pickles and Salad",
+          "allergene": "A, C, G, J",
+          "preis": "20.50"
+        },
+        {
+          "name_de": "Cheeseburger",
+          "name_en": "Cheeseburger",
+          "beilage_de": "Beef (CH), Appenzeller Käse, Haussauce, Tomate, Zwiebeln, Gewürzgurken und Salat",
+          "beilage_en": "Beef (CH), Appenzeller Cheese, House Sauce, Tomato, Onions, Pickles and Salad",
           "allergene": "A, C, G, J",
           "preis": "23.50"
+        },
+        {
+          "name_de": "El Gaucho",
+          "name_en": "El Gaucho Burger",
+          "beilage_de": "Beef (CH), Appenzeller Käse, Mostbröckli, Chimichurri-Sauce, Tomate, Zwiebeln und Salat",
+          "beilage_en": "Beef (CH), Appenzeller Cheese, Mostbröckli, Chimichurri Sauce, Tomato, Onions and Salad",
+          "allergene": "A, C, G, J",
+          "preis": "25.50"
+        },
+        {
+          "name_de": "Vegi Burger",
+          "name_en": "Vegi Burger",
+          "beilage_de": "Plant-based Patty, Haussauce, Guacamole, Tomate, Zwiebeln und Salat",
+          "beilage_en": "Plant-based Patty, House Sauce, Guacamole, Tomato, Onions and Salad",
+          "allergene": "A, C, G",
+          "vegi": true,
+          "preis": "19.50"
         }
       ]
     },
@@ -131,12 +156,11 @@
       "icon": "🍕",
       "gerichte": [
         {
-          "name_de": "Pinsa Margherita",
-          "name_en": "Pinsa Margherita",
-          "beilage_de": "Tomatensauce, Mozzarella, frisches Basilikum",
-          "beilage_en": "Tomato Sauce, Mozzarella, fresh Basil",
+          "name_de": "Pinsa Prosciutto",
+          "name_en": "Pinsa Prosciutto",
+          "beilage_de": "Tomatensauce, Mozzarella, Schinken",
+          "beilage_en": "Tomato Sauce, Mozzarella, Ham",
           "allergene": "A, G",
-          "vegi": true,
           "preis": "21.50"
         }
       ]
