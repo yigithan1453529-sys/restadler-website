@@ -1,7 +1,7 @@
 {
-  "kw": "26",
-  "von_display": "24. Juni",
-  "bis_display": "30. Juni 2026",
+  "kw": "27",
+  "von_display": "30. Juni",
+  "bis_display": "6. Juli 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,9 +13,9 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Maissuppe", "name_en": "Corn Soup", "allergene": "G" },
-        { "tag": "Do", "name_de": "Apfelselleriesuppe", "name_en": "Apple Celery Soup", "allergene": "G, I" },
-        { "tag": "Fr", "name_de": "Randensuppe", "name_en": "Beetroot Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Kartoffel-Zitronensuppe", "name_en": "Potato Lemon Soup", "allergene": "G" },
+        { "tag": "Do", "name_de": "Zucchetti-Minzesuppe", "name_en": "Zucchini Mint Soup", "allergene": "G" },
+        { "tag": "Fr", "name_de": "Tomatensuppe", "name_en": "Tomato Soup", "allergene": "G" }
       ]
     },
     {
@@ -23,40 +23,15 @@
       "name_de": "Fleisch Menü",
       "name_fr": "Menu Viande",
       "name_en": "Meat Menu",
-      "icon": "🍔",
+      "icon": "🥩",
       "gerichte": [
         {
-          "name_de": "Classic Burger",
-          "name_en": "Classic Burger",
-          "beilage_de": "Beef (CH), Haussauce, Tomate, Zwiebeln, Gewürzgurken und Salat",
-          "beilage_en": "Beef (CH), House Sauce, Tomato, Onions, Pickles and Salad",
-          "allergene": "A, C, G, J",
+          "name_de": "Appenzeller Focaccia Sandwich",
+          "name_en": "Appenzell Focaccia Sandwich",
+          "beilage_de": "Appenzellerkäse, rote Zwiebeln, Rucola, geröstete Zwiebeln und Roast Beef",
+          "beilage_en": "Appenzell Cheese, Red Onions, Rocket, Roasted Onions and Roast Beef",
+          "allergene": "A, G",
           "preis": "20.50"
-        },
-        {
-          "name_de": "Cheeseburger",
-          "name_en": "Cheeseburger",
-          "beilage_de": "Beef (CH), Appenzeller Käse, Haussauce, Tomate, Zwiebeln, Gewürzgurken und Salat",
-          "beilage_en": "Beef (CH), Appenzeller Cheese, House Sauce, Tomato, Onions, Pickles and Salad",
-          "allergene": "A, C, G, J",
-          "preis": "23.50"
-        },
-        {
-          "name_de": "El Gaucho",
-          "name_en": "El Gaucho Burger",
-          "beilage_de": "Beef (CH), Appenzeller Käse, Mostbröckli, Chimichurri-Sauce, Tomate, Zwiebeln und Salat",
-          "beilage_en": "Beef (CH), Appenzeller Cheese, Mostbröckli, Chimichurri Sauce, Tomato, Onions and Salad",
-          "allergene": "A, C, G, J",
-          "preis": "25.50"
-        },
-        {
-          "name_de": "Vegi Burger",
-          "name_en": "Vegi Burger",
-          "beilage_de": "Plant-based Patty, Haussauce, Guacamole, Tomate, Zwiebeln und Salat",
-          "beilage_en": "Plant-based Patty, House Sauce, Guacamole, Tomato, Onions and Salad",
-          "allergene": "A, C, G",
-          "vegi": true,
-          "preis": "19.50"
         }
       ]
     },
@@ -68,20 +43,12 @@
       "icon": "🐟",
       "gerichte": [
         {
-          "name_de": "Welsfilet an Oliven, Kapern und gebratenen Tomaten",
-          "name_en": "Catfish Fillet with Olives, Capers and roasted Tomatoes",
-          "beilage_de": "Serviert mit Weissweinrisotto und Saisonalem Gemüse",
-          "beilage_en": "Served with White Wine Risotto and Seasonal Vegetables",
-          "allergene": "D, G, N",
-          "preis": "24.50"
-        },
-        {
-          "name_de": "Egliknusperli",
-          "name_en": "Crispy Perch Fillets",
+          "name_de": "Zanderknusperli",
+          "name_en": "Crispy Pike-Perch Fillets",
           "beilage_de": "Serviert mit Pommes frites und Saisonalem Gemüse",
           "beilage_en": "Served with French Fries and Seasonal Vegetables",
           "allergene": "A, C, D, G",
-          "preis": "20.50"
+          "preis": "21.50"
         }
       ]
     },
@@ -111,10 +78,10 @@
           "preis": "18.50"
         },
         {
-          "name_de": "Weisswein Risotto mit Mascarpone",
-          "name_en": "White Wine Risotto with Mascarpone",
-          "beilage_de": "An Kräuterrahmsauce",
-          "beilage_en": "In Herb Cream Sauce",
+          "name_de": "Vegi Focaccia",
+          "name_en": "Vegi Focaccia",
+          "beilage_de": "Fior di Latte, Avocado Creme, Rucola und grillierten farbigen Cherrytomaten",
+          "beilage_en": "Fior di Latte, Avocado Cream, Rocket and grilled colourful Cherry Tomatoes",
           "allergene": "A, G",
           "vegi": true,
           "preis": "19.50"
@@ -139,12 +106,28 @@
           "preis": "23.50"
         },
         {
-          "name_de": "Kalbssteak mit Kräuterbutter",
-          "name_en": "Veal Steak with Herb Butter",
-          "beilage_de": "Zartes Kalbssteak auf gemischtem Blattsalat",
-          "beilage_en": "Tender Veal Steak on mixed Green Salad",
+          "name_de": "Schweinssteak mit Kräuterbutter",
+          "name_en": "Pork Steak with Herb Butter",
+          "beilage_de": "Saftiges Schweinssteak auf gemischtem Blattsalat",
+          "beilage_en": "Juicy Pork Steak on mixed Green Salad",
           "allergene": "G, J",
           "preis": "25.50"
+        },
+        {
+          "name_de": "Crevetten al Aglio",
+          "name_en": "Garlic Prawns",
+          "beilage_de": "Knoblauch-Crevetten auf gemischtem Blattsalat",
+          "beilage_en": "Garlic Prawns on mixed Green Salad",
+          "allergene": "B, G, J",
+          "preis": "21.50"
+        },
+        {
+          "name_de": "Welsfilet an Oliven, Kapern und gebratenen Tomaten",
+          "name_en": "Catfish Fillet with Olives, Capers and roasted Tomatoes",
+          "beilage_de": "Auf gemischtem Blattsalat",
+          "beilage_en": "On mixed Green Salad",
+          "allergene": "D, G",
+          "preis": "22.50"
         }
       ]
     },
@@ -156,10 +139,10 @@
       "icon": "🍕",
       "gerichte": [
         {
-          "name_de": "Pinsa Prosciutto",
-          "name_en": "Pinsa Prosciutto",
-          "beilage_de": "Tomatensauce, Mozzarella, Schinken",
-          "beilage_en": "Tomato Sauce, Mozzarella, Ham",
+          "name_de": "Pinsa Azteca",
+          "name_en": "Pinsa Azteca",
+          "beilage_de": "Tomatensauce, Mozzarella, Chipotle Sauce, Guacamole",
+          "beilage_en": "Tomato Sauce, Mozzarella, Chipotle Sauce, Guacamole",
           "allergene": "A, G",
           "preis": "21.50"
         }
