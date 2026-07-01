@@ -15,7 +15,7 @@ const translations = {
     ev_time:'Mit Prosecco zubereitet', ev_loc:'Garten-Terrasse & Bistro', ev_age:'Appenzeller Käsespezialität',
     ev_desc:'Unser beliebtes Appenzeller Sommer-Fondue wird mit Prosecco zubereitet — ein einzigartiger Genuss auf unserer Garten-Terrasse oder im Bistro. Reservieren Sie jetzt Ihren Tisch für dieses besondere kulinarische Erlebnis.',
     ev_more:'Weitere Events folgen',
-    ev_more_desc:'Wir planen regelmässig besondere Abende und saisonale Veranstaltungen. Folgen Sie uns oder fragen Sie direkt im Restaurant nach.',
+    ev_more_desc:'Wir planen regelmässig besondere Abende und saisonale Veranstaltungen. Folgen Sie uns auf Instagram @adler_1825 oder fragen Sie direkt im Restaurant nach.',
     ev_cta_title:'Tisch für den Abend reservieren',
     ev_cta_desc:'Planen Sie Ihren Besuch zu einem unserer Events — wir empfehlen eine frühzeitige Reservierung.',
     gut_page_title:'Gutscheine', gut_page_sub:'Das perfekte Geschenk für jeden Anlass',
@@ -155,7 +155,7 @@ const translations = {
     ev_time:'Préparé au Prosecco', ev_loc:'Terrasse & Bistro', ev_age:"Spécialité fromagère d'Appenzell",
     ev_desc:"Notre célèbre fondue d'été appenzelloise est préparée au Prosecco — un plaisir unique sur notre terrasse ou au bistro. Réservez dès maintenant votre table pour cette expérience culinaire exceptionnelle.",
     ev_more:"D'autres événements à venir",
-    ev_more_desc:"Nous organisons régulièrement des soirées spéciales et des événements saisonniers. Suivez-nous ou renseignez-vous directement au restaurant.",
+    ev_more_desc:"Nous organisons régulièrement des soirées spéciales et des événements saisonniers. Suivez-nous sur Instagram @adler_1825 ou renseignez-vous directement au restaurant.",
     ev_cta_title:'Réserver une table pour la soirée',
     ev_cta_desc:"Planifiez votre visite à l'occasion d'un de nos événements — nous recommandons de réserver à l'avance.",
     gut_page_title:'Bons cadeaux', gut_page_sub:'Le cadeau parfait pour toutes les occasions',
@@ -295,7 +295,7 @@ const translations = {
     ev_time:'Prepared with Prosecco', ev_loc:'Garden terrace & Bistro', ev_age:'Appenzell cheese speciality',
     ev_desc:"Our beloved Appenzell Summer Fondue is prepared with Prosecco — a unique pleasure on our garden terrace or in the bistro. Reserve your table now for this special culinary experience.",
     ev_more:'More events to come',
-    ev_more_desc:'We regularly plan special evenings and seasonal events. Follow us or ask directly at the restaurant.',
+    ev_more_desc:'We regularly plan special evenings and seasonal events. Follow us on Instagram @adler_1825 or ask directly at the restaurant.',
     ev_cta_title:'Reserve a table for the evening',
     ev_cta_desc:'Plan your visit for one of our events — we recommend booking in advance.',
     gut_page_title:'Vouchers', gut_page_sub:'The perfect gift for every occasion',
@@ -518,6 +518,19 @@ function setLang(lang) {
     var lang = localStorage.getItem('lang') || 'de';
     var tr = translations[lang] || translations['de'];
     var divider = footer.querySelector('.footer-divider');
+
+    var socialDiv = document.createElement('div');
+    socialDiv.className = 'footer-social';
+    var igLink = document.createElement('a');
+    igLink.href = 'https://www.instagram.com/adler_1825';
+    igLink.target = '_blank';
+    igLink.rel = 'noopener noreferrer';
+    igLink.setAttribute('aria-label', 'Instagram @adler_1825');
+    igLink.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>@adler_1825';
+    socialDiv.appendChild(igLink);
+    if (divider) footer.insertBefore(socialDiv, divider);
+    else footer.appendChild(socialDiv);
+
     var linksDiv = document.createElement('div');
     linksDiv.className = 'footer-links';
     var a1 = document.createElement('a');

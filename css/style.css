@@ -844,6 +844,10 @@ a:hover { color: var(--gold-light); }
 }
 .footer-sub { font-size: 0.72rem; letter-spacing: 0.2em; color: var(--cream-muted); text-transform: uppercase; }
 .footer-divider { width: 40px; height: 1px; background: var(--gold); margin: 1.5rem auto; }
+.footer-social { display: flex; justify-content: center; gap: 1.25rem; margin-bottom: 1.25rem; }
+.footer-social a { color: var(--cream-muted); transition: color 0.25s; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; letter-spacing: 0.08em; }
+.footer-social a:hover { color: var(--gold); }
+.footer-social svg { width: 18px; height: 18px; flex-shrink: 0; }
 .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; list-style: none; margin-bottom: 2rem; }
 .footer-links a { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-muted); }
 .footer-links a:hover { color: var(--gold); }
