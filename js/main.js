@@ -690,17 +690,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(DB + '/likes/count.json')
       .then(function (r) { return r.json(); })
       .then(function (val) {
-        if (val === null) {
-          return fetch(DB + '/likes/count.json', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: '247'
-          }).then(function () { return 247; });
-        }
-        return val;
+        if (typeof val !== 'number') { updateLikeUI(768, liked); return; }
+        updateLikeUI(val, liked);
       })
-      .then(function (count) { updateLikeUI(count, liked); })
-      .catch(function () { updateLikeUI(247, liked); });
+      .catch(function () { updateLikeUI(768, liked); });
 
     listenRealtime();
   });
