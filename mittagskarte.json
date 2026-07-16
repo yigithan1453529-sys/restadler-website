@@ -1,7 +1,7 @@
 {
-  "kw": "28",
-  "von_display": "8. Juli",
-  "bis_display": "14. Juli 2026",
+  "kw": "29",
+  "von_display": "15. Juli",
+  "bis_display": "21. Juli 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,9 +13,9 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Kartoffellauchsuppe", "name_en": "Potato Leek Soup", "allergene": "G" },
-        { "tag": "Do", "name_de": "Blumenkohlsuppe", "name_en": "Cauliflower Soup", "allergene": "G" },
-        { "tag": "Fr", "name_de": "Erbsensuppe", "name_en": "Pea Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Pilzrahmsuppe", "name_en": "Cream of Mushroom Soup", "allergene": "G" },
+        { "tag": "Do", "name_de": "Paprikasuppe", "name_en": "Bell Pepper Soup", "allergene": "G" },
+        { "tag": "Fr", "name_de": "Rindsbouillon", "name_en": "Beef Broth", "allergene": "C, G" }
       ]
     },
     {
