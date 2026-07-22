@@ -1,7 +1,7 @@
 {
-  "kw": "29",
-  "von_display": "15. Juli",
-  "bis_display": "21. Juli 2026",
+  "kw": "30",
+  "von_display": "22. Juli",
+  "bis_display": "28. Juli 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,9 +13,9 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Pilzrahmsuppe", "name_en": "Cream of Mushroom Soup", "allergene": "G" },
-        { "tag": "Do", "name_de": "Paprikasuppe", "name_en": "Bell Pepper Soup", "allergene": "G" },
-        { "tag": "Fr", "name_de": "Rindsbouillon", "name_en": "Beef Broth", "allergene": "C, G" }
+        { "tag": "Mi", "name_de": "Maissuppe", "name_en": "Corn Soup", "allergene": "G" },
+        { "tag": "Do", "name_de": "Broccolisuppe", "name_en": "Broccoli Soup", "allergene": "G" },
+        { "tag": "Fr", "name_de": "Tomatensuppe", "name_en": "Tomato Soup", "allergene": "G" }
       ]
     },
     {
@@ -75,7 +75,7 @@
           "beilage_en": "Homemade Spätzli with creamy Appenzell Cheese and crispy Roasted Onions, with Apple Sauce",
           "allergene": "A, C, G",
           "vegi": true,
-          "preis": "18.50"
+          "preis": "23.50"
         },
         {
           "name_de": "Vegi Focaccia",
@@ -132,18 +132,19 @@
       ]
     },
     {
-      "id": "pinsa",
-      "name_de": "Pinsa",
-      "name_fr": "Pinsa",
-      "name_en": "Pinsa",
-      "icon": "🍕",
+      "id": "hit_der_woche",
+      "name_de": "Hit der Woche",
+      "name_fr": "Hit de la semaine",
+      "name_en": "Hit of the Week",
+      "icon": "⭐",
       "gerichte": [
         {
-          "name_de": "Pinsa Azteca",
-          "name_en": "Pinsa Azteca",
-          "beilage_de": "Tomatensauce, Mozzarella, Chipotle Sauce, Guacamole",
-          "beilage_en": "Tomato Sauce, Mozzarella, Chipotle Sauce, Guacamole",
-          "allergene": "A, G",
+          "name_de": "Hörnli mit Eierschwammerl an Rahmsauce",
+          "name_en": "Pasta with Chanterelles in Cream Sauce",
+          "beilage_de": "Hörnli mit Eierschwammerl in cremiger Rahmsauce",
+          "beilage_en": "Homemade Pasta with Chanterelles in creamy Cream Sauce",
+          "allergene": "A, C, G",
+          "vegi": true,
           "preis": "21.50"
         }
       ]
