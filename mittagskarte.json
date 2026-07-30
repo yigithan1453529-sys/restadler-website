@@ -1,7 +1,7 @@
 {
-  "kw": "30",
-  "von_display": "22. Juli",
-  "bis_display": "28. Juli 2026",
+  "kw": "31",
+  "von_display": "29. Juli",
+  "bis_display": "4. August 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,9 +13,9 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Maissuppe", "name_en": "Corn Soup", "allergene": "G" },
-        { "tag": "Do", "name_de": "Broccolisuppe", "name_en": "Broccoli Soup", "allergene": "G" },
-        { "tag": "Fr", "name_de": "Tomatensuppe", "name_en": "Tomato Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Kartoffelselleriesuppe", "name_en": "Potato Celery Soup", "allergene": "G" },
+        { "tag": "Do", "name_de": "Randensuppe", "name_en": "Beetroot Soup", "allergene": "G" },
+        { "tag": "Fr", "name_de": "Erbsensuppe", "name_en": "Pea Soup", "allergene": "G" }
       ]
     },
     {
@@ -43,12 +43,12 @@
       "icon": "🐟",
       "gerichte": [
         {
-          "name_de": "Zanderknusperli",
-          "name_en": "Crispy Pike-Perch Fillets",
-          "beilage_de": "Serviert mit Pommes frites und Saisonalem Gemüse",
-          "beilage_en": "Served with French Fries and Seasonal Vegetables",
-          "allergene": "A, C, D, G",
-          "preis": "21.50"
+          "name_de": "Gebratenes Forellefilet",
+          "name_en": "Pan-fried Trout Fillet",
+          "beilage_de": "An Petersilien-Kräutersauce mit Tagliatelle und Saisonalem Gemüse",
+          "beilage_en": "With Parsley Herb Sauce, Tagliatelle and Seasonal Vegetables",
+          "allergene": "A, D, G",
+          "preis": "35.00"
         }
       ]
     },
@@ -146,6 +146,14 @@
           "allergene": "A, C, G",
           "vegi": true,
           "preis": "21.50"
+        },
+        {
+          "name_de": "Adler Pinsa mit Mostbröckli",
+          "name_en": "Adler Pinsa with Mostbröckli",
+          "beilage_de": "Knusprige Pinsa mit luftgetrocknetem Appenzeller Mostbröckli",
+          "beilage_en": "Crispy Pinsa with air-dried Appenzell Mostbröckli",
+          "allergene": "A, G",
+          "preis": "25.50"
         }
       ]
     }
