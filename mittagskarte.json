@@ -1,7 +1,7 @@
 {
-  "kw": "31",
-  "von_display": "29. Juli",
-  "bis_display": "4. August 2026",
+  "kw": "32",
+  "von_display": "5. August",
+  "bis_display": "11. August 2026",
   "inklusive": "Alle Menüs inkl. Suppe oder grüner Blattsalat mit Sauce nach Wahl",
   "kategorien": [
     {
@@ -13,9 +13,9 @@
       "hinweis_de": "Suppe oder grüner Blattsalat mit Sauce nach Wahl",
       "hinweis_en": "Soup or green leaf salad with sauce of your choice",
       "gerichte": [
-        { "tag": "Mi", "name_de": "Kartoffelselleriesuppe", "name_en": "Potato Celery Soup", "allergene": "G" },
-        { "tag": "Do", "name_de": "Randensuppe", "name_en": "Beetroot Soup", "allergene": "G" },
-        { "tag": "Fr", "name_de": "Erbsensuppe", "name_en": "Pea Soup", "allergene": "G" }
+        { "tag": "Mi", "name_de": "Gemüsesuppe", "name_en": "Vegetable Soup", "allergene": "G" },
+        { "tag": "Do", "name_de": "Blumenkohlsuppe", "name_en": "Cauliflower Soup", "allergene": "G" },
+        { "tag": "Fr", "name_de": "Rindsbouillon mit Gemüse", "name_en": "Beef Broth with Vegetables", "allergene": "C, G" }
       ]
     },
     {
@@ -26,12 +26,12 @@
       "icon": "🥩",
       "gerichte": [
         {
-          "name_de": "Appenzeller Focaccia Sandwich",
-          "name_en": "Appenzell Focaccia Sandwich",
-          "beilage_de": "Appenzellerkäse, rote Zwiebeln, Rucola, geröstete Zwiebeln und Roast Beef",
-          "beilage_en": "Appenzell Cheese, Red Onions, Rocket, Roasted Onions and Roast Beef",
-          "allergene": "A, G",
-          "preis": "20.50"
+          "name_de": "El Gaucho Burger",
+          "name_en": "El Gaucho Burger",
+          "beilage_de": "Beef (CH), Appenzeller Käse, knusprige Mostbröckli-Scheiben, Chimichurri-Sauce, Tomate, Zwiebeln und Salat — serviert mit Pommes frites",
+          "beilage_en": "Beef (CH), Appenzell Cheese, crispy Mostbröckli slices, Chimichurri Sauce, Tomato, Onions and Salad — served with French Fries",
+          "allergene": "A, C, G",
+          "preis": "30.50"
         }
       ]
     },
@@ -106,28 +106,12 @@
           "preis": "23.50"
         },
         {
-          "name_de": "Schweinssteak mit Kräuterbutter",
-          "name_en": "Pork Steak with Herb Butter",
-          "beilage_de": "Saftiges Schweinssteak auf gemischtem Blattsalat",
-          "beilage_en": "Juicy Pork Steak on mixed Green Salad",
-          "allergene": "G, J",
-          "preis": "25.50"
-        },
-        {
           "name_de": "Crevetten al Aglio",
           "name_en": "Garlic Prawns",
           "beilage_de": "Knoblauch-Crevetten auf gemischtem Blattsalat",
           "beilage_en": "Garlic Prawns on mixed Green Salad",
           "allergene": "B, G, J",
           "preis": "21.50"
-        },
-        {
-          "name_de": "Welsfilet an Oliven, Kapern und gebratenen Tomaten",
-          "name_en": "Catfish Fillet with Olives, Capers and roasted Tomatoes",
-          "beilage_de": "Auf gemischtem Blattsalat",
-          "beilage_en": "On mixed Green Salad",
-          "allergene": "D, G",
-          "preis": "22.50"
         }
       ]
     },
