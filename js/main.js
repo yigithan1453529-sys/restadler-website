@@ -560,6 +560,7 @@ function setLang(lang) {
     var t = now.getHours() * 60 + now.getMinutes();
     var open = false;
     if (day === 1) open = false;
+    else if (day === 2) open = t >= 600 && t < 1110;
     else open = t >= 600 && t < 1320;
     var lang = localStorage.getItem('lang') || 'de';
     var tr = translations[lang] || translations['de'];
