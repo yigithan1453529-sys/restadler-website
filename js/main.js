@@ -691,10 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(DB + '/likes/count.json')
       .then(function (r) { return r.json(); })
       .then(function (val) {
-        if (typeof val !== 'number') { updateLikeUI(821, liked); return; }
+        if (typeof val !== 'number') { updateLikeUI(892, liked); return; }
         updateLikeUI(val, liked);
       })
-      .catch(function () { updateLikeUI(821, liked); });
+      .catch(function () { updateLikeUI(892, liked); });
 
     listenRealtime();
   });
