@@ -474,5 +474,30 @@ def main(voice_src=None, music_src=None):
     return rep
 
 
+def sfx_only(target_lufs=-21.0):
+    """Vorschau ohne Stimme: nur Soundeffekte (und Musik, falls vorhanden)."""
+    from motion import Motion
+    from scene import Director
+    from timeline import estimate_timeline
+    T = estimate_timeline()
+    M = Motion(T)
+    D = Director(T, M)
+    total = T.duration
+    sfx = build_sfx(D, total)
+    sfx = sfx / (np.abs(sfx).max() + 1e-9) * 0.5
+    mix = np.stack([sfx, sfx], 1)
+    music_src = os.path.join(ASSETS, "musik_2.mp3")
+    if os.path.exists(music_src):
+        mus = build_music(music_src, total, M.feats["active"], rate=120)
+        mus *= db2lin(rms_db(sfx[np.abs(sfx) > 0.01]) - 4 - rms_db(mus.mean(1)[: int(min(total, 20) * SR)]))
+        mix = mix + mus
+    pre = os.path.join(BUILD, "mix_pre.wav")
+    write_wav(pre, mix)
+    loudnorm(pre, os.path.join(BUILD, "mix.wav"), target=target_lufs)
+    res = measure(os.path.join(BUILD, "mix.wav"))
+    print("Vorschau-Ton:", res)
+    return res
+
+
 if __name__ == "__main__":
     main()

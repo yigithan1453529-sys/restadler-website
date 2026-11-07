@@ -21,6 +21,7 @@ from scene import Director
 
 TEST_DIR = os.path.join(ROOT, "testbilder")
 OUT_VIDEO = os.path.join(ROOT, "ORION-LAB_Erklaervideo.mp4")
+OUT_PREVIEW = os.path.join(ROOT, "ORION-LAB_Erklaervideo_ohne-Stimme.mp4")
 
 
 def load_timeline():
@@ -109,6 +110,13 @@ def cmd_part(args):
 
 def cmd_video(args):
     T = load_timeline()
+    out_video = OUT_VIDEO
+    if args.ohne_stimme:
+        if T.source != "schaetzung":
+            raise SystemExit("--ohne-stimme nur ohne build/timeline.json")
+        import audio
+        audio.sfx_only()
+        out_video = OUT_PREVIEW
     nframes = int(round(T.duration * FPS))
     parts = args.parts
     bounds = [round(i * nframes / parts) for i in range(parts + 1)]
@@ -135,8 +143,8 @@ def cmd_video(args):
     if os.path.exists(mix):
         subprocess.check_call(["ffmpeg", "-y", "-loglevel", "error", "-i", silent, "-i", mix,
                                "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                               "-shortest", "-movflags", "+faststart", OUT_VIDEO])
-        print("Fertig:", OUT_VIDEO)
+                               "-shortest", "-movflags", "+faststart", out_video])
+        print("Fertig:", out_video)
     else:
         print("Kein Ton (build/mix.wav fehlt) – stummes Video:", silent)
 
@@ -148,6 +156,7 @@ def main():
     a.add_argument("--only", default="")
     a = sub.add_parser("video")
     a.add_argument("--parts", type=int, default=4)
+    a.add_argument("--ohne-stimme", action="store_true", help="Vorschau mit geschätzten Zeiten, nur Effekte")
     a = sub.add_parser("part")
     a.add_argument("f0", type=int)
     a.add_argument("f1", type=int)
