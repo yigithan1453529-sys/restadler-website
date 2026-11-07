@@ -1,0 +1,13 @@
+{
+  "hinweis": "Auftrag für KIE-MCP (Preis vor dem Absenden nennen und auf OK warten).",
+  "model": "google/gemini-3-8-flash-tts",
+  "voice": "Leda",
+  "style": "Warm, bright and lively young woman narrating a friendly animated explainer video, smiling while speaking, clear standard German, speaking fluently in one continuous take, natural short pauses between sentences, never long pauses, lively pace.",
+  "dialogue_turns": [
+    {
+      "speaker": "Leda",
+      "text": "Hallo und willkommen im Orion Lab! Sie haben ein tolles Angebot? Super! Nur: Lange Texte liest heute kaum jemand bis zum Schluss. Mit einem Erklärvideo versteht man es sofort. Kurz, klar und mit Charakter. Und das machen wir für jede Firma, egal aus welcher Branche. Und zwar auf die beste Art und Weise. Unser Rezept aus dem Labor: Ihre Idee, eine starke Story und lebendige Animation. Fertig ist Ihr Erklärvideo! Schreiben Sie uns, wir freuen uns auf Ihr Projekt. Bis bald im Labor!"
+    }
+  ],
+  "ziel": "assets/voice.wav"
+}

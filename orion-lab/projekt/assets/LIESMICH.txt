@@ -1,0 +1,4 @@
+Hier ablegen:
+  voice.wav     – KIE-Stimme (Gemini-TTS «Leda», eine durchgehende Aufnahme aller 10 Sätze)
+  musik_2.mp3   – Hintergrundmusik (Suno, instrumental)
+  logo.png      – optional: «o.»-Zeichen als PNG mit Transparenz (sonst wird es nach Spezifikation gezeichnet)

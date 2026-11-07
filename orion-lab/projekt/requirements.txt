@@ -1,0 +1,5 @@
+skia-python>=87
+numpy
+scipy
+fonttools
+brotli
