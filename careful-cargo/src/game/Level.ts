@@ -34,6 +34,7 @@ export class LevelRun {
   /** Strongest vehicle/ground impact this frame (impulse per kg). */
   impactThisFrame = 0;
   checkpointThisFrame: number | null = null;
+  shiftedThisFrame = false;
 
   private flipTimer = 0;
   private allLostTimer = 0;
@@ -78,13 +79,17 @@ export class LevelRun {
     this.bumpedThisFrame = [];
     this.impactThisFrame = 0;
     this.checkpointThisFrame = null;
+    this.shiftedThisFrame = false;
     const active = this.state === "running";
     const controls: DriveInput = active ? input : { gas: false, brake: false };
     const carMass = this.vehicle.chassis.getMass();
 
     this.gw.advance(
       dt,
-      () => this.vehicle.control(controls),
+      () => {
+        this.vehicle.control(controls);
+        if (this.vehicle.shiftedUp) this.shiftedThisFrame = true;
+      },
       () => {
         for (const ev of this.gw.events) {
           if (ev.type === "cargoGround") this.cargo.handleGround(ev.item);

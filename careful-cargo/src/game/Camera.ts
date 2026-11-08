@@ -23,14 +23,15 @@ export class Camera {
   }
 
   follow(tx: number, ty: number, vx: number, dt: number): void {
-    const targetAhead = Math.max(-3, Math.min(7, 4 + vx * 0.3));
+    const targetAhead = Math.max(-3, Math.min(10, 4 + vx * 0.35));
     this.lookAhead += (targetAhead - this.lookAhead) * Math.min(1, dt * 1.5);
     const k = Math.min(1, dt * 5);
     this.x += (tx + this.lookAhead - this.x) * k;
     this.y += (ty + 2.2 - this.y) * Math.min(1, dt * 3.5);
 
-    const speedFactor = Math.min(1, Math.abs(vx) / 12);
-    const targetZoom = BASE_ZOOM * (1 - 0.18 * speedFactor);
+    // Zoom out with speed so fast cars still see what is coming.
+    const speedFactor = Math.min(1, Math.abs(vx) / 20);
+    const targetZoom = BASE_ZOOM * (1 - 0.3 * speedFactor);
     this.zoom += (targetZoom - this.zoom) * Math.min(1, dt * 1.2);
 
     if (this.shakeTime > 0) {

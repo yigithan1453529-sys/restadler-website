@@ -103,16 +103,23 @@ export class AudioFx {
     this.engineFilter = null;
   }
 
-  /** wheelSpeed in m/s (absolute), throttle 0..1 */
-  updateEngine(wheelSpeed: number, throttle: number): void {
+  /** rpm 0..1 within the current gear, gear 0..n, throttle 0..1 */
+  updateEngine(rpm: number, gear: number, throttle: number): void {
     const ctx = this.ctx;
     if (!ctx || !this.engineOsc || !this.engineGain || !this.engineOsc2 || !this.engineFilter) return;
     const t = ctx.currentTime;
-    const f = 45 + Math.min(wheelSpeed, 16) * 9 + throttle * 12;
-    this.engineOsc.frequency.setTargetAtTime(f, t, 0.05);
-    this.engineOsc2.frequency.setTargetAtTime(f / 2, t, 0.05);
-    this.engineFilter.frequency.setTargetAtTime(350 + throttle * 450 + wheelSpeed * 20, t, 0.05);
-    this.engineGain.gain.setTargetAtTime(0.05 + throttle * 0.07, t, 0.08);
+    // Each gear revs from low to high, so the sound climbs and drops at every shift.
+    const f = 48 + rpm * 120 + gear * 6 + throttle * 10;
+    this.engineOsc.frequency.setTargetAtTime(f, t, 0.03);
+    this.engineOsc2.frequency.setTargetAtTime(f / 2, t, 0.03);
+    this.engineFilter.frequency.setTargetAtTime(380 + throttle * 500 + rpm * 500, t, 0.04);
+    this.engineGain.gain.setTargetAtTime(0.05 + throttle * 0.07, t, 0.06);
+  }
+
+  /** Short "blip" when the gearbox shifts up. */
+  shift(): void {
+    this.noiseBurst(0.06, 0.12, "bandpass", 900);
+    this.tone(180, 0, 0.08, "sawtooth", 0.06, 120);
   }
 
   // ---- one-shot effects ----

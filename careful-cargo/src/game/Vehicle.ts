@@ -1,6 +1,6 @@
 import { Body, Polygon, Vec2Value, WheelJoint, Circle } from "planck";
 import type { TextKey } from "../i18n";
-import type { FixtureTag, GameWorld } from "./World";
+import { PHYSICS_STEP, type FixtureTag, type GameWorld } from "./World";
 
 type Pt = { x: number; y: number };
 
@@ -30,6 +30,8 @@ export interface VehicleSpec {
   reverseForce: number;
   airTorque: number;
   springHz: number;
+  /** Number of forward gears (automatic gearbox). */
+  gears: number;
 }
 
 const BODY: Pt[] = [
@@ -77,13 +79,14 @@ export const VEHICLES: VehicleSpec[] = [
     window: VAN_WINDOW,
     driver: { x: 0.55, y: 0.76 },
     density: 1.5,
-    maxSpeed: 12.6,
+    maxSpeed: 16,
     driveForce: 20,
     brakeForce: 49,
     reverseSpeed: 5,
     reverseForce: 13,
     airTorque: 14,
     springHz: 4,
+    gears: 4,
   },
   {
     // Slow but strong; big rear wheels soak up bumps.
@@ -112,13 +115,14 @@ export const VEHICLES: VehicleSpec[] = [
     ],
     driver: { x: 0.55, y: 0.82 },
     density: 1.9,
-    maxSpeed: 9,
+    maxSpeed: 10.5,
     driveForce: 30,
     brakeForce: 60,
     reverseSpeed: 4,
     reverseForce: 18,
     airTorque: 16,
     springHz: 3,
+    gears: 3,
   },
   {
     // Fast pickup with high side walls: cargo stays in much better.
@@ -135,13 +139,14 @@ export const VEHICLES: VehicleSpec[] = [
     window: VAN_WINDOW,
     driver: { x: 0.55, y: 0.76 },
     density: 1.5,
-    maxSpeed: 13.5,
+    maxSpeed: 17.5,
     driveForce: 22,
     brakeForce: 52,
     reverseSpeed: 5,
     reverseForce: 13,
     airTorque: 14,
     springHz: 4,
+    gears: 4,
   },
   {
     // Race truck: very fast and strong, but low walls: careful with the cargo!
@@ -175,13 +180,14 @@ export const VEHICLES: VehicleSpec[] = [
     ],
     driver: { x: 0.45, y: 0.8 },
     density: 1.6,
-    maxSpeed: 15,
+    maxSpeed: 21,
     driveForce: 26,
     brakeForce: 55,
     reverseSpeed: 5,
     reverseForce: 15,
     airTorque: 16,
     springHz: 4.5,
+    gears: 5,
   },
 ];
 
@@ -197,6 +203,19 @@ export interface DriveInput {
   brake: boolean;
 }
 
+/** Share of the top speed reached at the end of each gear (gear 1..n). */
+export function gearTop(spec: VehicleSpec, gear: number): number {
+  return spec.maxSpeed * Math.pow(gear / spec.gears, 0.8);
+}
+
+/** Pulling force in a gear: strong in first gear, weaker in top gear. */
+function gearForce(spec: VehicleSpec, gear: number): number {
+  const k = spec.gears > 1 ? (gear - 1) / (spec.gears - 1) : 0;
+  return spec.driveForce * (1.35 - 0.45 * k);
+}
+
+const SHIFT_TIME = 0.1;
+
 export class Vehicle {
   readonly chassis: Body;
   readonly rearWheel: Body;
@@ -206,6 +225,13 @@ export class Vehicle {
   onGround = false;
   /** 0..1 while driving (for dust and engine sound). */
   throttle = 0;
+  /** Current gear: 1..spec.gears, 0 = reverse. */
+  gear = 1;
+  /** Engine speed 0..1 within the current gear (for the sound and the rev counter). */
+  rpm = 0;
+  /** Set for one step when the gearbox shifts up (for sound and exhaust puff). */
+  shiftedUp = false;
+  private shiftTimer = 0;
 
   constructor(
     private gw: GameWorld,
@@ -268,11 +294,25 @@ export class Vehicle {
     let speed = 0;
     let force = ROLLING_FORCE;
     this.throttle = 0;
+    this.shiftedUp = false;
+    const v = Math.max(0, -this.rearWheel.getAngularVelocity() * s.rear.r);
+
+    // Automatic gearbox: shift up near the end of a gear, down when slow.
+    if (this.gear < 1) this.gear = 1;
+    if (this.shiftTimer > 0) this.shiftTimer -= PHYSICS_STEP;
+    if (input.gas && this.gear < s.gears && v > gearTop(s, this.gear) * 0.94 && this.shiftTimer <= 0) {
+      this.gear++;
+      this.shiftTimer = SHIFT_TIME;
+      this.shiftedUp = true;
+    }
+    while (this.gear > 1 && v < gearTop(s, this.gear - 1) * 0.72) this.gear--;
+    this.rpm = Math.min(1, Math.max(0.12, v / gearTop(s, this.gear)));
 
     if (input.gas && !input.brake) {
-      speed = s.maxSpeed;
-      force = s.driveForce;
-      this.throttle = 1;
+      speed = gearTop(s, this.gear) * 1.02;
+      // Less pull for a moment while shifting (a soft clutch, no hard jerk).
+      force = gearForce(s, this.gear) * (this.shiftTimer > 0 ? 0.55 : 1);
+      this.throttle = this.shiftTimer > 0 ? 0.5 : 1;
     } else if (input.brake && !input.gas) {
       const wheelSpin = -this.rearWheel.getAngularVelocity() * s.rear.r;
       if (wheelSpin > 0.4 || this.speed > 0.6) {
@@ -282,6 +322,8 @@ export class Vehicle {
         speed = -s.reverseSpeed;
         force = s.reverseForce;
         this.throttle = 0.6;
+        this.gear = 0;
+        this.rpm = Math.min(1, Math.abs(this.speed) / s.reverseSpeed);
       }
     }
 

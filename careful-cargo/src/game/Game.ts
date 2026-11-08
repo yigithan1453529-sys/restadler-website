@@ -17,7 +17,7 @@ import {
 } from "../ui/Menus";
 import { bestFriendRecord, displayName, formatTime, friendRanking, inviteFriend, receiveChallenge, rerollName } from "../social";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
-import { drawHint, drawHud, drawTimer } from "../ui/Hud";
+import { drawHint, drawHud, drawSpeedometer, drawTimer } from "../ui/Hud";
 import {
   drawFailScreen,
   drawPauseScreen,
@@ -444,8 +444,8 @@ export class Game {
     }
 
     if (this.state === "playing" || this.state === "ready") {
-      const wheelSpeed = Math.abs(run.vehicle.rearWheel.getAngularVelocity()) * run.vehicle.spec.rear.r;
-      this.audio.updateEngine(wheelSpeed, run.vehicle.throttle);
+      const v = run.vehicle;
+      this.audio.updateEngine(v.rpm, v.gear, v.throttle);
       this.updateHints(dt);
     }
 
@@ -519,6 +519,13 @@ export class Game {
     }
 
     if (run.checkpointThisFrame !== null) this.audio.checkpoint();
+
+    // Gear change: blip and a little exhaust puff.
+    if (run.shiftedThisFrame) {
+      this.audio.shift();
+      const back = v.chassis.getWorldPoint({ x: -1.55, y: -0.1 });
+      this.particles.dust(back.x, back.y, 1, 4);
+    }
   }
 
   private checkRunEnd(): void {
@@ -683,6 +690,7 @@ export class Game {
     if (s === "ready" || s === "playing") {
       drawHud(ctx, t("hud.level", { n: this.levelId }), run.cargo.items, this.lostFlash, run.cargo.meltLeft(run.time), this.time);
       drawTimer(ctx, formatTime(run.time));
+      drawSpeedometer(ctx, Math.abs(run.vehicle.speed) * 3.6, run.vehicle.gear, run.vehicle.rpm, run.vehicle.spec.maxSpeed * 3.6);
       if (this.hint) {
         const alpha = this.hint.left === Infinity ? 1 : Math.min(1, this.hint.left * 2);
         drawHint(ctx, t(this.hint.text), alpha, this.time);

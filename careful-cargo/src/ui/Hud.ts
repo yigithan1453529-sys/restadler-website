@@ -76,3 +76,44 @@ export function drawTimer(ctx: CanvasRenderingContext2D, text: string): void {
   glassPill(ctx, 870, 18, 140, 60);
   plainText(ctx, text, 940, 49, 24);
 }
+
+/** Speedometer with the current gear, bottom center. */
+export function drawSpeedometer(ctx: CanvasRenderingContext2D, kmh: number, gear: number, rpm: number, maxKmh: number): void {
+  const cx = 640;
+  const cy = 690;
+  const r = 78;
+  ctx.save();
+  // dial
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(255,255,255,0.88)";
+  ctx.fill();
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = "#2D2D2D";
+  ctx.stroke();
+  // rev band: green → yellow → red
+  for (let i = 0; i < 20; i++) {
+    const a0 = Math.PI + (i / 20) * Math.PI;
+    const a1 = Math.PI + ((i + 0.8) / 20) * Math.PI;
+    const lit = i / 20 < rpm;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 10, a0, a1);
+    ctx.strokeStyle = !lit ? "rgba(45,45,45,0.15)" : i < 12 ? "#3BCEAC" : i < 16 ? "#FFB627" : "#E84A5F";
+    ctx.lineWidth = 9;
+    ctx.stroke();
+  }
+  // needle shows the speed
+  const a = Math.PI + Math.min(1, kmh / Math.max(1, maxKmh)) * Math.PI;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.cos(a) * (r - 22), cy + Math.sin(a) * (r - 22));
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#E84A5F";
+  ctx.stroke();
+  ctx.restore();
+  // gear and speed
+  plainText(ctx, gear === 0 ? "R" : String(gear), cx, cy - 34, 26, "#2D2D2D");
+  plainText(ctx, `${Math.round(kmh)} km/h`, cx, cy - 10, 17, "#555555");
+}
