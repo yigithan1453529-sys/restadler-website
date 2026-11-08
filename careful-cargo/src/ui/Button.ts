@@ -1,5 +1,4 @@
-import { COLORS } from "../game/Renderer";
-import { drawIcon, IconName, plainText, roundRect } from "./draw";
+import { drawIcon, drawSurface, IconName, plainText, SURFACES } from "./draw";
 
 export interface Button {
   x: number;
@@ -35,7 +34,7 @@ export function drawButton(ctx: CanvasRenderingContext2D, b: Button, hover: bool
   ctx.save();
   const cx = b.x + b.w / 2;
   const cy = b.y + b.h / 2;
-  const scale = pressed ? 0.95 : hover ? 1.04 : 1;
+  const scale = pressed ? 0.97 : hover ? 1.03 : 1;
   ctx.translate(cx, cy);
   ctx.scale(scale, scale);
   ctx.translate(-cx, -cy);
@@ -44,17 +43,11 @@ export function drawButton(ctx: CanvasRenderingContext2D, b: Button, hover: bool
     ctx.restore();
     return;
   }
-  const r = Math.min(18, b.h / 3);
-  // shadow
-  roundRect(ctx, b.x, b.y + 5, b.w, b.h, r);
-  ctx.fillStyle = "rgba(45,45,45,0.35)";
-  ctx.fill();
-  roundRect(ctx, b.x, b.y, b.w, b.h, r);
-  ctx.fillStyle = b.disabled ? "#CCCCCC" : b.primary ? "#FFD23F" : "#FFFFFF";
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
+  const r = Math.min(b.h * 0.42, 34);
+  const look = b.disabled ? SURFACES.disabled : b.primary ? SURFACES.primary : SURFACES.normal;
+  const sink = pressed ? 4 : 0;
+  drawSurface(ctx, b.x, b.y + sink, b.w, b.h, r, look[0], look[1], look[2], 6 - sink);
+  ctx.translate(0, sink);
 
   const size = b.primary && b.h >= 80 ? 38 : 26;
   if (b.icon && b.label) {

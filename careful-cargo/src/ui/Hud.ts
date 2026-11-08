@@ -1,7 +1,7 @@
 import type { CargoItem } from "../game/Cargo";
 import { VIEW_W } from "../game/Camera";
-import { COLORS, drawCargoShape } from "../game/Renderer";
-import { outlinedText, plainText, roundRect } from "./draw";
+import { drawCargoShape } from "../game/Renderer";
+import { glassPill, outlinedText, plainText } from "./draw";
 
 /** Level label (left) and cargo icons (center). Buttons are added by Game. */
 export function drawHud(
@@ -14,12 +14,7 @@ export function drawHud(
 ): void {
   // level pill
   ctx.font = `bold 30px sans-serif`;
-  roundRect(ctx, 20, 18, 170, 60, 30);
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
+  glassPill(ctx, 20, 18, 170, 60);
   plainText(ctx, levelLabel, 105, 49, 28);
 
   // cargo icons
@@ -28,12 +23,7 @@ export function drawHud(
   const total = items.length * size + (items.length - 1) * gap;
   let x = VIEW_W / 2 - total / 2 + size / 2;
   const y = 48;
-  roundRect(ctx, x - size / 2 - 14, 18, total + 28, 60, 30);
-  ctx.fillStyle = "rgba(255,255,255,0.75)";
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
+  glassPill(ctx, x - size / 2 - 14, 18, total + 28, 60);
 
   for (const item of items) {
     const flash = lostFlash.get(item.id) ?? 0;

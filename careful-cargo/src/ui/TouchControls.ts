@@ -1,5 +1,4 @@
 import { TOUCH_BRAKE, TOUCH_GAS, type Circle } from "../game/Input";
-import { COLORS } from "../game/Renderer";
 
 function arrow(ctx: CanvasRenderingContext2D, c: Circle, dir: 1 | -1): void {
   const s = c.r * 0.42;
@@ -18,17 +17,26 @@ export function drawTouchControls(ctx: CanvasRenderingContext2D, gas: boolean, b
     [TOUCH_GAS, gas, 1],
   ];
   for (const [c, down, dir] of pairs) {
+    const r = down ? c.r * 0.94 : c.r;
     ctx.save();
-    ctx.globalAlpha = down ? 0.7 : 0.4;
+    ctx.shadowColor = "rgba(20,30,60,0.25)";
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+    const g = ctx.createRadialGradient(c.x - r * 0.3, c.y - r * 0.4, r * 0.1, c.x, c.y, r);
+    g.addColorStop(0, down ? "rgba(255,240,180,0.85)" : "rgba(255,255,255,0.7)");
+    g.addColorStop(1, down ? "rgba(255,190,60,0.75)" : "rgba(220,230,245,0.45)");
     ctx.beginPath();
-    ctx.arc(c.x, c.y, down ? c.r * 0.94 : c.r, 0, Math.PI * 2);
-    ctx.fillStyle = "#FFFFFF";
+    ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = g;
     ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = COLORS.outline;
-    ctx.stroke();
-    ctx.fillStyle = COLORS.outline;
-    arrow(ctx, c, dir);
     ctx.restore();
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(45,45,45,0.7)";
+    ctx.stroke();
+    ctx.fillStyle = "rgba(45,45,45,0.8)";
+    ctx.lineJoin = "round";
+    arrow(ctx, c, dir);
   }
 }

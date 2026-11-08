@@ -1,12 +1,16 @@
 import { VIEW_H, VIEW_W } from "../game/Camera";
 import { COLORS } from "../game/Renderer";
 import type { Button } from "./Button";
-import { drawIcon, drawStar, outlinedText, plainText, roundRect } from "./draw";
+import { drawIcon, drawStar, drawSurface, outlinedText, plainText, SURFACES } from "./draw";
 
 export const PANEL = { x: 330, y: 120, w: 620, h: 480 };
 
+/** Darkens the scene with a soft blue vignette (stronger at the edges). */
 export function drawDim(ctx: CanvasRenderingContext2D, alpha = 0.35): void {
-  ctx.fillStyle = `rgba(30,40,60,${alpha})`;
+  const g = ctx.createRadialGradient(VIEW_W / 2, VIEW_H / 2, VIEW_H * 0.2, VIEW_W / 2, VIEW_H / 2, VIEW_W * 0.75);
+  g.addColorStop(0, `rgba(25,35,70,${alpha * 0.7})`);
+  g.addColorStop(1, `rgba(15,20,45,${Math.min(0.9, alpha * 1.6)})`);
+  ctx.fillStyle = g;
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 }
 
@@ -17,15 +21,7 @@ export function drawPanel(ctx: CanvasRenderingContext2D, appear: number): void {
   ctx.translate(x + w / 2, y + h / 2);
   ctx.scale(k, k);
   ctx.translate(-(x + w / 2), -(y + h / 2));
-  roundRect(ctx, x, y + 8, w, h, 32);
-  ctx.fillStyle = "rgba(45,45,45,0.35)";
-  ctx.fill();
-  roundRect(ctx, x, y, w, h, 32);
-  ctx.fillStyle = "#FFF8EC";
-  ctx.fill();
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
+  drawSurface(ctx, x, y, w, h, 36, "#FFFFFF", "#EEF3FA", "#B4C0D3", 8);
   ctx.restore();
 }
 
@@ -108,21 +104,24 @@ export interface TileInfo {
 /** Custom renderer for a level tile button. */
 export function levelTileRenderer(info: TileInfo) {
   return (ctx: CanvasRenderingContext2D, b: Button): void => {
-    roundRect(ctx, b.x, b.y + 6, b.w, b.h, 24);
-    ctx.fillStyle = "rgba(45,45,45,0.35)";
+    const look = info.locked ? SURFACES.disabled : info.current ? SURFACES.selected : SURFACES.normal;
+    drawSurface(ctx, b.x, b.y, b.w, b.h, 28, look[0], look[1], look[2]);
+    const cx = b.x + b.w / 2;
+    // number badge
+    ctx.beginPath();
+    ctx.arc(cx, b.y + 72, 44, 0, Math.PI * 2);
+    ctx.fillStyle = info.locked ? "#BDBDBD" : "#FF6B35";
     ctx.fill();
-    roundRect(ctx, b.x, b.y, b.w, b.h, 24);
-    ctx.fillStyle = info.locked ? "#D5D5D5" : info.current ? "#FFE58A" : "#FFFFFF";
-    ctx.fill();
-    ctx.lineWidth = info.current ? 5 : 3;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = COLORS.outline;
     ctx.stroke();
-    const cx = b.x + b.w / 2;
-    if (info.locked) {
-      drawIcon(ctx, "lock", cx, b.y + 80, 70);
-    } else {
-      outlinedText(ctx, String(info.number), cx, b.y + 72, 64, "#FF6B35");
-    }
+    ctx.beginPath();
+    ctx.arc(cx, b.y + 72, 36, Math.PI * 1.1, Math.PI * 1.9);
+    ctx.strokeStyle = "rgba(255,255,255,0.45)";
+    ctx.lineWidth = 5;
+    ctx.stroke();
+    if (info.locked) drawIcon(ctx, "lock", cx, b.y + 74, 46);
+    else outlinedText(ctx, String(info.number), cx, b.y + 74, 46, "#FFFFFF");
     plainText(ctx, info.name, cx, b.y + 140, 19, info.locked ? "#777777" : COLORS.outline);
     for (let i = 0; i < 3; i++) drawStar(ctx, cx + (i - 1) * 42, b.y + 182, 17, i < info.stars);
   };

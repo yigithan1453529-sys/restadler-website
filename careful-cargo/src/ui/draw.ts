@@ -25,11 +25,11 @@ export function outlinedText(
   fill = "#FFFFFF",
   align: CanvasTextAlign = "center",
 ): void {
-  ctx.font = `bold ${size}px ${FONT}`;
+  ctx.font = `900 ${size}px ${FONT}`;
   ctx.textAlign = align;
   ctx.textBaseline = "middle";
   ctx.lineJoin = "round";
-  ctx.lineWidth = Math.max(4, size * 0.16);
+  ctx.lineWidth = Math.max(4, size * 0.18);
   ctx.strokeStyle = COLORS.outline;
   ctx.strokeText(text, x, y);
   ctx.fillStyle = fill;
@@ -45,7 +45,7 @@ export function plainText(
   color = COLORS.outline,
   align: CanvasTextAlign = "center",
 ): void {
-  ctx.font = `bold ${size}px ${FONT}`;
+  ctx.font = `800 ${size}px ${FONT}`;
   ctx.textAlign = align;
   ctx.textBaseline = "middle";
   ctx.fillStyle = color;
@@ -234,12 +234,79 @@ export function drawCoin(ctx: CanvasRenderingContext2D, x: number, y: number, r:
 
 /** Coin counter in a white pill. */
 export function drawCoinPill(ctx: CanvasRenderingContext2D, x: number, y: number, coins: number): void {
-  roundRect(ctx, x, y, 200, 60, 30);
-  ctx.fillStyle = "rgba(255,255,255,0.92)";
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
+  glassPill(ctx, x, y, 200, 60);
   drawCoin(ctx, x + 32, y + 30, 19);
   plainText(ctx, String(coins), x + 62, y + 31, 28, COLORS.outline, "left");
+}
+
+/**
+ * A modern raised surface: soft drop shadow, darker bottom edge ("3D" lip),
+ * vertical gradient and a thin dark outline.
+ */
+export function drawSurface(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+  top: string,
+  bottom: string,
+  edge: string,
+  lift = 6,
+): void {
+  ctx.save();
+  // soft shadow
+  ctx.shadowColor = "rgba(20,30,60,0.28)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 8;
+  roundRect(ctx, x, y + lift, w, h, r);
+  ctx.fillStyle = edge;
+  ctx.fill();
+  ctx.restore();
+  // lip
+  roundRect(ctx, x, y + lift, w, h, r);
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.stroke();
+  // face
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, top);
+  g.addColorStop(1, bottom);
+  roundRect(ctx, x, y, w, h, r);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.stroke();
+  // glossy highlight on the upper part
+  ctx.save();
+  roundRect(ctx, x, y, w, h, r);
+  ctx.clip();
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  roundRect(ctx, x + 6, y + 4, w - 12, Math.min(h * 0.38, 40), Math.max(4, r - 6));
+  ctx.fill();
+  ctx.restore();
+}
+
+export const SURFACES = {
+  primary: ["#FFE066", "#FFB627", "#D98A00"],
+  normal: ["#FFFFFF", "#E9EEF6", "#AEB9C9"],
+  disabled: ["#E4E4E4", "#CFCFCF", "#9E9E9E"],
+  green: ["#6EE7C2", "#2FBF95", "#1E8E6D"],
+  selected: ["#FFF4C2", "#FFE07A", "#D9A520"],
+} as const;
+
+/** Frosted white pill for the in-game HUD. */
+export function glassPill(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void {
+  ctx.save();
+  ctx.shadowColor = "rgba(20,30,60,0.22)";
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 4;
+  roundRect(ctx, x, y, w, h, h / 2);
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.fill();
+  ctx.restore();
+  roundRect(ctx, x, y, w, h, h / 2);
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.stroke();
 }

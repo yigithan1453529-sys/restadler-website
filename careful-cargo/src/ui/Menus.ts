@@ -5,7 +5,7 @@ import { getVehicleSpec, VEHICLES, type VehicleSpec } from "../game/Vehicle";
 import { t } from "../i18n";
 import { loadSave } from "../storage";
 import type { Button } from "./Button";
-import { drawCoin, drawCoinPill, drawIcon, outlinedText, plainText, roundRect } from "./draw";
+import { drawCoin, drawCoinPill, drawIcon, drawSurface, outlinedText, plainText, roundRect, SURFACES } from "./draw";
 import { drawDim } from "./Screens";
 
 /** What the menu screens need from the game. */
@@ -26,16 +26,10 @@ export interface MenuHost {
   buyPaint(id: string): void;
 }
 
-function card(ctx: CanvasRenderingContext2D, b: Button, fill: string, selected: boolean): void {
-  roundRect(ctx, b.x, b.y + 6, b.w, b.h, 22);
-  ctx.fillStyle = "rgba(45,45,45,0.35)";
-  ctx.fill();
-  roundRect(ctx, b.x, b.y, b.w, b.h, 22);
-  ctx.fillStyle = fill;
-  ctx.fill();
-  ctx.lineWidth = selected ? 5 : 3;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
+function card(ctx: CanvasRenderingContext2D, b: Button, kind: "normal" | "selected" | "disabled" | "owned"): void {
+  const look =
+    kind === "selected" ? SURFACES.selected : kind === "disabled" ? SURFACES.disabled : kind === "owned" ? (["#F4FFF9", "#DDF5EA", "#9CC9B5"] as const) : SURFACES.normal;
+  drawSurface(ctx, b.x, b.y, b.w, b.h, 26, look[0], look[1], look[2]);
 }
 
 function vehicleColor(spec: VehicleSpec): string {
@@ -58,6 +52,48 @@ function backButton(host: MenuHost): Button {
 
 // ---------------- Home ----------------
 
+/** Game logo: big gradient lettering, tilted a little, with a crate on top. */
+function drawLogo(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.04);
+  const text = t("title");
+  ctx.font = `900 104px "Trebuchet MS", "Segoe UI", system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  // thick dark outline and a drop "3D" layer
+  ctx.lineWidth = 22;
+  ctx.strokeStyle = "#2D2D2D";
+  ctx.strokeText(text, 0, 8);
+  ctx.fillStyle = "#2D2D2D";
+  ctx.fillText(text, 0, 8);
+  ctx.strokeText(text, 0, 0);
+  const g = ctx.createLinearGradient(0, -50, 0, 50);
+  g.addColorStop(0, "#FFE066");
+  g.addColorStop(0.55, "#FFB627");
+  g.addColorStop(1, "#FF6B35");
+  ctx.fillStyle = g;
+  ctx.fillText(text, 0, 0);
+  // little crate sitting on the logo
+  const w = ctx.measureText(text).width;
+  ctx.translate(w / 2 - 20, -62);
+  ctx.rotate(0.18);
+  ctx.fillStyle = "#C68642";
+  roundRect(ctx, -26, -26, 52, 52, 6);
+  ctx.fill();
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  ctx.strokeStyle = "#9C6630";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(-17, -17, 34, 34);
+  ctx.beginPath();
+  ctx.moveTo(-17, -17);
+  ctx.lineTo(17, 17);
+  ctx.stroke();
+  ctx.restore();
+}
+
 export function homeButtons(host: MenuHost): Button[] {
   return [
     { x: VIEW_W / 2 - 190, y: 248, w: 380, h: 120, label: t("home.play"), icon: "play", primary: true, action: () => host.play() },
@@ -70,8 +106,7 @@ export function homeButtons(host: MenuHost): Button[] {
 
 export function drawHome(ctx: CanvasRenderingContext2D, host: MenuHost): void {
   drawDim(ctx, 0.3);
-  const bob = Math.sin(host.time * 2) * 5;
-  outlinedText(ctx, t("title"), VIEW_W / 2, 150 + bob, 96, "#FFD23F");
+  drawLogo(ctx, VIEW_W / 2, 140 + Math.sin(host.time * 2) * 5);
   drawCoinPill(ctx, VIEW_W - 220, 22, loadSave().coins);
   outlinedText(ctx, t("hud.level", { n: host.levelId }), VIEW_W / 2, 400, 30, "#FFFFFF");
 }
@@ -91,7 +126,7 @@ export function garageButtons(host: MenuHost): Button[] {
       w: 250,
       h: 180,
       render: (c, b) => {
-        card(c, b, chosen ? "#FFE58A" : owned ? "#FFFFFF" : "#D5D5D5", chosen);
+        card(c, b, chosen ? "selected" : owned ? "normal" : "disabled");
         preview(c, spec, b.x + b.w / 2, b.y + 72, 50, vehicleColor(spec), owned ? 1 : 0.4);
         plainText(c, t(spec.name), b.x + b.w / 2, b.y + 140, 22);
         if (!owned) {
@@ -201,7 +236,7 @@ export function shopButtons(host: MenuHost): Button[] {
         w,
         h: 440,
         render: (c, b) => {
-          card(c, b, owned ? "#E9F9EE" : "#FFFFFF", false);
+          card(c, b, owned ? "owned" : "normal");
           preview(c, spec, b.x + b.w / 2, b.y + 120, 72, spec.color);
           plainText(c, t(spec.name), b.x + b.w / 2, b.y + 230, 26);
           const bars: [string, number][] = [
@@ -251,7 +286,7 @@ export function shopButtons(host: MenuHost): Button[] {
         w,
         h: 230,
         render: (c, b) => {
-          card(c, b, owned ? "#E9F9EE" : "#FFFFFF", false);
+          card(c, b, owned ? "owned" : "normal");
           preview(c, van, b.x + b.w / 2, b.y + 62, 42, paint.color ?? van.color);
           plainText(c, t(paint.name), b.x + b.w / 2, b.y + 128, 22);
           roundRect(c, b.x + 22, b.y + b.h - 70, b.w - 44, 50, 16);
