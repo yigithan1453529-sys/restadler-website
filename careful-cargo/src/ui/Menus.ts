@@ -51,6 +51,26 @@ function preview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, x: number, y:
   ctx.restore();
 }
 
+/** Page index of the vehicle lists (kept while the game runs). */
+const pager = { shop: 0, garage: 0 };
+
+/** Left/right arrows for paged lists; x0/x1 are the outer edges. */
+function pageArrows(page: number, pages: number, x0: number, x1: number, y: number, set: (p: number) => void): Button[] {
+  const list: Button[] = [];
+  if (page > 0) list.push({ x: x0, y: y - 38, w: 60, h: 76, icon: "prev", action: () => set(page - 1) });
+  if (page < pages - 1) list.push({ x: x1 - 60, y: y - 38, w: 60, h: 76, icon: "next", action: () => set(page + 1) });
+  return list;
+}
+
+/** Shows the page that contains a vehicle (e.g. after choosing it elsewhere). */
+export function showVehicleInLists(id: string): void {
+  const i = VEHICLES.findIndex((v) => v.id === id);
+  if (i < 0) return;
+  pager.garage = Math.floor(i / 4);
+  const j = VEHICLES.filter((v) => v.price > 0).findIndex((v) => v.id === id);
+  if (j >= 0) pager.shop = Math.floor(j / 3);
+}
+
 function backButton(host: MenuHost): Button {
   return { x: VIEW_W - 100, y: 24, w: 76, h: 76, icon: "home", action: () => host.goHome() };
 }
@@ -124,13 +144,18 @@ export function garageButtons(host: MenuHost): Button[] {
   const save = loadSave();
   const list: Button[] = [backButton(host)];
   // vehicle cards (2 × 2) on the right
-  VEHICLES.forEach((spec, i) => {
+  // 4 vehicles per page, arrows to flip through
+  const perPage = 4;
+  const pages = Math.ceil(VEHICLES.length / perPage);
+  pager.garage = Math.min(pager.garage, pages - 1);
+  list.push(...pageArrows(pager.garage, pages, 628, 1268, 330, (p) => (pager.garage = p)));
+  VEHICLES.slice(pager.garage * perPage, pager.garage * perPage + perPage).forEach((spec, i) => {
     const owned = save.owned.includes(spec.id);
     const chosen = save.vehicle === spec.id;
     list.push({
-      x: 720 + (i % 2) * 270,
+      x: 698 + (i % 2) * 255,
       y: 130 + Math.floor(i / 2) * 200,
-      w: 250,
+      w: 240,
       h: 180,
       render: (c, b) => {
         card(c, b, chosen ? "selected" : owned ? "normal" : "disabled");
@@ -213,8 +238,8 @@ export function drawGarage(ctx: CanvasRenderingContext2D): void {
   ctx.fill();
   preview(ctx, spec, 330, 290, 92);
   outlinedText(ctx, t(spec.name), 330, 140, 38, "#FFD23F");
-  statBar(ctx, t("garage.speed"), spec.maxSpeed / 15, 450);
-  statBar(ctx, t("garage.power"), spec.driveForce / 30, 492);
+  statBar(ctx, t("garage.speed"), spec.maxSpeed / 27, 450);
+  statBar(ctx, t("garage.power"), spec.driveForce / 35, 492);
   statBar(ctx, t("garage.walls"), (spec.bed.wallTop - 0.2) / 0.55, 534);
   plainText(ctx, t("garage.colors"), 70, 588, 22, "#FFFFFF", "left");
 }
@@ -230,7 +255,12 @@ export function shopButtons(host: MenuHost): Button[] {
     { x: VIEW_W / 2 + 10, y: 116, w: 240, h: 64, label: t("shop.paints"), primary: tab === "paints", action: () => host.openShop("paints") },
   );
   if (tab === "vehicles") {
-    const items = VEHICLES.filter((v) => v.price > 0);
+    const all = VEHICLES.filter((v) => v.price > 0);
+    const perPage = 3;
+    const pages = Math.ceil(all.length / perPage);
+    pager.shop = Math.min(pager.shop, pages - 1);
+    list.push(...pageArrows(pager.shop, pages, 30, VIEW_W - 30, 440, (p) => (pager.shop = p)));
+    const items = all.slice(pager.shop * perPage, pager.shop * perPage + perPage);
     const w = 330;
     const gap = 26;
     const x0 = (VIEW_W - (items.length * w + (items.length - 1) * gap)) / 2;
@@ -247,8 +277,8 @@ export function shopButtons(host: MenuHost): Button[] {
           preview(c, spec, b.x + b.w / 2, b.y + 120, 72, spec.color);
           plainText(c, t(spec.name), b.x + b.w / 2, b.y + 230, 26);
           const bars: [string, number][] = [
-            [t("garage.speed"), spec.maxSpeed / 15],
-            [t("garage.power"), spec.driveForce / 30],
+            [t("garage.speed"), spec.maxSpeed / 27],
+            [t("garage.power"), spec.driveForce / 35],
             [t("garage.walls"), (spec.bed.wallTop - 0.2) / 0.55],
           ];
           bars.forEach(([label, v], k) => {

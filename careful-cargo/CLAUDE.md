@@ -132,7 +132,8 @@ docs/GDD.md          Spielkonzept
 - [x] 40 Level: 4 Inseln à 10 Level mit Weltkarte; weitere Ladungen (Aquarium, Opa,
   Glace, Bowlingkugel)
 - [ ] Geschenkturm als Ladung
-- [x] Weitere Fahrzeuge (Traktor, Pickup, Renn-Truck 47), Deutsch als zweite Sprache
+- [x] 11 Fahrzeuge (u. a. Polizei, Feuerwehr, Krankenwagen, Lastwagen, 2 Supersportwagen),
+  automatisches Getriebe mit Tacho, Deutsch als zweite Sprache
 - [x] Coins, Shop (Fahrzeuge, Farben), Garage, Home-Bildschirm
 - [x] Rekorde, Freunde-Rangliste per Einladungs-Link, neue Kunden-Figuren, Himmel mit
   Flugzeugen/Ballonen/Zeppelin, moderneres Design

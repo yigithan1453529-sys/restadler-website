@@ -326,11 +326,24 @@ export function drawWheel(
 }
 
 /** Draws the chassis in its local frame (meters, y up). */
-export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, color = spec.color): void {
+export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, color = spec.color, time = 0): void {
   ctx.lineWidth = lw;
   ctx.strokeStyle = COLORS.outline;
   ctx.lineJoin = "round";
   if (spec.id === "racer") drawRacerBack(ctx, lw);
+  if (spec.id === "lorry") bar(ctx, [{ x: 0.32, y: 0.9 }, { x: 0.32, y: 1.62 }], 0.12, "#9AA1A9", lw);
+  if (spec.id === "superRed") {
+    // small rear wing
+    bar(ctx, [{ x: -1.25, y: 0.38 }, { x: -1.3, y: 0.62 }], 0.05, "#2D2D2D", lw);
+    ctx.fillStyle = "#2D2D2D";
+    poly(ctx, [
+      { x: -1.62, y: 0.6 },
+      { x: -1.05, y: 0.6 },
+      { x: -1.05, y: 0.68 },
+      { x: -1.66, y: 0.7 },
+    ]);
+    ctx.fill();
+  }
   if (spec.id === "tractor") {
     // exhaust pipe
     ctx.fillStyle = "#555555";
@@ -371,20 +384,157 @@ export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw
     ctx.stroke();
     ctx.strokeStyle = COLORS.outline;
   }
-  if (spec.id === "racer") {
-    drawRacerFront(ctx, spec, lw);
-  } else {
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(-1.5, -0.06, 3.0, 0.1);
-  }
+  if (spec.id === "racer") drawRacerFront(ctx, spec, lw);
+  else drawDetails(ctx, spec, lw, time);
+  // head- and taillights
+  const front = spec.cabin.reduce((m, p) => Math.max(m, p.x), 0);
+  const sporty = spec.id === "superRed" || spec.id === "superYellow";
   ctx.fillStyle = "#FFE45E";
-  ctx.beginPath();
-  ctx.arc(1.42, 0.4, 0.07, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
+  if (sporty) {
+    poly(ctx, [
+      { x: front - 0.3, y: 0.3 },
+      { x: front - 0.02, y: 0.24 },
+      { x: front - 0.04, y: 0.29 },
+      { x: front - 0.32, y: 0.34 },
+    ]);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.arc(front - 0.08, 0.4, 0.07, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
   ctx.fillStyle = "#E8283C";
   ctx.fillRect(-1.52, 0.02, 0.08, 0.14);
 }
+
+/** Flashing red and blue lights on the roof. */
+function lightBar(ctx: CanvasRenderingContext2D, x: number, y: number, time: number, lw: number): void {
+  const on = Math.sin(time * 12) > 0;
+  ctx.fillStyle = "#2D2D2D";
+  ctx.fillRect(x - 0.3, y, 0.6, 0.06);
+  for (const [dx, col, lit] of [
+    [-0.15, "#FF3B3B", on],
+    [0.15, "#3D8BFF", !on],
+  ] as const) {
+    if (lit) {
+      const g = ctx.createRadialGradient(x + dx, y + 0.13, 0.02, x + dx, y + 0.13, 0.5);
+      g.addColorStop(0, col === "#FF3B3B" ? "rgba(255,80,80,0.55)" : "rgba(80,150,255,0.55)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x + dx, y + 0.13, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = lit ? col : col === "#FF3B3B" ? "#8A2C2C" : "#2C4A8A";
+    roundRectPath(ctx, x + dx - 0.13, y + 0.05, 0.26, 0.15, 0.05);
+    ctx.fill();
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.stroke();
+  }
+}
+
+/** Text painted on a vehicle side (local units, y up). */
+function sideText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, color: string): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(size / 40, -size / 40);
+  ctx.font = `900 40px ${FONT}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = color;
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+}
+
+/** Stripes, lettering and lights for each vehicle. */
+function drawDetails(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, time: number): void {
+  const stripe = (color: string, y = -0.06, h = 0.1): void => {
+    ctx.fillStyle = color;
+    ctx.fillRect(-1.5, y, 3.0, h);
+  };
+  switch (spec.id) {
+    case "police":
+      ctx.fillStyle = "#1D3557";
+      ctx.fillRect(-0.3, -0.2, 1.6, 0.4);
+      ctx.strokeRect(-0.3, -0.2, 1.6, 0.4);
+      sideText(ctx, "POLICE", 0.5, 0.0, 0.2, "#FFFFFF");
+      lightBar(ctx, 0.5, 0.98, time, lw);
+      break;
+    case "policeVan":
+      stripe("#FFFFFF", -0.09, 0.16);
+      sideText(ctx, "POLICE", 0.44, 0.45, 0.15, "#FFFFFF");
+      lightBar(ctx, 0.62, 1.2, time, lw);
+      break;
+    case "ambulance":
+      stripe("#E63946", -0.08, 0.14);
+      ctx.fillStyle = "#E63946";
+      ctx.fillRect(0.3, 0.75, 0.24, 0.08);
+      ctx.fillRect(0.38, 0.67, 0.08, 0.24);
+      lightBar(ctx, 0.62, 1.15, time, lw);
+      break;
+    case "fireTruck":
+      stripe("#FFFFFF", -0.08, 0.12);
+      stripe("#FFD23F", -0.15, 0.04);
+      // ladder on the roof racks, reaching back over the bed
+      bar(ctx, [{ x: 0.3, y: 1.1 }, { x: 0.3, y: 1.22 }], 0.05, "#9AA1A9", lw);
+      bar(ctx, [{ x: -1.3, y: 0.55 }, { x: -1.3, y: 1.22 }], 0.05, "#9AA1A9", lw);
+      ctx.strokeStyle = COLORS.outline;
+      ctx.lineWidth = lw;
+      ctx.fillStyle = "#D9DDE2";
+      ctx.fillRect(-1.55, 1.2, 2.0, 0.05);
+      ctx.strokeRect(-1.55, 1.2, 2.0, 0.05);
+      ctx.fillRect(-1.55, 1.34, 2.0, 0.05);
+      ctx.strokeRect(-1.55, 1.34, 2.0, 0.05);
+      for (let x = -1.5; x < 0.45; x += 0.22) {
+        ctx.fillRect(x, 1.25, 0.04, 0.09);
+      }
+      lightBar(ctx, 1.0, 1.1, time, lw);
+      break;
+    case "lorry":
+      stripe("#2D2D2D", -0.06, 0.08);
+      ctx.fillStyle = "#4A4F55";
+      ctx.fillRect(1.5, 0.25, 0.1, 0.45);
+      ctx.strokeRect(1.5, 0.25, 0.1, 0.45);
+      ctx.fillStyle = "#D9DDE2";
+      ctx.fillRect(1.45, -0.22, 0.2, 0.14);
+      ctx.strokeRect(1.45, -0.22, 0.2, 0.14);
+      break;
+    case "superRed":
+    case "superYellow": {
+      // dark wheel arches make the car look low
+      ctx.fillStyle = "#2D2D2D";
+      for (const w of [spec.rear, spec.front]) {
+        ctx.beginPath();
+        ctx.arc(w.x, w.y, w.r + 0.06, 0.05 * Math.PI, 0.95 * Math.PI);
+        ctx.closePath();
+        ctx.fill();
+      }
+      // dark side air intake in front of the rear wheel and a thin racing line
+      ctx.fillStyle = "#2D2D2D";
+      poly(ctx, [
+        { x: -0.45, y: 0.12 },
+        { x: 0.05, y: 0.18 },
+        { x: 0.05, y: -0.05 },
+        { x: -0.3, y: -0.1 },
+      ]);
+      ctx.fill();
+      ctx.fillStyle = spec.id === "superRed" ? "#FFFFFF" : "#2D2D2D";
+      ctx.fillRect(-1.5, -0.14, 3.15, 0.04);
+      if (spec.id === "superYellow") {
+        // angular vents on the cabin side
+        ctx.fillStyle = "#2D2D2D";
+        for (let k = 0; k < 3; k++) ctx.fillRect(0.95 + k * 0.12, 0.25, 0.07, 0.07);
+      }
+      break;
+    }
+    default:
+      stripe("#FFFFFF");
+  }
+}
+
+const SPORT_RIMS = new Set(["racer", "superRed", "superYellow", "police"]);
 
 /** A thick bar with a dark outline (pipes, struts, roll cage). */
 function bar(ctx: CanvasRenderingContext2D, pts: Pt[], width: number, color: string, lw: number): void {
@@ -501,10 +651,11 @@ function drawRacerFront(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: nu
 }
 
 /** A vehicle standing still (for the vehicle picker). */
-export function drawVehiclePreview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, color = spec.color): void {
-  drawWheel(ctx, spec.rear.x, spec.rear.y, spec.rear.r, 0, lw, spec.id === "racer");
-  drawWheel(ctx, spec.front.x, spec.front.y, spec.front.r, 0, lw, spec.id === "racer");
-  drawChassis(ctx, spec, lw, color);
+export function drawVehiclePreview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, color = spec.color, time = 0): void {
+  const sport = SPORT_RIMS.has(spec.id);
+  drawWheel(ctx, spec.rear.x, spec.rear.y, spec.rear.r, 0, lw, sport);
+  drawWheel(ctx, spec.front.x, spec.front.y, spec.front.r, 0, lw, sport);
+  drawChassis(ctx, spec, lw, color, time);
 }
 
 export class Renderer {
@@ -1133,13 +1284,13 @@ export class Renderer {
       [v.frontWheel, spec.front.r],
     ] as const) {
       const p = wheel.getPosition();
-      drawWheel(ctx, p.x, p.y, r, wheel.getAngle(), lw, spec.id === "racer");
+      drawWheel(ctx, p.x, p.y, r, wheel.getAngle(), lw, SPORT_RIMS.has(spec.id));
     }
     const c = v.chassis.getPosition();
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(v.chassis.getAngle());
-    drawChassis(ctx, spec, lw, this.paint ?? spec.color);
+    drawChassis(ctx, spec, lw, this.paint ?? spec.color, this.time);
     ctx.restore();
   }
 

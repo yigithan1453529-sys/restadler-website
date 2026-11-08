@@ -200,14 +200,26 @@ mit der nächsten Insel. Das erste Schaffen eines Insel-Finales gibt **100 Coins
 Tunnel (hohe Ladung stösst an), Eis (rutschig), Schlamm (rutschig und bremst),
 Wippe, Lift (fährt aus einer Grube hoch; grünes Licht = unten und bereit).
 
-**Fahrzeuge** (im Shop mit Coins kaufen, in der Garage auswählen):
+**Fahrzeuge** (im Shop mit Coins kaufen, in der Garage auswählen). Alle haben ein
+automatisches Getriebe (3–5 Gänge, starker 1. Gang, höchstes Tempo im letzten Gang);
+Tacho mit Gang und km/h im HUD.
 
-| Fahrzeug | Preis | Eigenschaft |
-| --- | --- | --- |
-| Lieferwagen | gratis | ausgewogen |
-| Traktor | 150 Coins | langsam, stark, grosse Hinterräder |
-| Pickup | 350 Coins | schnell, hohe Seitenwände |
-| Renn-Truck 47 | 700 Coins | sehr schnell und stark, aber niedrige Wände; rot mit grauen Kotflügeln, Startnummer 47, Heckspoiler, Auspuffrohre |
+| Fahrzeug | Preis | Gänge | Eigenschaft |
+| --- | --- | --- | --- |
+| Lieferwagen | gratis | 4 | ausgewogen |
+| Traktor | 150 | 3 | langsam, stark, grosse Hinterräder |
+| Pickup | 350 | 4 | schnell, hohe Seitenwände |
+| Polizeiauto | 450 | 5 | schnell, Blaulicht, niedrige Wände |
+| Polizei-Van | 500 | 4 | stabil, hohe Türen, Blaulicht |
+| Krankenwagen | 550 | 4 | ausgewogen, Blaulicht |
+| Lastwagen | 600 | 5 | stärkstes Fahrzeug, langsam, grosse Räder |
+| Feuerwehr | 650 | 5 | schwer und stark, Leiter, Blaulicht |
+| Renn-Truck 47 | 700 | 5 | sehr schnell und stark, niedrige Wände |
+| Rosso GT | 1200 | 5 | Supersportwagen, sehr schnell, flach, niedrige Wände |
+| Fulmine | 1500 | 5 | schnellstes Fahrzeug, keilförmig, niedrigste Wände |
+
+Supersportwagen sind eigene Entwürfe im Stil italienischer Sportwagen, **ohne Marken
+oder Logos** (Poki-Regel).
 
 Ältere Spielstände behalten Fahrzeuge, die sie schon mit Sternen freigeschaltet hatten.
 
