@@ -2,17 +2,11 @@ import type { CargoItem } from "./Cargo";
 import { Camera, VIEW_H, VIEW_W } from "./Camera";
 import type { LevelRun } from "./Level";
 import type { Particles } from "./Particles";
+import { THEMES, type Theme } from "./themes";
 import { CHASSIS_SHAPES, VEHICLE } from "./Vehicle";
 
 export const COLORS = {
   outline: "#2D2D2D",
-  skyTop: "#8FD3FF",
-  skyBottom: "#E6F7FF",
-  hillFar: "#C9EFA9",
-  hillNear: "#A6E07E",
-  grass: "#5BC236",
-  dirt: "#8B5A2B",
-  dirtDark: "#7A4E25",
   van: "#FF6B35",
   vanDark: "#E2541F",
   window: "#BDE7FF",
@@ -128,37 +122,70 @@ export function drawCargoShape(
 }
 
 export class Renderer {
+  private theme: Theme = THEMES.meadow;
+
   constructor(private ctx: CanvasRenderingContext2D) {}
 
   draw(run: LevelRun, cam: Camera, particles: Particles, time: number): void {
     const ctx = this.ctx;
-    this.drawSky(cam);
-    this.drawHills(cam);
+    const theme = THEMES[run.level.world ?? "meadow"];
+    this.theme = theme;
+    this.drawSky(cam, time);
+    this.drawBackdrop(cam);
 
     ctx.save();
     cam.applyWorld(ctx);
     const lw = 3 / cam.zoom;
+    this.drawDecor(run, cam, lw);
     this.drawCheckpoints(run, lw);
     this.drawFinish(run, lw, time);
     this.drawTerrain(run, cam, lw);
     for (const item of run.cargo.items) if (item.lost) this.drawCargo(item, lw);
     this.drawVehicle(run, lw);
     for (const item of run.cargo.items) if (!item.lost) this.drawCargo(item, lw);
+    if (theme.night) this.drawHeadlight(run);
     particles.drawWorld(ctx);
     ctx.restore();
 
+    if (theme.snowfall) this.drawSnowfall(cam, time);
     this.drawTextPops(particles, cam);
   }
 
-  private drawSky(cam: Camera): void {
+  private drawSky(cam: Camera, time: number): void {
     const ctx = this.ctx;
+    const th = this.theme;
     const g = ctx.createLinearGradient(0, 0, 0, VIEW_H);
-    g.addColorStop(0, COLORS.skyTop);
-    g.addColorStop(1, COLORS.skyBottom);
+    g.addColorStop(0, th.skyTop);
+    g.addColorStop(1, th.skyBottom);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-    // clouds (slow parallax)
+    if (th.night) {
+      // twinkling stars and a moon
+      for (let i = 0; i < 60; i++) {
+        const x = (i * 211.7) % VIEW_W;
+        const y = (i * 97.3) % 330;
+        ctx.globalAlpha = 0.5 + 0.5 * Math.sin(time * 2 + i);
+        ctx.fillStyle = "#FFF7CC";
+        ctx.fillRect(x, y, 3, 3);
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#FFF3B0";
+      ctx.beginPath();
+      ctx.arc(1040, 110, 46, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = th.skyTop;
+      ctx.beginPath();
+      ctx.arc(1062, 96, 40, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (th.id === "desert") {
+      ctx.fillStyle = "#FFF4C2";
+      ctx.beginPath();
+      ctx.arc(980, 130, 70, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (!th.clouds) return;
     ctx.fillStyle = "rgba(255,255,255,0.9)";
     const span = VIEW_W + 400;
     for (let i = 0; i < 6; i++) {
@@ -175,25 +202,182 @@ export class Renderer {
     }
   }
 
-  private drawHills(cam: Camera): void {
+  private drawBackdrop(cam: Camera): void {
     const ctx = this.ctx;
+    const th = this.theme;
     const layers = [
-      { f: 0.15, color: COLORS.hillFar, base: 430, a: 70, b: 30, freq: 0.0035 },
-      { f: 0.35, color: COLORS.hillNear, base: 500, a: 55, b: 22, freq: 0.006 },
+      { f: 0.15, color: th.far, base: 430 },
+      { f: 0.35, color: th.near, base: 500 },
     ];
-    for (const L of layers) {
+    for (const [li, L] of layers.entries()) {
       const offset = cam.x * cam.zoom * L.f;
       const baseY = L.base + cam.y * 6 * L.f;
       ctx.fillStyle = L.color;
+
+      if (th.backdrop === "city") {
+        // building silhouettes with lit windows
+        const w = li === 0 ? 90 : 120;
+        const first = Math.floor(offset / w);
+        for (let k = first; k < first + VIEW_W / w + 2; k++) {
+          const r = Math.abs(Math.sin(k * 12.9898 + li * 7) * 43758.5453) % 1;
+          const h = (li === 0 ? 120 : 90) + r * (li === 0 ? 200 : 150);
+          const x = k * w - offset;
+          ctx.fillStyle = L.color;
+          ctx.fillRect(x, baseY - h, w - 8, VIEW_H);
+          ctx.fillStyle = li === 0 ? "rgba(255,230,140,0.35)" : "rgba(255,230,140,0.6)";
+          for (let wy = baseY - h + 14; wy < baseY + 60; wy += 26)
+            for (let wx = x + 10; wx < x + w - 22; wx += 22)
+              if (Math.abs(Math.sin(wx * 3.1 + wy * 1.7)) > 0.45) ctx.fillRect(wx, wy, 10, 12);
+        }
+        continue;
+      }
+
       ctx.beginPath();
       ctx.moveTo(0, VIEW_H);
       for (let sx = 0; sx <= VIEW_W + 16; sx += 16) {
         const u = sx + offset;
-        const y = baseY - Math.sin(u * L.freq) * L.a - Math.sin(u * L.freq * 2.7 + 1.3) * L.b;
+        let y: number;
+        if (th.backdrop === "mountains") {
+          const period = li === 0 ? 260 : 340;
+          const p = (((u % period) + period) % period) / period;
+          const tri = 1 - Math.abs(p * 2 - 1);
+          const peak = li === 0 ? 190 : 120;
+          y = baseY - tri * peak * (0.7 + 0.3 * Math.sin(Math.floor(u / period) * 2.3));
+        } else if (th.backdrop === "dunes") {
+          y = baseY - Math.sin(u * 0.003) * 45 - Math.sin(u * 0.0071 + 2) * 20;
+        } else {
+          const freq = li === 0 ? 0.0035 : 0.006;
+          y = baseY - Math.sin(u * freq) * (li === 0 ? 70 : 55) - Math.sin(u * freq * 2.7 + 1.3) * (li === 0 ? 30 : 22);
+        }
         ctx.lineTo(sx, y);
       }
       ctx.lineTo(VIEW_W, VIEW_H);
       ctx.closePath();
+      ctx.fill();
+
+      if (th.backdrop === "mountains") {
+        // snow caps: same outline, clipped to the top part
+        ctx.save();
+        ctx.clip();
+        ctx.fillStyle = "rgba(255,255,255,0.85)";
+        ctx.fillRect(0, 0, VIEW_W, baseY - (li === 0 ? 120 : 80));
+        ctx.restore();
+      }
+    }
+  }
+
+  /** Background props along the road (trees, cacti, pines, street lamps). */
+  private drawDecor(run: LevelRun, cam: Camera, lw: number): void {
+    const ctx = this.ctx;
+    const th = this.theme;
+    const [x0, x1] = cam.visibleX(4);
+    const spacing = th.decor === "lamp" ? 14 : 19;
+    const start = Math.floor(x0 / spacing) * spacing;
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.lineJoin = "round";
+    for (let bx = start; bx < x1; bx += spacing) {
+      const r = Math.abs(Math.sin(bx * 78.233) * 43758.5453) % 1;
+      if (r < 0.3 && th.decor !== "lamp") continue;
+      const x = bx + r * 6;
+      if (Math.abs(x - run.level.finishX) < 12) continue;
+      const g = this.groundAt(run, x);
+      if (g < this.groundAt(run, x - 1.5) - 1.5 || g < this.groundAt(run, x + 1.5) - 1.5) continue; // skip pits
+      const s = 0.8 + r * 0.5;
+      if (th.decor === "tree") {
+        ctx.fillStyle = "#8B5A2B";
+        ctx.fillRect(x - 0.15 * s, g - 0.3, 0.3 * s, 2 * s);
+        ctx.strokeRect(x - 0.15 * s, g - 0.3, 0.3 * s, 2 * s);
+        ctx.fillStyle = "#3FAE2A";
+        ctx.beginPath();
+        ctx.arc(x, g + 2.3 * s, 1.0 * s, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (th.decor === "cactus") {
+        ctx.fillStyle = "#4CAF50";
+        const arm = (ax: number, ay: number, h: number): void => {
+          roundRectPath(ctx, ax - 0.17 * s, ay, 0.34 * s, h * s, 0.17 * s);
+          ctx.fill();
+          ctx.stroke();
+        };
+        arm(x - 0.55 * s, g + 1.0 * s, 1.0);
+        arm(x + 0.55 * s, g + 1.4 * s, 0.9);
+        ctx.fillRect(x - 0.55 * s, g + 1.0 * s, 1.1 * s, 0.26 * s);
+        arm(x, g - 0.3, 2.6);
+      } else if (th.decor === "pine") {
+        ctx.fillStyle = "#6B4A2E";
+        ctx.fillRect(x - 0.12 * s, g - 0.3, 0.24 * s, 0.9 * s);
+        for (let k = 0; k < 3; k++) {
+          const by = g + 0.5 * s + k * 0.7 * s;
+          const hw = (1.0 - k * 0.25) * s;
+          ctx.fillStyle = "#2E8B57";
+          ctx.beginPath();
+          ctx.moveTo(x - hw, by);
+          ctx.lineTo(x + hw, by);
+          ctx.lineTo(x, by + 1.1 * s);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#FFFFFF";
+          ctx.beginPath();
+          ctx.moveTo(x - hw * 0.35, by + 0.7 * s);
+          ctx.lineTo(x + hw * 0.35, by + 0.7 * s);
+          ctx.lineTo(x, by + 1.1 * s);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else {
+        // street lamp with a warm glow
+        ctx.fillStyle = "#3A3D4D";
+        ctx.fillRect(x - 0.07, g - 0.3, 0.14, 3.6);
+        ctx.fillRect(x - 0.07, g + 3.2, 0.7, 0.14);
+        const glow = ctx.createRadialGradient(x + 0.6, g + 3.1, 0.1, x + 0.6, g + 3.1, 2.6);
+        glow.addColorStop(0, "rgba(255,230,140,0.55)");
+        glow.addColorStop(1, "rgba(255,230,140,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x + 0.6, g + 3.1, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#FFE680";
+        ctx.beginPath();
+        ctx.arc(x + 0.6, g + 3.05, 0.16, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  /** Light cone in front of the van (night levels). */
+  private drawHeadlight(run: LevelRun): void {
+    const ctx = this.ctx;
+    const c = run.vehicle.chassis;
+    const p = c.getWorldPoint({ x: 1.45, y: 0.4 });
+    const a = c.getAngle();
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(a);
+    const g = ctx.createLinearGradient(0, 0, 7, 0);
+    g.addColorStop(0, "rgba(255,240,170,0.5)");
+    g.addColorStop(1, "rgba(255,240,170,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(0, 0.1);
+    ctx.lineTo(7, 1.2);
+    ctx.lineTo(7, -1.8);
+    ctx.lineTo(0, -0.1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  private drawSnowfall(cam: Camera, time: number): void {
+    const ctx = this.ctx;
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    for (let i = 0; i < 70; i++) {
+      const speed = 40 + (i % 7) * 12;
+      const x = (((i * 173.3 + Math.sin(time + i) * 20 - cam.x * 8) % VIEW_W) + VIEW_W) % VIEW_W;
+      const y = (i * 61.7 + time * speed) % VIEW_H;
+      ctx.beginPath();
+      ctx.arc(x, y, 2 + (i % 3), 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -227,14 +411,14 @@ export class Renderer {
     };
 
     fillPath();
-    ctx.fillStyle = COLORS.dirt;
+    ctx.fillStyle = this.theme.ground;
     ctx.fill();
 
     ctx.save();
     fillPath();
     ctx.clip();
     // pebbles
-    ctx.fillStyle = COLORS.dirtDark;
+    ctx.fillStyle = this.theme.groundDark;
     const startX = Math.floor(x0 / 2.5) * 2.5;
     for (let x = startX; x < x1; x += 2.5) {
       const h = Math.sin(x * 12.9898) * 43758.5453;
@@ -246,7 +430,7 @@ export class Renderer {
     }
     // grass band
     topPath();
-    ctx.strokeStyle = COLORS.grass;
+    ctx.strokeStyle = this.theme.top;
     ctx.lineWidth = 0.9;
     ctx.lineJoin = "round";
     ctx.stroke();

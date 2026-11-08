@@ -1,5 +1,5 @@
 import { t, type TextKey } from "../i18n";
-import { getLevel, levels } from "../levels";
+import { getLevel, levels, worldPages } from "../levels";
 import { poki } from "../platform/poki";
 import { loadSave, saveLevelResult, saveMuted } from "../storage";
 import { Button, drawButton, hitButton } from "../ui/Button";
@@ -19,6 +19,7 @@ import { Input } from "./Input";
 import { LevelRun } from "./Level";
 import { Particles } from "./Particles";
 import { Renderer } from "./Renderer";
+import { THEMES } from "./themes";
 
 /**
  * ready    – level loaded, waiting for the first input
@@ -50,6 +51,7 @@ export class Game {
   private time = 0;
   private stateTime = 0;
   private stateBeforeLevels: GameState = "ready";
+  private levelPage = 0;
   private buttons: Button[] = [];
   private hover: Button | null = null;
   private pressed: Button | null = null;
@@ -166,6 +168,7 @@ export class Game {
 
   private openLevels(): void {
     this.stateBeforeLevels = this.state;
+    this.levelPage = Math.max(0, worldPages().findIndex((p) => p.levels.some((l) => l.id === this.levelId)));
     this.setState("levels");
   }
 
@@ -356,14 +359,17 @@ export class Game {
       );
     } else if (s === "levels") {
       const save = loadSave();
+      const pages = worldPages();
+      const page = pages[Math.min(this.levelPage, pages.length - 1)];
       const tileW = 180;
       const gap = 14;
-      const startX = (VIEW_W - (levels.length * tileW + (levels.length - 1) * gap)) / 2;
-      levels.forEach((level, i) => {
+      const n = page.levels.length;
+      const startX = (VIEW_W - (n * tileW + (n - 1) * gap)) / 2;
+      page.levels.forEach((level, i) => {
         const locked = level.id > save.unlocked;
         list.push({
           x: startX + i * (tileW + gap),
-          y: 240,
+          y: 210,
           w: tileW,
           h: 220,
           disabled: locked,
@@ -377,6 +383,10 @@ export class Game {
           action: () => this.loadLevel(level.id),
         });
       });
+      if (this.levelPage > 0)
+        list.push({ x: VIEW_W / 2 - 330, y: 115, w: 70, h: 70, icon: "prev", action: () => this.levelPage-- });
+      if (this.levelPage < pages.length - 1)
+        list.push({ x: VIEW_W / 2 + 260, y: 115, w: 70, h: 70, icon: "next", action: () => this.levelPage++ });
       list.push({ x: VIEW_W - 100, y: 30, w: 70, h: 70, icon: "close", primary: false, action: () => this.closeLevels() });
     }
     return list;
@@ -411,7 +421,9 @@ export class Game {
     } else if (s === "paused") {
       drawPauseScreen(ctx, t("pause.title"));
     } else if (s === "levels") {
-      drawLevelSelectBackground(ctx, t("levels.title"));
+      const pages = worldPages();
+      const page = pages[Math.min(this.levelPage, pages.length - 1)];
+      drawLevelSelectBackground(ctx, t("levels.title"), t(THEMES[page.world].name), this.levelPage, pages.length);
     }
 
     for (const b of this.buttons) drawButton(ctx, b, b === this.hover, b === this.pressed);

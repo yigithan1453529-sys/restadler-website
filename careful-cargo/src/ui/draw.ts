@@ -2,7 +2,7 @@ import { COLORS, FONT } from "../game/Renderer";
 
 export { FONT };
 
-export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "close";
+export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close";
 
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   const rr = Math.min(r, w / 2, h / 2);
@@ -142,6 +142,15 @@ export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: numbe
       }
       break;
     }
+    case "prev":
+      ctx.beginPath();
+      ctx.moveTo(h * 0.4, -h * 0.6);
+      ctx.lineTo(-h * 0.6, 0);
+      ctx.lineTo(h * 0.4, h * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
     case "menu":
       for (let i = 0; i < 2; i++)
         for (let j = 0; j < 2; j++) {

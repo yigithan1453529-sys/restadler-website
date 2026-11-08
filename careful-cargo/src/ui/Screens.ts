@@ -75,9 +75,26 @@ export function drawPauseScreen(ctx: CanvasRenderingContext2D, title: string): v
   outlinedText(ctx, title, VIEW_W / 2, 230, 64, "#FFFFFF");
 }
 
-export function drawLevelSelectBackground(ctx: CanvasRenderingContext2D, title: string): void {
+export function drawLevelSelectBackground(
+  ctx: CanvasRenderingContext2D,
+  title: string,
+  worldName: string,
+  page: number,
+  pageCount: number,
+): void {
   drawDim(ctx, 0.55);
-  outlinedText(ctx, title, VIEW_W / 2, 140, 56, "#FFFFFF");
+  outlinedText(ctx, title, VIEW_W / 2, 70, 48, "#FFFFFF");
+  outlinedText(ctx, worldName, VIEW_W / 2, 150, 38, "#FFD23F");
+  // page dots
+  for (let i = 0; i < pageCount; i++) {
+    ctx.beginPath();
+    ctx.arc(VIEW_W / 2 + (i - (pageCount - 1) / 2) * 26, 460, 8, 0, Math.PI * 2);
+    ctx.fillStyle = i === page ? "#FFD23F" : "rgba(255,255,255,0.5)";
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.stroke();
+  }
 }
 
 export interface TileInfo {
