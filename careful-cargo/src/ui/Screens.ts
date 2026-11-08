@@ -1,7 +1,5 @@
 import { VIEW_H, VIEW_W } from "../game/Camera";
-import { COLORS } from "../game/Renderer";
-import type { Button } from "./Button";
-import { drawIcon, drawStar, drawSurface, outlinedText, plainText, SURFACES } from "./draw";
+import { drawStar, drawSurface, outlinedText, plainText } from "./draw";
 
 export const PANEL = { x: 330, y: 120, w: 620, h: 480 };
 
@@ -69,60 +67,4 @@ export function drawPauseScreen(ctx: CanvasRenderingContext2D, title: string): v
   drawDim(ctx);
   drawPanel(ctx, 1);
   outlinedText(ctx, title, VIEW_W / 2, 230, 64, "#FFFFFF");
-}
-
-export function drawLevelSelectBackground(
-  ctx: CanvasRenderingContext2D,
-  title: string,
-  worldName: string,
-  page: number,
-  pageCount: number,
-): void {
-  drawDim(ctx, 0.55);
-  outlinedText(ctx, title, VIEW_W / 2, 70, 48, "#FFFFFF");
-  outlinedText(ctx, worldName, VIEW_W / 2, 150, 38, "#FFD23F");
-  // page dots
-  for (let i = 0; i < pageCount; i++) {
-    ctx.beginPath();
-    ctx.arc(VIEW_W / 2 + (i - (pageCount - 1) / 2) * 26, 460, 8, 0, Math.PI * 2);
-    ctx.fillStyle = i === page ? "#FFD23F" : "rgba(255,255,255,0.5)";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = COLORS.outline;
-    ctx.stroke();
-  }
-}
-
-export interface TileInfo {
-  number: number;
-  name: string;
-  stars: number;
-  locked: boolean;
-  current: boolean;
-}
-
-/** Custom renderer for a level tile button. */
-export function levelTileRenderer(info: TileInfo) {
-  return (ctx: CanvasRenderingContext2D, b: Button): void => {
-    const look = info.locked ? SURFACES.disabled : info.current ? SURFACES.selected : SURFACES.normal;
-    drawSurface(ctx, b.x, b.y, b.w, b.h, 28, look[0], look[1], look[2]);
-    const cx = b.x + b.w / 2;
-    // number badge
-    ctx.beginPath();
-    ctx.arc(cx, b.y + 72, 44, 0, Math.PI * 2);
-    ctx.fillStyle = info.locked ? "#BDBDBD" : "#FF6B35";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = COLORS.outline;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(cx, b.y + 72, 36, Math.PI * 1.1, Math.PI * 1.9);
-    ctx.strokeStyle = "rgba(255,255,255,0.45)";
-    ctx.lineWidth = 5;
-    ctx.stroke();
-    if (info.locked) drawIcon(ctx, "lock", cx, b.y + 74, 46);
-    else outlinedText(ctx, String(info.number), cx, b.y + 74, 46, "#FFFFFF");
-    plainText(ctx, info.name, cx, b.y + 140, 19, info.locked ? "#777777" : COLORS.outline);
-    for (let i = 0; i < 3; i++) drawStar(ctx, cx + (i - 1) * 42, b.y + 182, 17, i < info.stars);
-  };
 }

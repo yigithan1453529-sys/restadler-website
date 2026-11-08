@@ -90,7 +90,7 @@ Im Prototyp drei Typen:
 Neustart muss **unter 1 Sekunde** dauern. Fortschritt speichern: freigeschaltete
 Level und beste Sterne pro Level.
 
-## 8. Die Level der Welt «Wiese»
+## 8. Die ersten Level der Insel «Wiese»
 
 Jedes Level bringt genau eine neue Sache bei.
 
@@ -180,14 +180,21 @@ Stummschalten-Knopf, Zustand wird gespeichert.
 
 ## 14. Welten, Hindernisse, Fahrzeuge
 
-**4 Welten à 6 Level** (je 3 normale, 1 Prüfung, 1 leichteres, 1 normales):
+**4 Inseln à 10 Level** (40 Level). Rhythmus pro Insel: normal, normal, normal,
+**Prüfung**, leicht, normal, normal, normal, **Prüfung**, **Insel-Finale**.
 
-| Welt | Level | Neu |
+| Insel | Level | Neu |
 | --- | --- | --- |
-| Wiese | 1–6 | Grundlagen, Prüfung 6 «Egg Exam» |
-| Wüste | 7–12 | Glace, Wackelbrücke, Bowlingkugeln, Schlamm, Prüfung 10 |
-| Schnee | 13–18 | Eis, Aquarium, niedriger Tunnel, Wippe, Prüfung 16 |
-| Stadt bei Nacht | 19–24 | Lift, Opa, Dächer-Sprünge, Prüfung 22, Finale 24 |
+| Wiese | 1–10 | Grundlagen, Schlamm, Prüfungen 4 und 9, Finale 10 mit Brücke und Sprung |
+| Wüste | 11–20 | Glace, Wackelbrücke, Bowlingkugeln, Schlamm, Prüfungen 14 und 19, Finale 20 |
+| Schnee | 21–30 | Eis, Aquarium, niedriger Tunnel, Wippe, Prüfungen 24 und 29, Finale 30 |
+| Stadt bei Nacht | 31–40 | Lift, Opa, Dächer-Sprünge, Prüfungen 34 und 39, Finale 40 |
+
+**Weltkarte:** Meer mit den 4 Inseln, verbunden durch eine Fährroute. Gesperrte Inseln
+sind grau mit Schloss. Tippt man eine Insel an, öffnet sich die Insel-Ansicht: eine
+Strasse mit 10 Stationen (Prüfungen mit «!», Finale mit Pokal, aktuelles Level gelb
+mit dem eigenen Fahrzeug darüber). Nach einem Insel-Finale zeigt das Spiel die Karte
+mit der nächsten Insel. Das erste Schaffen eines Insel-Finales gibt **100 Coins** extra.
 
 **Hindernisse:** Wackelbrücke (Bretter an Gelenken über einer Grube), niedriger
 Tunnel (hohe Ladung stösst an), Eis (rutschig), Schlamm (rutschig und bremst),

@@ -1,7 +1,8 @@
 import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
+import { drawIsland, drawMap, islandButtons, islandOf, mapButtons, type MapHost } from "../ui/WorldMap";
 import { poki } from "../platform/poki";
-import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, spendCoins, totalStars } from "../storage";
+import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, spendCoins } from "../storage";
 import {
   drawGarage,
   drawHome,
@@ -19,14 +20,12 @@ import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
 import { drawHint, drawHud, drawTimer } from "../ui/Hud";
 import {
   drawFailScreen,
-  drawLevelSelectBackground,
   drawPauseScreen,
   drawWinScreen,
-  levelTileRenderer,
   PANEL,
 } from "../ui/Screens";
 import { drawTouchControls } from "../ui/TouchControls";
-import { drawCoin, drawStar, outlinedText } from "../ui/draw";
+import { drawCoin, outlinedText } from "../ui/draw";
 import { AudioFx } from "./Audio";
 import { Camera, VIEW_W } from "./Camera";
 import { Input } from "./Input";
@@ -34,7 +33,6 @@ import { LevelRun } from "./Level";
 import { Particles } from "./Particles";
 import { Renderer } from "./Renderer";
 import { getPaint, PAINTS } from "./paints";
-import { THEMES } from "./themes";
 import { getVehicleSpec, VEHICLES } from "./Vehicle";
 
 /**
@@ -43,13 +41,25 @@ import { getVehicleSpec, VEHICLES } from "./Vehicle";
  * paused   – pause menu
  * won      – success screen
  * failed   – fail screen
- * levels   – level select (on top of the frozen level)
+ * levels   – world map with the islands
+ * island   – one island with its 10 level stops
  * home     – start screen (Play, Levels, Garage, Shop)
  * garage   – choose vehicle and color
  * shop     – buy vehicles and colors with coins
  * ranking  – friends ranking and own records
  */
-export type GameState = "ready" | "playing" | "paused" | "won" | "failed" | "levels" | "home" | "garage" | "shop" | "ranking";
+export type GameState =
+  | "ready"
+  | "playing"
+  | "paused"
+  | "won"
+  | "failed"
+  | "levels"
+  | "island"
+  | "home"
+  | "garage"
+  | "shop"
+  | "ranking";
 
 const FAIL_TEXT: Record<string, TextKey> = {
   allLost: "fail.allLost",
@@ -57,6 +67,7 @@ const FAIL_TEXT: Record<string, TextKey> = {
   fell: "fail.fell",
 };
 
+const ISLAND_BONUS = 100;
 const HARD_LANDING = 2.0; // impact per kg that counts as a hard landing
 /** Seconds the camera shows the customer's reaction before the result panel opens. */
 const WIN_DELAY = 1.4;
@@ -72,8 +83,9 @@ export class Game {
   private audio: AudioFx;
   private time = 0;
   private stateTime = 0;
-  private stateBeforeLevels: GameState = "ready";
+  /** Island shown in the island view. */
   private levelPage = 0;
+  private mapHost: MapHost;
   private buttons: Button[] = [];
   private hover: Button | null = null;
   private pressed: Button | null = null;
@@ -178,6 +190,19 @@ export class Game {
       }
     });
 
+    this.mapHost = {
+      get levelId() {
+        return self.levelId;
+      },
+      get time() {
+        return self.time;
+      },
+      openIsland: (i) => this.openIsland(i),
+      openMap: () => this.openLevels(),
+      goHome: () => this.goHome(),
+      playLevel: (id) => this.loadLevel(id),
+    };
+
     // Ads: pause the game and mute the sound while an ad runs.
     poki.setAdHandlers(
       () => {
@@ -222,7 +247,7 @@ export class Game {
   }
 
   private isMenuState(): boolean {
-    return ["paused", "won", "failed", "levels", "home", "garage", "shop", "ranking"].includes(this.state);
+    return ["paused", "won", "failed", "levels", "island", "home", "garage", "shop", "ranking"].includes(this.state);
   }
 
   // ---------- state changes ----------
@@ -301,8 +326,17 @@ export class Game {
 
   private nextLevel(): void {
     this.afterCommercial(() => {
-      if (this.levelId < levels.length) this.loadLevel(this.levelId + 1);
-      else this.openLevels();
+      const pages = worldPages();
+      const island = islandOf(this.levelId, pages);
+      const lastOnIsland = pages[island].levels[pages[island].levels.length - 1].id === this.levelId;
+      if (lastOnIsland || this.levelId >= levels.length) {
+        // Island done: show the map with the next island.
+        this.levelId = Math.min(this.levelId + 1, levels.length);
+        this.loadLevel(this.levelId);
+        this.openLevels();
+      } else {
+        this.loadLevel(this.levelId + 1);
+      }
     });
   }
 
@@ -347,15 +381,15 @@ export class Game {
     this.input.releaseAll();
   }
 
+  /** World map with the islands. */
   private openLevels(): void {
-    this.stateBeforeLevels = this.state;
-    this.levelPage = Math.max(0, worldPages().findIndex((p) => p.levels.some((l) => l.id === this.levelId)));
+    this.levelPage = islandOf(this.levelId, worldPages());
     this.setState("levels");
   }
 
-  private closeLevels(): void {
-    const back = this.stateBeforeLevels;
-    this.setState(back === "playing" || back === "ready" ? "paused" : back);
+  private openIsland(index: number): void {
+    this.levelPage = Math.max(0, Math.min(index, worldPages().length - 1));
+    this.setState("island");
   }
 
   private toggleMute(): void {
@@ -376,7 +410,8 @@ export class Game {
     if (code === "Escape" || code === "KeyP") {
       if (this.state === "playing" || this.state === "ready") this.pause();
       else if (this.state === "paused") this.resume();
-      else if (this.state === "levels") this.closeLevels();
+      else if (this.state === "levels") this.goHome();
+      else if (this.state === "island") this.openLevels();
       return;
     }
     if (code === "Enter" || code === "Space" || code === "NumpadEnter") {
@@ -430,7 +465,7 @@ export class Game {
       this.toast.left -= dt;
       if (this.toast.left <= 0) this.toast = null;
     }
-    if (this.state !== "paused" && this.state !== "levels") this.particles.update(dt);
+    if (this.state !== "paused") this.particles.update(dt);
     this.buttons = this.buildButtons();
   }
 
@@ -491,8 +526,13 @@ export class Game {
     if (run.state === "won") {
       this.resultStars = run.stars;
       const { firstClear } = saveLevelResult(this.levelId, run.stars, levels.length);
-      // Coins: 10 per star, 20 extra the first time a level is finished.
-      this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0);
+      // Coins: 10 per star, 20 extra the first time a level is finished,
+      // 100 extra the first time an island finale is finished.
+      const pages = worldPages();
+      const isl = pages[islandOf(this.levelId, pages)];
+      const islandFinale = isl.levels[isl.levels.length - 1].id === this.levelId;
+      this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0) + (firstClear && islandFinale ? ISLAND_BONUS : 0);
+      if (firstClear && islandFinale) this.toast = { text: t("island.complete", { n: ISLAND_BONUS }), good: true, left: 4 };
       addCoins(this.coinsEarned);
       this.newRecord = saveRecord(this.levelId, run.stars, run.time);
       const friend = bestFriendRecord(this.levelId);
@@ -602,37 +642,11 @@ export class Game {
         { x: PANEL.x + PANEL.w - 84, y: PANEL.y + 20, w: 64, h: 64, icon: this.audio.muted ? "soundOff" : "soundOn", action: () => this.toggleMute() },
       );
     } else if (s === "levels") {
-      const save = loadSave();
+      list.push(...mapButtons(this.mapHost, worldPages(), loadSave()));
+    } else if (s === "island") {
       const pages = worldPages();
-      const page = pages[Math.min(this.levelPage, pages.length - 1)];
-      const tileW = 180;
-      const gap = 14;
-      const n = page.levels.length;
-      const startX = (VIEW_W - (n * tileW + (n - 1) * gap)) / 2;
-      page.levels.forEach((level, i) => {
-        const locked = level.id > save.unlocked;
-        list.push({
-          x: startX + i * (tileW + gap),
-          y: 210,
-          w: tileW,
-          h: 220,
-          disabled: locked,
-          render: levelTileRenderer({
-            number: level.id,
-            name: t(level.name),
-            stars: save.stars[level.id] ?? 0,
-            locked,
-            current: level.id === this.levelId,
-          }),
-          action: () => this.loadLevel(level.id),
-        });
-      });
-      if (this.levelPage > 0)
-        list.push({ x: VIEW_W / 2 - 330, y: 115, w: 70, h: 70, icon: "prev", action: () => this.levelPage-- });
-      if (this.levelPage < pages.length - 1)
-        list.push({ x: VIEW_W / 2 + 260, y: 115, w: 70, h: 70, icon: "next", action: () => this.levelPage++ });
-      list.push({ x: VIEW_W - 100, y: 30, w: 70, h: 70, icon: "close", primary: false, action: () => this.closeLevels() });
-
+      const i = Math.min(this.levelPage, pages.length - 1);
+      list.push(...islandButtons(this.mapHost, pages[i], i, pages.length, loadSave()));
     } else if (s === "home") {
       list.push(...homeButtons(this.host));
     } else if (s === "garage") {
@@ -651,6 +665,18 @@ export class Game {
     const ctx = this.ctx;
     const run = this.run;
     const paint = getPaint(loadSave().paint[run.vehicle.spec.id]).color;
+    if (this.state === "levels" || this.state === "island") {
+      // The map covers the whole screen: no need to draw the level behind it.
+      const save = loadSave();
+      const pages = worldPages();
+      const mapPaint = getPaint(save.paint[save.vehicle]).color;
+      if (this.state === "levels") drawMap(ctx, this.time, pages, save, islandOf(this.levelId, pages), mapPaint);
+      else drawIsland(ctx, this.time, pages[Math.min(this.levelPage, pages.length - 1)], save, this.levelId, mapPaint);
+      for (const b of this.buttons) if (!b.render) drawButton(ctx, b, sameButton(b, this.hover), sameButton(b, this.pressed));
+      drawToast(ctx, this.toast);
+      this.particles.drawConfetti(ctx);
+      return;
+    }
     this.renderer.draw(run, this.camera, this.particles, this.time, paint);
 
     const s = this.state;
@@ -683,12 +709,6 @@ export class Game {
       drawFailScreen(ctx, t(FAIL_TEXT[run.failReason ?? "allLost"]), this.stateTime);
     } else if (s === "paused") {
       drawPauseScreen(ctx, t("pause.title"));
-    } else if (s === "levels") {
-      const pages = worldPages();
-      const page = pages[Math.min(this.levelPage, pages.length - 1)];
-      drawLevelSelectBackground(ctx, t("levels.title"), t(THEMES[page.world].name), this.levelPage, pages.length);
-      drawStar(ctx, 52, 68, 22, true);
-      outlinedText(ctx, `${totalStars()} / ${levels.length * 3}`, 84, 70, 30, "#FFFFFF", "left");
     } else if (s === "home") {
       drawHome(ctx, this.host);
     } else if (s === "garage") {

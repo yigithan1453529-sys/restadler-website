@@ -55,9 +55,9 @@ src/
   levels/
     index.ts         Level-Liste
     level01.ts ...   Level als Daten (Gelände-Punkte, Ladung, Ziel)
-    desert.ts ...    Level pro Welt (Wüste, Schnee, Stadt)
+    meadow.ts ...    Level pro Insel (Wiese 7–10, Wüste, Schnee, Stadt); ids 1–40
     shapes.ts        Bausteine für Gelände (Welle, Grube, Brücke, Lift)
-  ui/                HUD, Endbildschirm, Levelauswahl, Home/Garage/Shop (Menus.ts)
+  ui/                HUD, Endbildschirm, Weltkarte (WorldMap.ts), Home/Garage/Shop (Menus.ts)
 docs/GDD.md          Spielkonzept
 ```
 
@@ -129,8 +129,9 @@ docs/GDD.md          Spielkonzept
 
 ### Meilenstein 3 – Inhalt und Feinschliff
 
-- [ ] 40 Level (24 da: 4 Welten à 6 Level), weitere Ladungen (Aquarium, Opa, Glace,
-  Bowlingkugel da; Geschenkturm fehlt)
+- [x] 40 Level: 4 Inseln à 10 Level mit Weltkarte; weitere Ladungen (Aquarium, Opa,
+  Glace, Bowlingkugel)
+- [ ] Geschenkturm als Ladung
 - [x] Weitere Fahrzeuge (Traktor, Pickup, Renn-Truck 47), Deutsch als zweite Sprache
 - [x] Coins, Shop (Fahrzeuge, Farben), Garage, Home-Bildschirm
 - [x] Rekorde, Freunde-Rangliste per Einladungs-Link, neue Kunden-Figuren, Himmel mit
