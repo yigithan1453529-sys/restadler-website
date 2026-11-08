@@ -231,6 +231,21 @@ export class CargoManager {
     }
   }
 
+  /** Marks items as already lost and removes them (continuing from a checkpoint). */
+  removeLost(ids: number[], reasons: LostReason[]): void {
+    ids.forEach((id, k) => {
+      const item = this.items[id];
+      if (!item) return;
+      item.lost = true;
+      item.lostReason = reasons[k];
+      if (item.body) this.gw.world.destroyBody(item.body);
+      if (item.water) this.gw.world.destroyBody(item.water);
+      item.body = null;
+      item.water = undefined;
+      item.meltAt = undefined;
+    });
+  }
+
   private markLost(item: CargoItem, reason: LostReason): void {
     if (item.lost) return;
     item.lost = true;

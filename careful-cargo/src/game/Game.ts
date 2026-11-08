@@ -1,7 +1,7 @@
 import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { poki } from "../platform/poki";
-import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, saveMuted, savePaint, saveRecord, saveVehicle, spendCoins, totalStars } from "../storage";
+import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, spendCoins, totalStars } from "../storage";
 import {
   drawGarage,
   drawHome,
@@ -86,6 +86,9 @@ export class Game {
   private starsPopped = 0;
   private resultStars = 0;
   private coinsEarned = 0;
+  private coinsDoubled = false;
+  private adRunning = false;
+  private failCount = new Map<number, number>();
   private shopTab: "vehicles" | "paints" = "vehicles";
   private rankingTab: "friends" | "records" = "friends";
   private newRecord = false;
@@ -175,9 +178,23 @@ export class Game {
       }
     });
 
-    // Prepare the furthest unlocked level (level 1 for new players) behind the home screen.
+    // Ads: pause the game and mute the sound while an ad runs.
+    poki.setAdHandlers(
+      () => {
+        this.adRunning = true;
+        this.audio.setSuspended(true);
+      },
+      () => {
+        this.adRunning = false;
+        if (this.state !== "paused") this.audio.setSuspended(false);
+      },
+    );
+
+    // Prepare the furthest unlocked level. Brand-new players start driving right
+    // away (level 1, no menu); everybody else starts on the home screen.
     this.loadLevel(Math.min(save.unlocked, levels.length));
-    this.setState("home");
+    const isNewPlayer = Object.keys(save.stars).length === 0 && save.coins === 0;
+    if (!isNewPlayer) this.setState("home");
     // Opened with a friend's challenge link?
     const friend = receiveChallenge();
     if (friend) {
@@ -212,8 +229,14 @@ export class Game {
 
   loadLevel(id: number): void {
     this.levelId = id;
+    this.beginRun(new LevelRun(getLevel(id), getVehicleSpec(loadSave().vehicle)));
+  }
+
+  /** Shared setup for a fresh attempt or a continue from a checkpoint. */
+  private beginRun(run: LevelRun): void {
+    this.run = run;
     this.coinsEarned = 0;
-    this.run = new LevelRun(getLevel(id), getVehicleSpec(loadSave().vehicle));
+    this.coinsDoubled = false;
     this.particles.clear();
     this.lostFlash.clear();
     this.hintsShown.clear();
@@ -260,9 +283,57 @@ export class Game {
     this.loadLevel(this.levelId);
   }
 
+  /** Runs `then` after a Poki ad break (the player wants to keep playing). */
+  private afterCommercial(then: () => void): void {
+    if (this.adRunning) return;
+    this.buttons = [];
+    void poki.commercialBreak().then(then);
+  }
+
+  /** Offers a rewarded ad; `reward` only runs if the ad was watched. */
+  private rewarded(reward: () => void): void {
+    if (this.adRunning) return;
+    void poki.rewardedBreak().then((ok) => {
+      if (ok) reward();
+      else this.toast = { text: t("ad.notWatched"), good: false, left: 2 };
+    });
+  }
+
   private nextLevel(): void {
-    if (this.levelId < levels.length) this.loadLevel(this.levelId + 1);
-    else this.openLevels();
+    this.afterCommercial(() => {
+      if (this.levelId < levels.length) this.loadLevel(this.levelId + 1);
+      else this.openLevels();
+    });
+  }
+
+  /** Retry after a fail: an ad break may come first. */
+  private retryAfterFail(): void {
+    this.afterCommercial(() => this.restart());
+  }
+
+  private continueFromCheckpoint(): void {
+    const prev = this.run;
+    const cp = Math.max(...prev.reachedCheckpoints);
+    this.rewarded(() => {
+      this.beginRun(new LevelRun(prev.level, prev.vehicle.spec, { x: cp + 2, from: prev }));
+    });
+  }
+
+  private skipLevel(): void {
+    this.rewarded(() => {
+      skipLevelSave(this.levelId, levels.length);
+      this.failCount.delete(this.levelId);
+      this.loadLevel(Math.min(this.levelId + 1, levels.length));
+    });
+  }
+
+  private doubleCoins(): void {
+    this.rewarded(() => {
+      addCoins(this.coinsEarned);
+      this.coinsEarned *= 2;
+      this.coinsDoubled = true;
+      this.audio.pop(2);
+    });
   }
 
   private pause(): void {
@@ -294,7 +365,8 @@ export class Game {
 
   private onKey(code: string): void {
     if (code === "KeyR") {
-      if (["ready", "playing", "paused", "won", "failed"].includes(this.state)) this.restart();
+      if (this.state === "failed") this.retryAfterFail();
+      else if (["ready", "playing", "paused", "won"].includes(this.state)) this.restart();
       return;
     }
     if (code === "Escape" && (this.state === "garage" || this.state === "shop" || this.state === "ranking")) {
@@ -432,9 +504,11 @@ export class Game {
           ? t("win.beat", { name: friend.name, time: formatTime(friend.rec.t) })
           : t("win.behind", { name: friend.name, time: formatTime(friend.rec.t) });
       }
+      this.failCount.delete(this.levelId);
       this.setState("won");
       this.audio.success();
     } else if (run.state === "failed") {
+      this.failCount.set(this.levelId, (this.failCount.get(this.levelId) ?? 0) + 1);
       this.setState("failed");
       this.audio.fail();
     }
@@ -490,6 +564,10 @@ export class Game {
     }
     const cx = PANEL.x + PANEL.w / 2;
     const bottom = PANEL.y + PANEL.h;
+    if (this.adRunning) return list;
+    if (s === "won" && this.stateTime > WIN_DELAY + 0.3 && this.coinsEarned > 0 && !this.coinsDoubled && poki.available) {
+      list.push({ x: PANEL.x + PANEL.w - 150, y: PANEL.y + 82, w: 130, h: 52, label: "×2", icon: "ad", action: () => this.doubleCoins() });
+    }
     if (s === "won" && this.stateTime > WIN_DELAY + 0.3) {
       const last = this.levelId >= levels.length;
       list.push(
@@ -499,9 +577,23 @@ export class Game {
       );
     } else if (s === "failed" && this.stateTime > 0.3) {
       list.push(
-        { x: cx - 140, y: bottom - 200, w: 280, h: 92, label: t("btn.retry"), icon: "restart", primary: true, action: () => this.restart() },
+        { x: cx - 140, y: bottom - 200, w: 280, h: 92, label: t("btn.retry"), icon: "restart", primary: true, action: () => this.retryAfterFail() },
         { x: cx - 80, y: bottom - 90, w: 160, h: 60, label: t("btn.home"), action: () => this.goHome() },
       );
+      // Rewarded ads, clearly marked: continue from a checkpoint / skip a hard level.
+      const offers: Button[] = [];
+      // Continue only makes sense with some cargo left.
+      if (poki.available && this.run.reachedCheckpoints.length > 0 && this.run.cargo.delivered > 0) {
+        offers.push({ x: 0, y: bottom - 300, w: 270, h: 70, label: t("btn.continue"), icon: "ad", action: () => this.continueFromCheckpoint() });
+      }
+      if (poki.available && (this.failCount.get(this.levelId) ?? 0) >= 3 && this.levelId < levels.length) {
+        offers.push({ x: 0, y: bottom - 300, w: 270, h: 70, label: t("btn.skip"), icon: "ad", action: () => this.skipLevel() });
+      }
+      const total = offers.length * 270 + (offers.length - 1) * 20;
+      offers.forEach((b, i) => {
+        b.x = cx - total / 2 + i * 290;
+        list.push(b);
+      });
     } else if (s === "paused") {
       list.push(
         { x: cx - 140, y: bottom - 220, w: 280, h: 92, label: t("btn.resume"), icon: "play", primary: true, action: () => this.resume() },

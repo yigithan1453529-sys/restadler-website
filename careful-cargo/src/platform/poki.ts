@@ -1,12 +1,14 @@
 // Thin wrapper around the Poki SDK. Falls back to no-ops when the SDK is not
-// loaded (local development). Ads (commercialBreak / rewardedBreak) will be
-// wired up in milestone 2.
+// loaded (local development, ad blockers): ads then resolve immediately and
+// rewarded ads count as "not watched".
 
 interface PokiSDKLike {
   init(): Promise<void>;
   gameLoadingFinished(): void;
   gameplayStart(): void;
   gameplayStop(): void;
+  commercialBreak(beforeBreak?: () => void): Promise<void>;
+  rewardedBreak(beforeBreak?: () => void): Promise<boolean>;
   shareableURL?(params: Record<string, string>): Promise<string>;
   getURLParam?(key: string): string | null | undefined;
 }
@@ -18,6 +20,12 @@ declare global {
 }
 
 let gameplayActive = false;
+let ready = false;
+let adRunning = false;
+
+/** Called around every ad: pause the game and mute the sound. */
+let onAdStart: () => void = () => {};
+let onAdEnd: () => void = () => {};
 
 function sdk(): PokiSDKLike | undefined {
   return typeof window !== "undefined" ? window.PokiSDK : undefined;
@@ -52,9 +60,49 @@ export const poki = {
   },
   async init(): Promise<void> {
     try {
-      await sdk()?.init();
+      if (sdk()) {
+        // Do not wait forever if the SDK hangs (e.g. blocked network).
+        await Promise.race([sdk()!.init(), new Promise((r) => setTimeout(r, 4000))]);
+        ready = true;
+      }
     } catch {
       // Ad blocker or SDK missing: keep playing without it.
+    }
+  },
+  /** True when the real Poki SDK is available (rewarded ads can be offered). */
+  get available(): boolean {
+    return ready && !!sdk();
+  },
+  setAdHandlers(start: () => void, end: () => void): void {
+    onAdStart = start;
+    onAdEnd = end;
+  },
+  /** Ad break when the player wants to continue (next level, retry after a fail). */
+  async commercialBreak(): Promise<void> {
+    const s = sdk();
+    if (!ready || !s || adRunning) return;
+    adRunning = true;
+    try {
+      await s.commercialBreak(() => onAdStart());
+    } catch {
+      /* no ad */
+    } finally {
+      adRunning = false;
+      onAdEnd();
+    }
+  },
+  /** Rewarded ad, only after a clear choice by the player. Resolves to true if it was watched. */
+  async rewardedBreak(): Promise<boolean> {
+    const s = sdk();
+    if (!ready || !s || adRunning) return false;
+    adRunning = true;
+    try {
+      return await s.rewardedBreak(() => onAdStart());
+    } catch {
+      return false;
+    } finally {
+      adRunning = false;
+      onAdEnd();
     }
   },
   loadingFinished(): void {

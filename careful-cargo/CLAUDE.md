@@ -122,10 +122,10 @@ docs/GDD.md          Spielkonzept
 
 ### Meilenstein 2 – Poki-bereit
 
-- [ ] Poki-SDK-Wrapper, Ereignisse und Werbung gemäss Regeln oben
-- [ ] Belohnte Werbung: «Ab Checkpoint weiterfahren» und «Level überspringen»
+- [x] Poki-SDK-Wrapper, Ereignisse und Werbung gemäss Regeln oben
+- [x] Belohnte Werbung: «Ab Checkpoint weiterfahren», «Level überspringen», «Coins ×2»
 - [ ] Test im Poki Inspector ohne Fehler
-- [ ] Ladebildschirm, Stummschalten-Knopf, Pause
+- [x] Ladebildschirm, Stummschalten-Knopf, Pause; neue Spieler starten direkt in Level 1
 
 ### Meilenstein 3 – Inhalt und Feinschliff
 

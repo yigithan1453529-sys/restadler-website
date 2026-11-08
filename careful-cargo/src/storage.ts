@@ -202,3 +202,10 @@ export function removeFriend(name: string): void {
   delete loadSave().friends[name];
   write();
 }
+
+/** A level skipped with a rewarded ad: the next level unlocks, no stars or coins. */
+export function skipLevelSave(levelId: number, levelCount: number): void {
+  const data = loadSave();
+  data.unlocked = Math.min(levelCount, Math.max(data.unlocked, levelId + 1));
+  write();
+}

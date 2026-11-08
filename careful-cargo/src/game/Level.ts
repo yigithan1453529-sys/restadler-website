@@ -41,12 +41,26 @@ export class LevelRun {
   constructor(
     readonly level: LevelData,
     spec: VehicleSpec = VEHICLES[0],
+    /** Continue an earlier attempt from a checkpoint (after a rewarded ad). */
+    resume?: { x: number; from: LevelRun },
   ) {
     this.gw = new GameWorld(level);
-    const y = heightAt(this.gw.terrain, START_X) + 1.05;
-    this.vehicle = new Vehicle(this.gw, { x: START_X, y }, spec);
+    const startX = resume ? resume.x : START_X;
+    const y = heightAt(this.gw.terrain, startX) + 1.05;
+    this.vehicle = new Vehicle(this.gw, { x: startX, y }, spec);
     this.cargo = new CargoManager(this.gw, this.vehicle, level);
     this.killY = level.killY ?? this.gw.minY - 6;
+    if (resume) {
+      // Cargo lost before stays lost; the clock and checkpoints carry over.
+      const lost = resume.from.cargo.items.filter((i) => i.lost);
+      this.cargo.removeLost(
+        lost.map((i) => i.id),
+        lost.map((i) => i.lostReason ?? "ground"),
+      );
+      this.time = resume.from.time;
+      this.reachedCheckpoints = [...resume.from.reachedCheckpoints];
+      this.started = true;
+    }
   }
 
   get stars(): number {

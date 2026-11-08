@@ -2,7 +2,7 @@ import { COLORS, FONT } from "../game/Renderer";
 
 export { FONT };
 
-export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice";
+export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice" | "ad";
 
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   const rr = Math.min(r, w / 2, h / 2);
@@ -235,6 +235,21 @@ export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: numbe
         ctx.arc(px * h, py * h, h * 0.11, 0, Math.PI * 2);
         ctx.fill();
       }
+      break;
+    case "ad":
+      // video badge: marks buttons that show an ad
+      roundRect(ctx, -h * 0.75, -h * 0.55, h * 1.5, h * 1.1, h * 0.25);
+      ctx.fillStyle = "#3D8BFF";
+      ctx.fill();
+      ctx.lineWidth = s * 0.06;
+      ctx.stroke();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.22, -h * 0.3);
+      ctx.lineTo(h * 0.35, 0);
+      ctx.lineTo(-h * 0.22, h * 0.3);
+      ctx.closePath();
+      ctx.fill();
       break;
     case "close":
       ctx.lineWidth = s * 0.15;

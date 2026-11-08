@@ -168,8 +168,14 @@ Stummschalten-Knopf, Zustand wird gespeichert.
 - **Pausen-Werbung** (`commercialBreak`): vor dem nächsten Level und vor dem
   Neustart nach einem Fehlschlag. Poki entscheidet, ob wirklich Werbung kommt.
 - **Belohnte Werbung** (`rewardedBreak`), immer klar mit Werbe-Symbol beschriftet:
-  - «Continue from checkpoint» nach Fehlschlag in Levels mit Checkpoint
-  - «Skip level» nach 3 Fehlschlägen im selben Level
+  - «Continue from checkpoint» nach Fehlschlag in Levels mit Checkpoint (nur wenn
+    noch Ladung übrig ist; verlorene Ladung bleibt verloren, die Uhr läuft weiter)
+  - «Skip level» nach 3 Fehlschlägen im selben Level (nächstes Level frei, keine
+    Sterne, keine Coins)
+  - «×2 Coins» im Ergebnis-Fenster
+- Belohnte Werbung wird nur angeboten, wenn das Poki-SDK geladen ist.
+- **Neue Spieler** (noch keine Sterne, keine Coins) starten direkt in Level 1 ohne
+  Menü; danach öffnet das Spiel auf dem Home-Bildschirm.
 - Nie Werbung mitten im Fahren.
 
 ## 14. Welten, Hindernisse, Fahrzeuge

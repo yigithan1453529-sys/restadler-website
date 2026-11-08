@@ -44,16 +44,62 @@ const input = new Input(canvas, (clientX, clientY) => {
   };
 });
 
-void poki.init().then(() => poki.loadingFinished());
-const game = new Game(ctx, input);
-
-let last = performance.now();
-function frame(now: number): void {
-  const dt = Math.min(0.1, (now - last) / 1000);
-  last = now;
-  game.update(dt);
+/** Simple loading screen while the Poki SDK starts. */
+function drawLoading(progress: number): void {
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  game.draw();
+  const g = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+  g.addColorStop(0, "#8FD3FF");
+  g.addColorStop(1, "#E6F7FF");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+  ctx.font = '900 84px "Trebuchet MS", "Segoe UI", system-ui, sans-serif';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 16;
+  ctx.strokeStyle = "#2D2D2D";
+  ctx.strokeText("Careful Cargo", VIEW_W / 2, VIEW_H / 2 - 50);
+  ctx.fillStyle = "#FFB627";
+  ctx.fillText("Careful Cargo", VIEW_W / 2, VIEW_H / 2 - 50);
+  const w = 420;
+  const x = VIEW_W / 2 - w / 2;
+  const y = VIEW_H / 2 + 50;
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.strokeStyle = "#2D2D2D";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect?.(x, y, w, 28, 14);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#3BCEAC";
+  ctx.beginPath();
+  ctx.roundRect?.(x + 4, y + 4, Math.max(20, (w - 8) * progress), 20, 10);
+  ctx.fill();
+}
+
+async function boot(): Promise<void> {
+  let progress = 0.15;
+  drawLoading(progress);
+  const timer = window.setInterval(() => {
+    progress = Math.min(0.9, progress + 0.08);
+    drawLoading(progress);
+  }, 100);
+  await poki.init();
+  window.clearInterval(timer);
+  drawLoading(1);
+
+  const game = new Game(ctx, input);
+  poki.loadingFinished();
+
+  let last = performance.now();
+  const frame = (now: number): void => {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    game.update(dt);
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    game.draw();
+    requestAnimationFrame(frame);
+  };
   requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+void boot();

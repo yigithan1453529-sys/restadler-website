@@ -62,7 +62,7 @@ export function drawFailScreen(ctx: CanvasRenderingContext2D, reason: string, t:
   drawDim(ctx);
   drawPanel(ctx, t);
   if (t < 0.15) return;
-  outlinedText(ctx, reason, VIEW_W / 2, 270, 64, "#FF6B35");
+  outlinedText(ctx, reason, VIEW_W / 2, 215, 64, "#FF6B35");
 }
 
 export function drawPauseScreen(ctx: CanvasRenderingContext2D, title: string): void {
