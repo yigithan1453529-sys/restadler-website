@@ -3,6 +3,28 @@
 
 const KEY = "careful-cargo-save-v1";
 
+/** Save format version. 2 = four islands with 10 levels each (ids 1–40). */
+const SAVE_VERSION = 2;
+
+/**
+ * Level ids before version 2 (four worlds with 6 levels each) mapped to the
+ * island ids. Levels 1–6 stay, desert 7–12 → 11–16, snow 13–18 → 21–26,
+ * city 19–23 → 31–35 and the old finale 24 → 40.
+ */
+export function migrateLevelId(old: number): number {
+  if (old <= 6) return old;
+  if (old <= 12) return old + 4;
+  if (old <= 18) return old + 8;
+  if (old <= 23) return old + 12;
+  return 40;
+}
+
+function migrateKeys<T>(rec: Record<number, T>): Record<number, T> {
+  const out: Record<number, T> = {};
+  for (const [id, v] of Object.entries(rec)) out[migrateLevelId(Number(id))] = v;
+  return out;
+}
+
 export interface SaveData {
   unlocked: number; // highest unlocked level id
   stars: Record<number, number>; // best stars per level id
@@ -15,6 +37,7 @@ export interface SaveData {
   name: string; // random player name key, see social.ts
   records: Record<number, LevelRecord>; // best result per level
   friends: Record<string, FriendData>; // keyed by the friend's name key
+  v: number; // save format version
 }
 
 export interface LevelRecord {
@@ -40,6 +63,7 @@ function defaults(): SaveData {
     name: "",
     records: {},
     friends: {},
+    v: SAVE_VERSION,
   };
 }
 
@@ -94,12 +118,22 @@ export function loadSave(): SaveData {
         for (const [v, p] of Object.entries(parsed.paint)) if (typeof p === "string") data.paint[v] = p;
       }
       if (!data.owned.includes(data.vehicle)) data.vehicle = "van";
+      const oldIds = parsed.v !== SAVE_VERSION;
       if (typeof parsed.name === "string") data.name = parsed.name;
       data.records = cleanRecords(parsed.records);
       if (parsed.friends && typeof parsed.friends === "object") {
         for (const [k, f] of Object.entries(parsed.friends)) {
           if (f && typeof f === "object") data.friends[k] = { records: cleanRecords((f as FriendData).records), at: Number((f as FriendData).at) || 0 };
         }
+      }
+      if (oldIds) {
+        // Older save from before the islands: move everything to the new level ids.
+        data.stars = migrateKeys(data.stars);
+        data.records = migrateKeys(data.records);
+        for (const f of Object.values(data.friends)) f.records = migrateKeys(f.records);
+        data.unlocked = migrateLevelId(data.unlocked);
+        cache = data;
+        write();
       }
     }
   } catch {

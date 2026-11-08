@@ -3,7 +3,7 @@
 
 import { LANG, t } from "./i18n";
 import { poki } from "./platform/poki";
-import { cleanRecords, loadSave, saveFriend, saveName, type LevelRecord } from "./storage";
+import { cleanRecords, loadSave, migrateLevelId, saveFriend, saveName, type LevelRecord } from "./storage";
 
 const ADJECTIVES: Record<string, string[]> = {
   en: ["Speedy", "Careful", "Happy", "Brave", "Sunny", "Lucky", "Clever", "Jolly", "Mighty", "Gentle", "Bouncy", "Cozy"],
@@ -50,6 +50,7 @@ export function rerollName(): void {
 interface Payload {
   n: string;
   r: Record<string, [number, number]>;
+  v?: number; // 2 = island level ids; older links use the old ids
 }
 
 function encode(p: Payload): string {
@@ -80,7 +81,11 @@ export function receiveChallenge(): string | null {
   const p = decode(code);
   if (!p || p.n === myName()) return null;
   const records: Record<string, { s: number; t: number }> = {};
-  for (const [id, v] of Object.entries(p.r)) if (Array.isArray(v)) records[id] = { s: v[0], t: v[1] };
+  for (const [id, v] of Object.entries(p.r)) {
+    if (!Array.isArray(v)) continue;
+    const key = p.v === 2 ? Number(id) : migrateLevelId(Number(id));
+    records[key] = { s: v[0], t: v[1] };
+  }
   saveFriend(p.n, cleanRecords(records));
   return p.n;
 }
@@ -88,7 +93,7 @@ export function receiveChallenge(): string | null {
 async function challengeLink(): Promise<string> {
   const r: Record<string, [number, number]> = {};
   for (const [id, rec] of Object.entries(loadSave().records)) r[id] = [rec.s, rec.t];
-  return poki.shareableURL({ cc: encode({ n: myName(), r }) });
+  return poki.shareableURL({ cc: encode({ n: myName(), r, v: 2 }) });
 }
 
 /**
