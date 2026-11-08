@@ -2,7 +2,9 @@ import { SCOOP_COLORS, type CargoItem } from "./Cargo";
 import { Camera, VIEW_H, VIEW_W } from "./Camera";
 import type { LevelRun } from "./Level";
 import type { Particles } from "./Particles";
+import { CUSTOMER_KINDS, drawCustomer, type Mood } from "./Characters";
 import { Obstacles } from "./Obstacles";
+import { drawSkyTraffic } from "./SkyTraffic";
 import { THEMES, type Theme } from "./themes";
 import type { VehicleSpec } from "./Vehicle";
 
@@ -521,6 +523,7 @@ export class Renderer {
     this.runTime = run.time;
     this.theme = theme;
     this.drawSky(cam, time);
+    drawSkyTraffic(this.ctx, time, theme.night);
     this.drawBackdrop(cam);
 
     ctx.save();
@@ -1109,71 +1112,13 @@ export class Renderer {
     ctx.lineTo(hx + 3.8, hy + 1.65);
     ctx.stroke();
 
-    // the customer: waves while waiting, then reacts to the delivery
+    // the customer: idle, waves when the van is close, then reacts to the delivery
     const won = run.state === "won";
-    const mood = !won ? "wave" : run.stars >= 3 ? "cheer" : run.stars === 2 ? "happy" : "puzzled";
+    const near = run.level.finishX - run.vehicle.position.x < 30;
+    const mood: Mood = won ? (run.stars >= 3 ? "cheer" : run.stars === 2 ? "happy" : "puzzled") : near ? "wave" : "idle";
+    const kind = CUSTOMER_KINDS[(run.level.id - 1) % CUSTOMER_KINDS.length];
     const px = fx + 2.6;
-    const jump = mood === "cheer" ? Math.abs(Math.sin(time * 7)) * 0.6 : 0;
-    const py = this.groundAt(run, px) + jump;
-    ctx.fillStyle = "#3BCEAC";
-    roundRectPath(ctx, px - 0.32, py, 0.64, 1.1, 0.25);
-    ctx.fill();
-    ctx.stroke();
-    ctx.lineWidth = 0.13;
-    ctx.lineCap = "round";
-    const arm = (side: number, angle: number): void => {
-      ctx.beginPath();
-      ctx.moveTo(px + side * 0.25, py + 0.85);
-      ctx.lineTo(px + side * (0.25 + Math.sin(angle) * 0.65), py + 0.85 + Math.cos(angle) * 0.65);
-      ctx.stroke();
-    };
-    if (mood === "cheer") {
-      arm(1, 0.35 + Math.sin(time * 14) * 0.15);
-      arm(-1, 0.35 + Math.sin(time * 14 + 1) * 0.15);
-    } else if (mood === "puzzled") {
-      // scratching the head
-      ctx.beginPath();
-      ctx.moveTo(px + 0.25, py + 0.85);
-      ctx.lineTo(px + 0.5, py + 1.3);
-      ctx.lineTo(px + 0.25 + Math.sin(time * 12) * 0.05, py + 1.62);
-      ctx.stroke();
-    } else {
-      arm(1, 0.5 + Math.sin(time * (mood === "happy" ? 12 : 6)) * 0.45);
-    }
-    ctx.lineCap = "butt";
-    ctx.lineWidth = lw;
-    ctx.fillStyle = "#FFD1A4";
-    ctx.beginPath();
-    ctx.arc(px, py + 1.45, 0.33, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = COLORS.outline;
-    ctx.beginPath();
-    ctx.arc(px - 0.11, py + 1.5, 0.045, 0, Math.PI * 2);
-    ctx.arc(px + 0.11, py + 1.5, 0.045, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    if (mood === "puzzled") {
-      ctx.moveTo(px - 0.1, py + 1.33);
-      ctx.lineTo(px + 0.1, py + 1.36);
-    } else {
-      const big = mood === "cheer" || mood === "happy";
-      ctx.arc(px, py + 1.4, big ? 0.14 : 0.1, Math.PI * 1.15, Math.PI * 1.85);
-    }
-    ctx.stroke();
-    if (mood === "puzzled") {
-      ctx.save();
-      ctx.translate(px + 0.2, py + 2.35);
-      ctx.scale(0.02, -0.02);
-      ctx.font = `bold 40px ${FONT}`;
-      ctx.textAlign = "center";
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = COLORS.outline;
-      ctx.strokeText("?", 0, 0);
-      ctx.fillStyle = "#FFD23F";
-      ctx.fillText("?", 0, 0);
-      ctx.restore();
-    }
+    drawCustomer(ctx, kind, px, this.groundAt(run, px), mood, time, lw);
 
     // finish flag
     this.drawFlag(fx, gy, lw, "#FFFFFF", true, Math.sin(time * 3));
