@@ -356,8 +356,8 @@ export class Game {
       );
     } else if (s === "levels") {
       const save = loadSave();
-      const tileW = 196;
-      const gap = 22;
+      const tileW = 180;
+      const gap = 14;
       const startX = (VIEW_W - (levels.length * tileW + (levels.length - 1) * gap)) / 2;
       levels.forEach((level, i) => {
         const locked = level.id > save.unlocked;

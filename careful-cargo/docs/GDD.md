@@ -83,17 +83,22 @@ Im Prototyp drei Typen:
 Neustart muss **unter 1 Sekunde** dauern. Fortschritt speichern: freigeschaltete
 Level und beste Sterne pro Level.
 
-## 8. Die 5 Prototyp-Level
+## 8. Die Level der Welt «Wiese»
 
 Jedes Level bringt genau eine neue Sache bei.
 
 | Level | Name | Länge | Ladung | Was es lehrt |
 | --- | --- | --- | --- | --- |
 | 1 | First Delivery | ca. 120 m | 3 Kisten | Gas und Bremse; sanfte Hügel. Hinweise «Hold ▶ to drive», dann «◀ to brake» |
-| 2 | Bumpy Road | ca. 150 m | 4 Kisten | Zu schnell über Bodenwellen = Kisten fliegen. 6 Wellen, 0,6–1,2 m hoch |
+| 2 | Bumpy Road | ca. 150 m | 4 Kisten (2 + 2 gestapelt) | Zu schnell über Bodenwellen = Kisten fliegen. 7 Wellen, 0,6–1,2 m hoch, die letzte kurz vor dem Ziel |
 | 3 | Careful, Eggs! | ca. 140 m | 5 Eier | Weich landen: 3 Stufen nach unten (je ca. 0,8 m) plus kleine Wellen |
-| 4 | Steep Hill | ca. 160 m | Tortenturm | Bremsen: langer steiler Abhang (ca. 30°), danach Gegenhang |
-| 5 | The Jump | ca. 170 m | 3 Kisten | Neigen in der Luft: Rampe, Grube von ca. 6 m, Landehang. Checkpoint nach der Grube |
+| 4 | Steep Hill | ca. 160 m | Tortenturm | Bremsen: langer steiler Abhang (ca. 30°), Welle im Tal, danach Gegenhang |
+| 5 | The Jump | ca. 170 m | 3 Kisten | Neigen in der Luft: Rampe, Grube von ca. 6 m, kurzer Landehang, zweite kleine Grube (3 m). Checkpoint nach der ersten Grube |
+| 6 | Egg Exam | ca. 130 m | 3 Eier | **Prüfung:** Wellen, Stufe, Abhang und Kuppe kombiniert |
+
+**Schwierigkeits-Rhythmus:** drei normale Level, dann ein Prüfungs-Level, das alles
+Gelernte kombiniert, danach ein leichteres Level zum Durchatmen. Durchkommen ist
+leicht, 3 Sterne sind schwer.
 
 **Level-Datenformat** (Beispiel, darf technisch angepasst werden):
 

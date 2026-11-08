@@ -8,6 +8,10 @@ export const level04: LevelData = {
     [0, 10],
     [24, 10],
     [44, -1.55],
+    // a bump at the bottom: arriving too fast throws the cake
+    [47, -1.55, 0.8],
+    [48.6, -0.85, 0.8],
+    [50.2, -1.55, 0.8],
     [54, -1.55],
     [70, 4],
     [84, 4],

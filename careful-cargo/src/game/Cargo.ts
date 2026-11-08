@@ -47,7 +47,7 @@ export class CargoManager {
     level: LevelData,
   ) {
     for (const spec of level.cargo) {
-      if (spec.type === "crate") this.spawnCrates(spec.count);
+      if (spec.type === "crate") this.spawnCrates(spec.count, spec.perRow);
       else if (spec.type === "egg") this.spawnEggs(spec.count);
       else this.spawnCake(Math.min(spec.count, CARGO.cakeLayers.length));
     }
@@ -80,9 +80,10 @@ export class CargoManager {
     this.items.push(item);
   }
 
-  private spawnCrates(count: number): void {
+  private spawnCrates(count: number, maxPerRow?: number): void {
     const s = CARGO.crateSize;
-    const perRow = Math.max(1, Math.floor(this.bedWidth() / (s + 0.06)));
+    const fit = Math.max(1, Math.floor(this.bedWidth() / (s + 0.06)));
+    const perRow = Math.min(fit, maxPerRow ?? fit);
     let placed = 0;
     let row = 0;
     while (placed < count) {

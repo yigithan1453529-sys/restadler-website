@@ -22,11 +22,13 @@ export const level02: LevelData = {
     ...bump(87, 1.2, 5),
     ...bump(105, 0.9),
     [118, 0],
-    [128, 1.5],
-    [138, 0],
+    [126, 1.2],
+    [133, 0],
+    // last bump right before the finish
+    ...bump(137, 1.0),
     [165, 0],
   ],
-  cargo: [{ type: "crate", count: 4 }],
+  cargo: [{ type: "crate", count: 4, perRow: 2 }], // stacked 2 + 2
   finishX: 145,
   checkpoints: [],
   hints: [{ x: 8, text: "hint.bumps" }],

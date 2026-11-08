@@ -27,6 +27,8 @@ const en = {
   "level.3": "Careful, Eggs!",
   "level.4": "Steep Hill",
   "level.5": "The Jump",
+  "level.6": "Egg Exam",
+  "hint.exam": "Exam! Show what you learned.",
 } as const;
 
 export type TextKey = keyof typeof en;
@@ -58,6 +60,8 @@ const de: Record<TextKey, string> = {
   "level.3": "Vorsicht, Eier!",
   "level.4": "Steiler Hügel",
   "level.5": "Der Sprung",
+  "level.6": "Eier-Prüfung",
+  "hint.exam": "Prüfung! Zeig, was du kannst.",
 };
 
 const languages: Record<string, Record<TextKey, string>> = { en, de };

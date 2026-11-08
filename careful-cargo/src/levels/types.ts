@@ -13,7 +13,8 @@ export interface LevelData {
   id: number;
   name: TextKey;
   terrain: TerrainPoint[];
-  cargo: { type: CargoType; count: number }[];
+  /** perRow: optional max pieces per row on the bed (e.g. 2 makes a 2 + 2 stack). */
+  cargo: { type: CargoType; count: number; perRow?: number }[];
   finishX: number;
   checkpoints: number[];
   hints: { x: number; text: TextKey }[];
