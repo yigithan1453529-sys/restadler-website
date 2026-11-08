@@ -4,7 +4,14 @@ import { COLORS, drawCargoShape } from "../game/Renderer";
 import { outlinedText, plainText, roundRect } from "./draw";
 
 /** Level label (left) and cargo icons (center). Buttons are added by Game. */
-export function drawHud(ctx: CanvasRenderingContext2D, levelLabel: string, items: CargoItem[], lostFlash: Map<number, number>): void {
+export function drawHud(
+  ctx: CanvasRenderingContext2D,
+  levelLabel: string,
+  items: CargoItem[],
+  lostFlash: Map<number, number>,
+  meltLeft: number | null,
+  time: number,
+): void {
   // level pill
   ctx.font = `bold 30px sans-serif`;
   roundRect(ctx, 20, 18, 170, 60, 30);
@@ -37,7 +44,11 @@ export function drawHud(ctx: CanvasRenderingContext2D, levelLabel: string, items
     // normalise sizes so every icon fits the slot
     if (item.type === "crate") drawCargoShape(ctx, "crate", 15, 15, 0, 3, false, item.lost);
     else if (item.type === "egg") drawCargoShape(ctx, "egg", 13, 13, 0, 3, false, item.lost);
-    else drawCargoShape(ctx, "cake", 19 - item.layer * 3, 11, item.layer, 3, false, item.lost);
+    else if (item.type === "cake") drawCargoShape(ctx, "cake", 19 - item.layer * 3, 11, item.layer, 3, false, item.lost);
+    else if (item.type === "icecream") drawCargoShape(ctx, "icecream", 14, 14, item.layer, 3, false, item.lost);
+    else if (item.type === "aquarium") drawCargoShape(ctx, "aquarium", 19, 14, 0, 3, false, item.lost, { time });
+    else if (item.type === "bowling") drawCargoShape(ctx, "bowling", 15, 15, 0, 3, false, item.lost);
+    else drawCargoShape(ctx, "grandpa", 17, 17, 0, 3, false, item.lost);
     if (item.lost) {
       ctx.strokeStyle = "#E8283C";
       ctx.lineWidth = 5;
@@ -49,6 +60,13 @@ export function drawHud(ctx: CanvasRenderingContext2D, levelLabel: string, items
     }
     ctx.restore();
     x += size + gap;
+  }
+
+  // melting timer for ice cream
+  if (meltLeft !== null) {
+    const urgent = meltLeft < 8;
+    const blink = urgent && Math.sin(time * 10) > 0;
+    outlinedText(ctx, `${Math.ceil(meltLeft)}s`, x + 18, y, 30, blink ? "#FF6B6B" : "#FFFFFF", "left");
   }
 }
 

@@ -28,6 +28,9 @@ export class LevelRun {
   // Per-frame outputs for effects (cleared at the start of every update).
   lostThisFrame: CargoItem[] = [];
   brokenThisFrame: CargoItem[] = [];
+  bumpedThisFrame: CargoItem[] = [];
+  /** Set by the game on the first input; the clock (melting) only runs after that. */
+  started = false;
   /** Strongest vehicle/ground impact this frame (impulse per kg). */
   impactThisFrame = 0;
   checkpointThisFrame: number | null = null;
@@ -55,6 +58,7 @@ export class LevelRun {
   update(dt: number, input: DriveInput): void {
     this.lostThisFrame = [];
     this.brokenThisFrame = [];
+    this.bumpedThisFrame = [];
     this.impactThisFrame = 0;
     this.checkpointThisFrame = null;
     const active = this.state === "running";
@@ -71,18 +75,20 @@ export class LevelRun {
           else if (ev.type === "carImpact") this.impactThisFrame = Math.max(this.impactThisFrame, ev.impulse / carMass);
         }
         this.gw.events.length = 0;
-        this.cargo.afterStep();
+        this.cargo.afterStep(this.time);
         this.lostThisFrame.push(...this.cargo.newlyLost);
         this.brokenThisFrame.push(...this.cargo.newlyBroken);
         this.cargo.newlyLost.length = 0;
         this.cargo.newlyBroken.length = 0;
+        this.bumpedThisFrame.push(...this.cargo.newlyBumped);
+        this.cargo.newlyBumped.length = 0;
         if (this.state === "running") this.checkRules();
       },
     );
   }
 
   private checkRules(): void {
-    this.time += PHYSICS_STEP;
+    if (this.started) this.time += PHYSICS_STEP;
     const pos = this.vehicle.position;
 
     for (const cx of this.level.checkpoints) {

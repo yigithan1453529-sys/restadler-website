@@ -1,4 +1,4 @@
-import type { CargoItem } from "./Cargo";
+import { SCOOP_COLORS, type CargoItem } from "./Cargo";
 import { Camera, VIEW_H, VIEW_W } from "./Camera";
 import type { LevelRun } from "./Level";
 import type { Particles } from "./Particles";
@@ -56,6 +56,7 @@ export function drawCargoShape(
   lw: number,
   yUp = true,
   grey = false,
+  extra: { melt?: number; waterAngle?: number; time?: number } = {},
 ): void {
   ctx.lineWidth = lw;
   ctx.strokeStyle = COLORS.outline;
@@ -86,6 +87,133 @@ export function drawCargoShape(
       ctx.ellipse(-hw * 0.3, hh * 0.35 * up, hw * 0.2, hh * 0.3, 0, 0, Math.PI * 2);
       ctx.fill();
     }
+  } else if (type === "icecream") {
+    const color = grey ? "#C8C8C8" : SCOOP_COLORS[layer % SCOOP_COLORS.length];
+    const melt = extra.melt ?? 0;
+    ctx.fillStyle = color;
+    // drips grow while the scoop melts
+    for (let k = -1; k <= 1; k++) {
+      const len = hh * (0.25 + melt * (0.6 + 0.3 * Math.abs(k)));
+      ctx.beginPath();
+      ctx.ellipse(k * hw * 0.5, -hh * 0.75 * up - (len * 0.5) * up, hw * 0.2, len * 0.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, hw, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    if (!grey) {
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.beginPath();
+      ctx.arc(-hw * 0.35, hh * 0.35 * up, hw * 0.22, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (type === "aquarium") {
+    // water (kept level with the world, tilted by sloshing), then fish, then glass
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(-hw, -hh, hw * 2, hh * 2);
+    ctx.clip();
+    ctx.save();
+    ctx.rotate((extra.waterAngle ?? 0) * up);
+    ctx.fillStyle = grey ? "#D5D5D5" : "rgba(80,180,255,0.75)";
+    ctx.fillRect(-hw * 2, -hh * 3 * up, hw * 4, hh * 3.4 * up);
+    ctx.restore();
+    if (!grey) {
+      const time = extra.time ?? 0;
+      const fx = Math.sin(time * 1.3) * hw * 0.45;
+      const dir = Math.cos(time * 1.3) >= 0 ? 1 : -1;
+      ctx.fillStyle = "#FF8C1A";
+      ctx.beginPath();
+      ctx.ellipse(fx, -hh * 0.15 * up, hw * 0.28, hh * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = lw * 0.8;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(fx - dir * hw * 0.24, -hh * 0.15 * up);
+      ctx.lineTo(fx - dir * hw * 0.45, -hh * 0.15 * up + hh * 0.18);
+      ctx.lineTo(fx - dir * hw * 0.45, -hh * 0.15 * up - hh * 0.18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = COLORS.outline;
+      ctx.beginPath();
+      ctx.arc(fx + dir * hw * 0.13, -hh * 0.1 * up, hw * 0.04, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.fillStyle = "rgba(220,245,255,0.25)";
+    ctx.beginPath();
+    ctx.rect(-hw, -hh, hw * 2, hh * 2);
+    ctx.fill();
+    ctx.stroke();
+  } else if (type === "bowling") {
+    ctx.fillStyle = grey ? "#A8A8A8" : "#3D4FB5";
+    ctx.beginPath();
+    ctx.arc(0, 0, hw, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = COLORS.outline;
+    for (const [hx, hy] of [[-0.25, 0.3], [0.05, 0.42], [0.1, 0.15]]) {
+      ctx.beginPath();
+      ctx.arc(hx * hw * 1.6, hy * hh * 1.6 * up, hw * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (type === "grandpa") {
+    const g = grey;
+    // deckchair frame
+    ctx.strokeStyle = g ? "#999999" : "#8B5A2B";
+    ctx.lineWidth = hw * 0.12;
+    ctx.beginPath();
+    ctx.moveTo(-hw * 0.9, -hh);
+    ctx.lineTo(hw * 0.5, hh * 0.2 * up);
+    ctx.moveTo(hw * 0.9, -hh);
+    ctx.lineTo(-hw * 0.6, hh * 0.9 * up);
+    ctx.stroke();
+    // striped fabric
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.beginPath();
+    ctx.moveTo(-hw * 0.75, hh * 0.95 * up);
+    ctx.lineTo(-hw * 0.2, -hh * 0.35 * up);
+    ctx.lineTo(hw * 0.75, -hh * 0.35 * up);
+    ctx.lineTo(hw * 0.5, -hh * 0.05 * up);
+    ctx.lineTo(-hw * 0.05, -hh * 0.05 * up);
+    ctx.lineTo(-hw * 0.5, hh * 0.95 * up);
+    ctx.closePath();
+    ctx.fillStyle = g ? "#CCCCCC" : "#4D9DE0";
+    ctx.fill();
+    ctx.stroke();
+    // grandpa: legs, body, head with hat and glasses
+    ctx.fillStyle = g ? "#BBBBBB" : "#7B8B6F";
+    ctx.beginPath();
+    ctx.moveTo(-hw * 0.05, -hh * 0.05 * up);
+    ctx.lineTo(hw * 0.75, -hh * 0.05 * up);
+    ctx.lineTo(hw * 0.75, hh * 0.15 * up);
+    ctx.lineTo(-hw * 0.05, hh * 0.2 * up);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = g ? "#DDDDDD" : "#F2F2F2";
+    ctx.beginPath();
+    ctx.ellipse(-hw * 0.2, hh * 0.35 * up, hw * 0.28, hh * 0.32, -0.4 * up, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = g ? "#CFCFCF" : "#FFD1A4";
+    ctx.beginPath();
+    ctx.arc(-hw * 0.4, hh * 0.78 * up, hw * 0.24, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = g ? "#AAAAAA" : "#F5E6A8";
+    ctx.beginPath();
+    ctx.ellipse(-hw * 0.4, hh * 0.98 * up, hw * 0.38, hh * 0.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = COLORS.outline;
+    ctx.fillRect(-hw * 0.32, hh * 0.76 * up - hh * 0.04, hw * 0.24, hh * 0.08);
   } else {
     const base = [COLORS.cakeChoco, COLORS.cakePink, COLORS.cakeWhite][layer] ?? COLORS.cakePink;
     const frosting = [COLORS.cakePink, COLORS.cakeWhite, COLORS.cakePink][layer] ?? COLORS.cakeWhite;
@@ -124,12 +252,16 @@ export function drawCargoShape(
 
 export class Renderer {
   private theme: Theme = THEMES.meadow;
+  private time = 0;
+  private runTime = 0;
 
   constructor(private ctx: CanvasRenderingContext2D) {}
 
   draw(run: LevelRun, cam: Camera, particles: Particles, time: number): void {
     const ctx = this.ctx;
     const theme = THEMES[run.level.world ?? "meadow"];
+    this.time = time;
+    this.runTime = run.time;
     this.theme = theme;
     this.drawSky(cam, time);
     this.drawBackdrop(cam);
@@ -807,7 +939,15 @@ export class Renderer {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate(item.body.getAngle());
-    drawCargoShape(ctx, item.type, item.hw, item.hh, item.layer, lw, true, false);
+    const extra: { melt?: number; waterAngle?: number; time?: number } = { time: this.time };
+    if (item.type === "icecream" && item.meltAt !== undefined) {
+      extra.melt = Math.max(0, Math.min(1, 1 - (item.meltAt - this.runTime) / 8));
+    }
+    if (item.type === "aquarium" && item.water) {
+      const local = item.body.getLocalPoint(item.water.getPosition());
+      extra.waterAngle = -item.body.getAngle() + Math.max(-0.5, Math.min(0.5, local.x * 1.5));
+    }
+    drawCargoShape(ctx, item.type, item.hw, item.hh, item.layer, lw, true, false, extra);
     ctx.restore();
   }
 

@@ -60,7 +60,7 @@ export class Particles {
     }
   }
 
-  splat(x: number, y: number): void {
+  splat(x: number, y: number, color = "#FFC300"): void {
     for (let i = 0; i < 18; i++) {
       const a = Math.random() * Math.PI;
       const s = 1.5 + Math.random() * 3;
@@ -73,7 +73,7 @@ export class Particles {
         life: 0,
         maxLife: 0.7 + Math.random() * 0.5,
         size: 0.05 + Math.random() * 0.08,
-        color: i % 3 === 0 ? "#FFFFFF" : "#FFC300",
+        color: i % 3 === 0 ? "#FFFFFF" : color,
         angle: 0,
         spin: 0,
       });

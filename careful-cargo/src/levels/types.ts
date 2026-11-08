@@ -1,7 +1,7 @@
 import type { TextKey } from "../i18n";
 import type { WorldId } from "../game/themes";
 
-export type CargoType = "crate" | "egg" | "cake";
+export type CargoType = "crate" | "egg" | "cake" | "icecream" | "aquarium" | "bowling" | "grandpa";
 
 /**
  * Terrain control point in meters, y points up.
@@ -22,6 +22,8 @@ export interface LevelData {
   checkpoints: number[];
   hints: { x: number; text: TextKey }[];
   objects?: LevelObject[];
+  /** Ice cream: seconds of driving until the first scoop melts (default 40). */
+  meltTime?: number;
   /** Vehicle below this height = "Fell off!". Defaults to lowest terrain point - 6. */
   killY?: number;
 }

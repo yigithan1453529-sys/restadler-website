@@ -166,6 +166,11 @@ export class AudioFx {
     this.tone(520, 0, 0.12, "triangle", 0.18, 330);
   }
 
+  whoa(): void {
+    this.tone(330, 0, 0.12, "triangle", 0.2, 520);
+    this.tone(520, 0.1, 0.2, "triangle", 0.2, 300);
+  }
+
   pop(index = 0): void {
     this.tone(600 + index * 180, 0, 0.12, "triangle", 0.25, 900 + index * 180);
   }

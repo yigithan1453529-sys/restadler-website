@@ -59,6 +59,7 @@ export class Game {
   private hintsShown = new Set<number>();
   private lostFlash = new Map<number, number>();
   private impactCooldown = 0;
+  private bumpCooldown = 0;
   private dustTimer = 0;
   private starsPopped = 0;
   private resultStars = 0;
@@ -162,7 +163,7 @@ export class Game {
   private resume(): void {
     if (this.state !== "paused") return;
     // Back to "ready" if the player never started driving.
-    this.setState(this.run.time > 0 ? "playing" : "ready");
+    this.setState(this.run.started ? "playing" : "ready");
     this.input.releaseAll();
   }
 
@@ -210,6 +211,7 @@ export class Game {
     const run = this.run;
 
     if (this.state === "ready" && (this.input.gas || this.input.brake)) {
+      run.started = true;
       this.setState("playing");
       if (this.hint && this.hint.left === Infinity) this.hint.left = 2.5;
     }
@@ -256,10 +258,21 @@ export class Game {
       this.audio.crack();
     }
     for (const item of run.lostThisFrame) {
-      const at = item.body?.getPosition() ?? item.brokenAt ?? v.position;
-      this.particles.text(t("oops"), at.x, at.y + 0.6);
+      const at = item.brokenAt ?? item.body?.getPosition() ?? v.position;
+      const text = item.lostReason === "melted" ? t("melted") : item.lostReason === "spilled" ? t("spilled") : t("oops");
+      this.particles.text(text, at.x, at.y + 0.6);
       this.lostFlash.set(item.id, 1);
+      if (item.lostReason === "melted") this.particles.splat(at.x, at.y, "#FF9EC7");
+      if (item.lostReason === "spilled") this.particles.splat(at.x, at.y + 0.3, "#7FD3FF");
       if (item.lostReason !== "broken") this.audio.oops();
+    }
+    this.bumpCooldown -= dt;
+    for (const item of run.bumpedThisFrame) {
+      if (this.bumpCooldown > 0 || !item.body) continue;
+      const at = item.body.getPosition();
+      this.particles.text(t("whoa"), at.x, at.y + 1.0);
+      this.audio.whoa();
+      this.bumpCooldown = 1.2;
     }
 
     this.impactCooldown -= dt;
@@ -401,7 +414,7 @@ export class Game {
 
     const s = this.state;
     if (s === "ready" || s === "playing") {
-      drawHud(ctx, t("hud.level", { n: this.levelId }), run.cargo.items, this.lostFlash);
+      drawHud(ctx, t("hud.level", { n: this.levelId }), run.cargo.items, this.lostFlash, run.cargo.meltLeft(run.time), this.time);
       if (this.hint) {
         const alpha = this.hint.left === Infinity ? 1 : Math.min(1, this.hint.left * 2);
         drawHint(ctx, t(this.hint.text), alpha, this.time);

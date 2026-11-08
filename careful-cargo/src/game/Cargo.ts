@@ -14,9 +14,22 @@ export const CARGO = {
     { w: 0.46, h: 0.24 },
   ],
   maxDistance: 3,
+  scoopRadius: 0.14,
+  /** Seconds between two scoops melting. */
+  meltStagger: 2.5,
+  tank: { hw: 0.46, hh: 0.32, wall: 0.04 },
+  /** Aquarium spills when tilted more than this (radians). */
+  spillAngle: 1.0,
+  bowlingRadius: 0.22,
+  grandpa: { hw: 0.32, hh: 0.3 },
 };
 
-export type LostReason = "ground" | "away" | "broken";
+export const SCOOP_COLORS = ["#FF9EC7", "#B8F2C8", "#FFF3C4", "#9C6644", "#FFB6A3"];
+
+const TANK_CATEGORY = 0x0002;
+const WATER_CATEGORY = 0x0004;
+
+export type LostReason = "ground" | "away" | "broken" | "melted" | "spilled";
 
 export interface CargoItem {
   id: number;
@@ -31,6 +44,10 @@ export interface CargoItem {
   layer: number;
   /** Where an egg broke (for the splatter). */
   brokenAt?: Vec2Value;
+  /** Ice cream: run time when this scoop melts. */
+  meltAt?: number;
+  /** Aquarium: the sloshing water inside the tank. */
+  water?: Body;
 }
 
 export class CargoManager {
@@ -39,6 +56,8 @@ export class CargoManager {
   newlyLost: CargoItem[] = [];
   /** Eggs broken during the last update (for splatter effects). */
   newlyBroken: CargoItem[] = [];
+  /** Grandpa got a hard bump (for a "Whoa!"). */
+  newlyBumped: CargoItem[] = [];
   private toDestroy: CargoItem[] = [];
 
   constructor(
@@ -49,8 +68,79 @@ export class CargoManager {
     for (const spec of level.cargo) {
       if (spec.type === "crate") this.spawnCrates(spec.count, spec.perRow);
       else if (spec.type === "egg") this.spawnEggs(spec.count);
-      else this.spawnCake(Math.min(spec.count, CARGO.cakeLayers.length));
+      else if (spec.type === "cake") this.spawnCake(Math.min(spec.count, CARGO.cakeLayers.length));
+      else if (spec.type === "icecream") this.spawnScoops(spec.count, level.meltTime ?? 40);
+      else if (spec.type === "aquarium") this.spawnAquarium();
+      else if (spec.type === "bowling") this.spawnBowling(spec.count);
+      else this.spawnGrandpa();
     }
+  }
+
+  /** Seconds until the next scoop melts, or null if there is no ice cream left. */
+  meltLeft(time: number): number | null {
+    let next = Infinity;
+    for (const i of this.items) if (i.type === "icecream" && !i.lost && i.meltAt !== undefined) next = Math.min(next, i.meltAt);
+    return next === Infinity ? null : Math.max(0, next - time);
+  }
+
+  private spawnScoops(count: number, meltTime: number): void {
+    const r = CARGO.scoopRadius;
+    const n = Math.min(count, Math.floor(this.bedWidth() / (2 * r + 0.06)));
+    const gap = (this.bedWidth() - n * 2 * r) / (n + 1);
+    for (let i = 0; i < n; i++) {
+      const lx = BED.left + gap + r + i * (2 * r + gap);
+      const body = this.gw.world.createBody({
+        type: "dynamic",
+        position: this.localToWorld(lx, BED.floor + r + 0.01),
+        angularDamping: 4,
+      });
+      body.createFixture(new Circle(r), { density: 0.9, friction: 1.1, restitution: 0 });
+      this.add("icecream", body, r, r, i % SCOOP_COLORS.length);
+      this.items[this.items.length - 1].meltAt = meltTime + i * CARGO.meltStagger;
+    }
+  }
+
+  private spawnAquarium(): void {
+    const { hw, hh, wall } = CARGO.tank;
+    const cx = (BED.left + BED.right) / 2;
+    const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, BED.floor + hh + 0.01) });
+    const opt = { density: 0.6, friction: 0.7, filterCategoryBits: TANK_CATEGORY };
+    body.createFixture(new Box(hw, wall, { x: 0, y: -hh + wall }), opt);
+    body.createFixture(new Box(wall, hh, { x: -hw + wall, y: 0 }), opt);
+    body.createFixture(new Box(wall, hh, { x: hw - wall, y: 0 }), opt);
+    this.add("aquarium", body, hw, hh);
+    // The water: a heavy ball that only touches the tank and rolls around inside.
+    const water = this.gw.world.createBody({
+      type: "dynamic",
+      position: this.localToWorld(cx, BED.floor + 0.3),
+      linearDamping: 0.6,
+    });
+    water.createFixture(new Circle(0.2), {
+      density: 2.5,
+      friction: 0.05,
+      restitution: 0.2,
+      filterCategoryBits: WATER_CATEGORY,
+      filterMaskBits: TANK_CATEGORY,
+    });
+    this.items[this.items.length - 1].water = water;
+  }
+
+  private spawnBowling(count: number): void {
+    const r = CARGO.bowlingRadius;
+    for (let i = 0; i < Math.min(count, 2); i++) {
+      const lx = BED.left + 0.35 + i * 0.6;
+      const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(lx, BED.floor + r + 0.01) });
+      body.createFixture(new Circle(r), { density: 5, friction: 0.4, restitution: 0.05 });
+      this.add("bowling", body, r, r);
+    }
+  }
+
+  private spawnGrandpa(): void {
+    const { hw, hh } = CARGO.grandpa;
+    const cx = (BED.left + BED.right) / 2;
+    const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, BED.floor + hh + 0.01) });
+    body.createFixture(new Box(hw, hh), { density: 0.8, friction: 0.9, restitution: 0.05 });
+    this.add("grandpa", body, hw, hh);
   }
 
   get total(): number {
@@ -150,6 +240,10 @@ export class CargoManager {
   }
 
   handleImpact(item: CargoItem, impulse: number): void {
+    if (item.type === "grandpa" && item.body && !item.lost && impulse / item.body.getMass() > 1.0) {
+      this.newlyBumped.push(item);
+      return;
+    }
     if (item.type !== "egg" || !item.body || item.lostReason === "broken") return;
     const speed = impulse / item.body.getMass();
     if (speed > CARGO.eggBreakSpeed) {
@@ -163,8 +257,24 @@ export class CargoManager {
     }
   }
 
-  /** Distance check and removal of broken eggs. Call after every physics step. */
-  afterStep(): void {
+  /** Distance, melting and spilling checks. Call after every physics step. */
+  afterStep(time: number): void {
+    for (const item of this.items) {
+      if (!item.body) continue;
+      if (item.type === "icecream" && item.meltAt !== undefined && time >= item.meltAt) {
+        const p = item.body.getPosition();
+        item.brokenAt = { x: p.x, y: p.y };
+        if (!item.lost) this.markLost(item, "melted");
+        item.lostReason = "melted";
+        this.toDestroy.push(item);
+        item.meltAt = undefined;
+      } else if (item.type === "aquarium" && !item.lost) {
+        const a = item.body.getAngle();
+        const tilt = Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
+        if (tilt > CARGO.spillAngle) this.markLost(item, "spilled");
+      }
+    }
+
     for (const item of this.toDestroy) {
       if (item.body) {
         this.gw.world.destroyBody(item.body);
