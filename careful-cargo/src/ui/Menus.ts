@@ -1,12 +1,13 @@
-import { VIEW_H, VIEW_W } from "../game/Camera";
+import { VIEW_W } from "../game/Camera";
 import { getPaint, PAINTS } from "../game/paints";
 import { COLORS, drawVehiclePreview } from "../game/Renderer";
 import { getVehicleSpec, VEHICLES, type VehicleSpec } from "../game/Vehicle";
 import { t } from "../i18n";
 import { loadSave } from "../storage";
 import type { Button } from "./Button";
-import { drawCoin, drawCoinPill, drawIcon, drawSurface, outlinedText, plainText, roundRect, SURFACES } from "./draw";
+import { drawCoin, drawCoinPill, drawIcon, drawStar, drawSurface, outlinedText, plainText, roundRect, SURFACES } from "./draw";
 import { drawDim } from "./Screens";
+import { formatTime, type RankRow } from "../social";
 
 /** What the menu screens need from the game. */
 export interface MenuHost {
@@ -14,6 +15,10 @@ export interface MenuHost {
   muted: boolean;
   time: number;
   shopTab: "vehicles" | "paints";
+  rankingTab: "friends" | "records";
+  openRanking(tab?: "friends" | "records"): void;
+  invite(): void;
+  rerollName(): void;
   play(): void;
   openLevels(): void;
   openGarage(): void;
@@ -97,9 +102,11 @@ function drawLogo(ctx: CanvasRenderingContext2D, x: number, y: number): void {
 export function homeButtons(host: MenuHost): Button[] {
   return [
     { x: VIEW_W / 2 - 190, y: 248, w: 380, h: 120, label: t("home.play"), icon: "play", primary: true, action: () => host.play() },
-    { x: 235, y: 450, w: 250, h: 96, label: t("btn.levels"), icon: "menu", action: () => host.openLevels() },
-    { x: 515, y: 450, w: 250, h: 96, label: t("btn.garage"), icon: "garage", action: () => host.openGarage() },
-    { x: 795, y: 450, w: 250, h: 96, label: t("btn.shop"), icon: "shop", action: () => host.openShop() },
+    { x: 150, y: 440, w: 230, h: 92, label: t("btn.levels"), icon: "menu", action: () => host.openLevels() },
+    { x: 400, y: 440, w: 230, h: 92, label: t("btn.garage"), icon: "garage", action: () => host.openGarage() },
+    { x: 650, y: 440, w: 230, h: 92, label: t("btn.shop"), icon: "shop", action: () => host.openShop() },
+    { x: 900, y: 440, w: 230, h: 92, label: t("btn.ranking"), icon: "trophy", action: () => host.openRanking() },
+    { x: VIEW_W / 2 - 170, y: 568, w: 340, h: 76, label: t("btn.invite"), icon: "share", action: () => host.invite() },
     { x: 20, y: 18, w: 68, h: 68, icon: host.muted ? "soundOff" : "soundOn", action: () => host.toggleMute() },
   ];
 }
@@ -308,14 +315,97 @@ export function shopButtons(host: MenuHost): Button[] {
   return list;
 }
 
-export function drawShop(ctx: CanvasRenderingContext2D, toast: { text: string; good: boolean; left: number } | null): void {
+export function drawShop(ctx: CanvasRenderingContext2D): void {
   drawDim(ctx, 0.6);
   outlinedText(ctx, t("btn.shop"), VIEW_W / 2, 64, 56, "#FFFFFF");
   drawCoinPill(ctx, 24, 24, loadSave().coins);
-  if (toast && toast.left > 0) {
-    ctx.save();
-    ctx.globalAlpha = Math.min(1, toast.left * 2);
-    outlinedText(ctx, toast.text, VIEW_W / 2, VIEW_H - 14, 28, toast.good ? "#3BCEAC" : "#FF6B6B");
-    ctx.restore();
+}
+
+// ---------------- Ranking ----------------
+
+export function rankingButtons(host: MenuHost): Button[] {
+  const tab = host.rankingTab;
+  return [
+    backButton(host),
+    { x: VIEW_W / 2 - 250, y: 116, w: 240, h: 64, label: t("ranking.friends"), primary: tab === "friends", action: () => host.openRanking("friends") },
+    { x: VIEW_W / 2 + 10, y: 116, w: 240, h: 64, label: t("ranking.records"), primary: tab === "records", action: () => host.openRanking("records") },
+    { x: VIEW_W / 2 - 330, y: 630, w: 360, h: 74, label: t("btn.invite"), icon: "share", primary: true, action: () => host.invite() },
+    { x: VIEW_W / 2 + 50, y: 630, w: 280, h: 74, label: t("ranking.newName"), icon: "dice", action: () => host.rerollName() },
+  ];
+}
+
+const MEDALS = ["#FFD23F", "#C9D3DE", "#E3A869"];
+
+export function drawRanking(ctx: CanvasRenderingContext2D, host: MenuHost, rows: RankRow[], levelsCount: number): void {
+  drawDim(ctx, 0.6);
+  outlinedText(ctx, t("btn.ranking"), VIEW_W / 2, 64, 56, "#FFFFFF");
+  drawCoinPill(ctx, 24, 24, loadSave().coins);
+  const x = 200;
+  const w = VIEW_W - 400;
+  drawSurface(ctx, x, 200, w, 410, 30, "#FFFFFF", "#EEF3FA", "#B4C0D3");
+
+  if (host.rankingTab === "friends") {
+    const shown = rows.slice(0, 6);
+    shown.forEach((row, i) => {
+      const y = 222 + i * 62;
+      if (row.me) {
+        roundRect(ctx, x + 14, y, w - 28, 54, 18);
+        ctx.fillStyle = "#FFF1B8";
+        ctx.fill();
+      }
+      // rank badge
+      ctx.beginPath();
+      ctx.arc(x + 52, y + 27, 21, 0, Math.PI * 2);
+      ctx.fillStyle = MEDALS[i] ?? "#E6EBF2";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = COLORS.outline;
+      ctx.stroke();
+      plainText(ctx, String(i + 1), x + 52, y + 28, 22);
+      plainText(ctx, row.me ? `${row.name}  (${t("ranking.you")})` : row.name, x + 92, y + 28, 24, COLORS.outline, "left");
+      drawStar(ctx, x + w - 330, y + 27, 15, true);
+      plainText(ctx, String(row.stars), x + w - 308, y + 28, 24, COLORS.outline, "left");
+      plainText(ctx, t("ranking.levels", { n: row.levels }), x + w - 230, y + 28, 20, "#666666", "left");
+      plainText(ctx, row.levels ? formatTime(row.time) : "–", x + w - 34, y + 28, 22, COLORS.outline, "right");
+    });
+    if (rows.length === 1) {
+      plainText(ctx, t("ranking.empty"), VIEW_W / 2, 470, 22, "#555555");
+    }
+  } else {
+    const records = loadSave().records;
+    const cols = 6;
+    const cw = (w - 40) / cols;
+    for (let id = 1; id <= levelsCount; id++) {
+      const c = (id - 1) % cols;
+      const r = Math.floor((id - 1) / cols);
+      const cx = x + 20 + c * cw;
+      const cy = 220 + r * 96;
+      roundRect(ctx, cx + 4, cy, cw - 8, 86, 16);
+      ctx.fillStyle = records[id] ? "#FFFFFF" : "#F0F2F6";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#C5CEDB";
+      ctx.stroke();
+      plainText(ctx, `${t("ranking.level")} ${id}`, cx + cw / 2, cy + 18, 16, "#666666");
+      const rec = records[id];
+      if (rec) {
+        for (let k = 0; k < 3; k++) drawStar(ctx, cx + cw / 2 + (k - 1) * 24, cy + 44, 10, k < rec.s);
+        plainText(ctx, formatTime(rec.t), cx + cw / 2, cy + 70, 18);
+      } else {
+        plainText(ctx, "–", cx + cw / 2, cy + 52, 24, "#AAAAAA");
+      }
+    }
   }
+}
+
+/** A short message at the bottom of the screen. */
+export function drawToast(ctx: CanvasRenderingContext2D, toast: { text: string; good: boolean; left: number } | null): void {
+  if (!toast || toast.left <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, toast.left * 2);
+  ctx.font = `800 26px "Trebuchet MS", system-ui, sans-serif`;
+  const w = ctx.measureText(toast.text).width + 60;
+  drawSurface(ctx, VIEW_W / 2 - w / 2, 14, w, 52, 26, toast.good ? "#6EE7C2" : "#FF9B9B", toast.good ? "#2FBF95" : "#F06262", toast.good ? "#1E8E6D" : "#B83B3B", 4);
+  plainText(ctx, toast.text, VIEW_W / 2, 41, 24, "#FFFFFF");
+  ctx.restore();
 }

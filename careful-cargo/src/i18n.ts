@@ -91,6 +91,24 @@ const en = {
   "paint.grape": "Grape",
   "paint.bubble": "Bubblegum",
   "paint.lime": "Lime",
+  "btn.invite": "Invite a friend",
+  "btn.ranking": "Ranking",
+  "invite.text": "{name} challenges you in Careful Cargo! Can you beat my records?",
+  "invite.shared": "Challenge sent!",
+  "invite.copied": "Link copied! Send it to a friend.",
+  "invite.copyHint": "Copy this link and send it to a friend:",
+  "ranking.friends": "Friends",
+  "ranking.records": "My records",
+  "ranking.you": "You",
+  "ranking.empty": "No friends here yet. Invite a friend and compare your records!",
+  "ranking.newName": "New name",
+  "ranking.levels": "Levels: {n}",
+  "ranking.level": "Level",
+  "ranking.best": "Best",
+  "challenge.new": "{name} challenges you!",
+  "win.beat": "You beat {name} ({time})!",
+  "win.behind": "{name} did it in {time}",
+  "win.newRecord": "New record!",
   "world.meadow": "Meadow",
   "world.desert": "Desert",
   "world.snow": "Snow",
@@ -190,6 +208,24 @@ const de: Record<TextKey, string> = {
   "paint.grape": "Traube",
   "paint.bubble": "Kaugummi",
   "paint.lime": "Limette",
+  "btn.invite": "Freund einladen",
+  "btn.ranking": "Rangliste",
+  "invite.text": "{name} fordert dich bei Careful Cargo heraus! Schaffst du meine Rekorde?",
+  "invite.shared": "Herausforderung verschickt!",
+  "invite.copied": "Link kopiert! Schick ihn einem Freund.",
+  "invite.copyHint": "Kopiere diesen Link und schick ihn einem Freund:",
+  "ranking.friends": "Freunde",
+  "ranking.records": "Meine Rekorde",
+  "ranking.you": "Du",
+  "ranking.empty": "Noch keine Freunde hier. Lade einen Freund ein und vergleicht eure Rekorde!",
+  "ranking.newName": "Neuer Name",
+  "ranking.levels": "Level: {n}",
+  "ranking.level": "Level",
+  "ranking.best": "Rekord",
+  "challenge.new": "{name} fordert dich heraus!",
+  "win.beat": "Du schlägst {name} ({time})!",
+  "win.behind": "{name} schaffte es in {time}",
+  "win.newRecord": "Neuer Rekord!",
   "world.meadow": "Wiese",
   "world.desert": "Wüste",
   "world.snow": "Schnee",
@@ -207,7 +243,8 @@ function detectLanguage(): string {
   }
 }
 
-const current = languages[detectLanguage()];
+export const LANG = detectLanguage();
+const current = languages[LANG];
 
 export function t(key: TextKey, params?: Record<string, string | number>): string {
   let text: string = current[key] ?? en[key] ?? key;

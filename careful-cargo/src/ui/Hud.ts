@@ -70,3 +70,9 @@ export function drawHint(ctx: CanvasRenderingContext2D, text: string, alpha: num
   outlinedText(ctx, text, VIEW_W / 2, 150 + bob, 40, "#FFFFFF");
   ctx.restore();
 }
+
+/** Running time of the level, next to the restart button. */
+export function drawTimer(ctx: CanvasRenderingContext2D, text: string): void {
+  glassPill(ctx, 870, 18, 140, 60);
+  plainText(ctx, text, 940, 49, 24);
+}

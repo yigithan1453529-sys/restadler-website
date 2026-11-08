@@ -215,9 +215,27 @@ Traube, Kaugummi, Limette je 90 Coins). Nur Spielwährung, kein echtes Geld.
 fröhlich, bei 1 kratzt er sich am Kopf. Die Kamera zeigt das kurz, bevor das
 Ergebnis-Fenster erscheint.
 
+**Kunden am Ziel:** vier Figuren (Kind mit Mütze, Oma mit Brille, Koch, Bäuerin mit
+Strohhut), abwechselnd pro Level. Sie stehen still, winken, wenn der Wagen näher als
+30 m ist, und reagieren auf die Sterne (Jubel mit Herz, fröhliches Hüpfen, Kopfkratzen
+mit «?»).
+
+**Himmel:** Ab und zu fliegen ein Flugzeug mit Banner, Heissluftballone und ein
+Zeppelin vorbei (nachts mit kleinen Lichtern).
+
+**Rekorde und Freunde:** Eine Uhr läuft im HUD. Pro Level wird der beste Versuch
+gespeichert (mehr Sterne, bei gleichen Sternen schneller). Jeder Spieler hat einen
+zufälligen, kinderfreundlichen Namen (z. B. «Flinke Schildkröte 42», neu würfelbar).
+«Freund einladen» teilt einen Link mit dem Namen und den Rekorden. Wer ihn öffnet,
+hat den Absender in seiner Freunde-Rangliste (Sterne, Level, Gesamtzeit). Nach dem
+Level steht im Ergebnis-Fenster «Du schlägst …» oder «… schaffte es in …».
+Eine **weltweite** Rangliste gibt es nicht: Poki erlaubt keine eigenen Server und
+bietet keine Rangliste im SDK.
+
 ## 15. Nicht im Prototyp
 
-Echtgeld-Käufe, Sammelobjekte, Bestenlisten, Online-Funktionen, Bilddateien und Musik.
+Echtgeld-Käufe, Sammelobjekte, weltweite Bestenlisten, Online-Funktionen mit eigenem
+Server, Bilddateien und Musik.
 
 ## 16. Test des Prototyps
 

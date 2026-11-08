@@ -2,7 +2,7 @@ import { COLORS, FONT } from "../game/Renderer";
 
 export { FONT };
 
-export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop";
+export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice";
 
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   const rr = Math.min(r, w / 2, h / 2);
@@ -196,6 +196,45 @@ export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: numbe
       ctx.beginPath();
       ctx.arc(0, -h * 0.25, h * 0.32, Math.PI, 0);
       ctx.stroke();
+      break;
+    case "trophy":
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.5, -h * 0.6);
+      ctx.lineTo(h * 0.5, -h * 0.6);
+      ctx.quadraticCurveTo(h * 0.5, h * 0.15, 0, h * 0.2);
+      ctx.quadraticCurveTo(-h * 0.5, h * 0.15, -h * 0.5, -h * 0.6);
+      ctx.fill();
+      ctx.fillRect(-h * 0.1, h * 0.15, h * 0.2, h * 0.3);
+      ctx.fillRect(-h * 0.38, h * 0.42, h * 0.76, h * 0.18);
+      ctx.lineWidth = s * 0.07;
+      ctx.beginPath();
+      ctx.arc(-h * 0.5, -h * 0.3, h * 0.22, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.arc(h * 0.5, -h * 0.3, h * 0.22, Math.PI * 1.5, Math.PI * 0.5);
+      ctx.stroke();
+      break;
+    case "share":
+      ctx.lineWidth = s * 0.08;
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.4, 0);
+      ctx.lineTo(h * 0.4, -h * 0.4);
+      ctx.moveTo(-h * 0.4, 0);
+      ctx.lineTo(h * 0.4, h * 0.4);
+      ctx.stroke();
+      for (const [px, py] of [[-0.4, 0], [0.4, -0.4], [0.4, 0.4]] as const) {
+        ctx.beginPath();
+        ctx.arc(px * h, py * h, h * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+    case "dice":
+      roundRect(ctx, -h * 0.6, -h * 0.6, h * 1.2, h * 1.2, h * 0.22);
+      ctx.fill();
+      ctx.fillStyle = "#FFFFFF";
+      for (const [px, py] of [[-0.3, -0.3], [0.3, 0.3], [0, 0], [0.3, -0.3], [-0.3, 0.3]] as const) {
+        ctx.beginPath();
+        ctx.arc(px * h, py * h, h * 0.11, 0, Math.PI * 2);
+        ctx.fill();
+      }
       break;
     case "close":
       ctx.lineWidth = s * 0.15;

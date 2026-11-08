@@ -18,7 +18,7 @@ const LANES: Lane[] = [
   { kind: "plane", period: 21, duration: 8, offset: 4, y: 95, dir: -1, scale: 1, colors: ["#FFFFFF", "#E84A5F"] },
   { kind: "balloon", period: 33, duration: 30, offset: 0, y: 200, dir: 1, scale: 1, colors: ["#FF6B35", "#FFD23F", "#3BCEAC"] },
   { kind: "blimp", period: 52, duration: 34, offset: 20, y: 120, dir: 1, scale: 1, colors: ["#D9DDE2", "#4D9DE0"] },
-  { kind: "balloon", period: 41, duration: 36, offset: 26, y: 150, dir: -1, scale: 0.7, colors: ["#9B5DE5", "#FF7EB6", "#FFFFFF"] },
+  { kind: "balloon", period: 41, duration: 36, offset: 12, y: 150, dir: -1, scale: 0.7, colors: ["#9B5DE5", "#FF7EB6", "#FFFFFF"] },
 ];
 
 function outline(ctx: CanvasRenderingContext2D, w = 3): void {

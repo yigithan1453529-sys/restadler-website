@@ -1,10 +1,22 @@
 import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { poki } from "../platform/poki";
-import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, saveMuted, savePaint, saveVehicle, spendCoins, totalStars } from "../storage";
-import { drawGarage, drawHome, drawShop, garageButtons, homeButtons, shopButtons, type MenuHost } from "../ui/Menus";
+import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, saveMuted, savePaint, saveRecord, saveVehicle, spendCoins, totalStars } from "../storage";
+import {
+  drawGarage,
+  drawHome,
+  drawRanking,
+  drawShop,
+  drawToast,
+  garageButtons,
+  homeButtons,
+  rankingButtons,
+  shopButtons,
+  type MenuHost,
+} from "../ui/Menus";
+import { bestFriendRecord, displayName, formatTime, friendRanking, inviteFriend, receiveChallenge, rerollName } from "../social";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
-import { drawHint, drawHud } from "../ui/Hud";
+import { drawHint, drawHud, drawTimer } from "../ui/Hud";
 import {
   drawFailScreen,
   drawLevelSelectBackground,
@@ -35,8 +47,9 @@ import { getVehicleSpec, VEHICLES } from "./Vehicle";
  * home     – start screen (Play, Levels, Garage, Shop)
  * garage   – choose vehicle and color
  * shop     – buy vehicles and colors with coins
+ * ranking  – friends ranking and own records
  */
-export type GameState = "ready" | "playing" | "paused" | "won" | "failed" | "levels" | "home" | "garage" | "shop";
+export type GameState = "ready" | "playing" | "paused" | "won" | "failed" | "levels" | "home" | "garage" | "shop" | "ranking";
 
 const FAIL_TEXT: Record<string, TextKey> = {
   allLost: "fail.allLost",
@@ -74,6 +87,10 @@ export class Game {
   private resultStars = 0;
   private coinsEarned = 0;
   private shopTab: "vehicles" | "paints" = "vehicles";
+  private rankingTab: "friends" | "records" = "friends";
+  private newRecord = false;
+  private rival: string | null = null;
+  private rivalBeat = false;
   private toast: { text: string; good: boolean; left: number } | null = null;
   private host: MenuHost;
 
@@ -96,6 +113,17 @@ export class Game {
       get shopTab() {
         return self.shopTab;
       },
+      get rankingTab() {
+        return self.rankingTab;
+      },
+      openRanking: (tab) => {
+        if (tab) this.rankingTab = tab;
+        this.setState("ranking");
+      },
+      invite: () => {
+        void inviteFriend().then((msg) => (this.toast = { text: msg, good: true, left: 2.5 }));
+      },
+      rerollName: () => rerollName(),
       play: () => this.loadLevel(this.levelId),
       openLevels: () => this.openLevels(),
       openGarage: () => this.setState("garage"),
@@ -150,6 +178,12 @@ export class Game {
     // Prepare the furthest unlocked level (level 1 for new players) behind the home screen.
     this.loadLevel(Math.min(save.unlocked, levels.length));
     this.setState("home");
+    // Opened with a friend's challenge link?
+    const friend = receiveChallenge();
+    if (friend) {
+      this.toast = { text: t("challenge.new", { name: displayName(friend) }), good: true, left: 4 };
+      this.rankingTab = "friends";
+    }
   }
 
   private goHome(): void {
@@ -171,7 +205,7 @@ export class Game {
   }
 
   private isMenuState(): boolean {
-    return ["paused", "won", "failed", "levels", "home", "garage", "shop"].includes(this.state);
+    return ["paused", "won", "failed", "levels", "home", "garage", "shop", "ranking"].includes(this.state);
   }
 
   // ---------- state changes ----------
@@ -263,7 +297,7 @@ export class Game {
       if (["ready", "playing", "paused", "won", "failed"].includes(this.state)) this.restart();
       return;
     }
-    if (code === "Escape" && (this.state === "garage" || this.state === "shop")) {
+    if (code === "Escape" && (this.state === "garage" || this.state === "shop" || this.state === "ranking")) {
       this.goHome();
       return;
     }
@@ -275,7 +309,7 @@ export class Game {
     }
     if (code === "Enter" || code === "Space" || code === "NumpadEnter") {
       const primary = this.buttons.find((b) => b.primary);
-      if (primary && (this.isMenuState() || this.state === "ready") && this.state !== "shop") {
+      if (primary && (this.isMenuState() || this.state === "ready") && this.state !== "shop" && this.state !== "ranking") {
         this.audio.click();
         primary.action();
       }
@@ -388,6 +422,16 @@ export class Game {
       // Coins: 10 per star, 20 extra the first time a level is finished.
       this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0);
       addCoins(this.coinsEarned);
+      this.newRecord = saveRecord(this.levelId, run.stars, run.time);
+      const friend = bestFriendRecord(this.levelId);
+      this.rival = null;
+      if (friend) {
+        const beat = run.stars > friend.rec.s || (run.stars === friend.rec.s && run.time < friend.rec.t);
+        this.rivalBeat = beat;
+        this.rival = beat
+          ? t("win.beat", { name: friend.name, time: formatTime(friend.rec.t) })
+          : t("win.behind", { name: friend.name, time: formatTime(friend.rec.t) });
+      }
       this.setState("won");
       this.audio.success();
     } else if (run.state === "failed") {
@@ -503,6 +547,8 @@ export class Game {
       list.push(...garageButtons(this.host));
     } else if (s === "shop") {
       list.push(...shopButtons(this.host));
+    } else if (s === "ranking") {
+      list.push(...rankingButtons(this.host));
     }
     return list;
   }
@@ -518,6 +564,7 @@ export class Game {
     const s = this.state;
     if (s === "ready" || s === "playing") {
       drawHud(ctx, t("hud.level", { n: this.levelId }), run.cargo.items, this.lostFlash, run.cargo.meltLeft(run.time), this.time);
+      drawTimer(ctx, formatTime(run.time));
       if (this.hint) {
         const alpha = this.hint.left === Infinity ? 1 : Math.min(1, this.hint.left * 2);
         drawHint(ctx, t(this.hint.text), alpha, this.time);
@@ -527,11 +574,15 @@ export class Game {
       drawWinScreen(
         ctx,
         t("win.title"),
-        t("win.delivered", { n: run.cargo.delivered, total: run.cargo.total }),
+        `${t("win.delivered", { n: run.cargo.delivered, total: run.cargo.total })}  ·  ${formatTime(run.time)}`,
         this.resultStars,
         this.stateTime - WIN_DELAY,
         (i) => STAR_DELAY(i) - WIN_DELAY,
       );
+      if (this.stateTime > WIN_DELAY + 1.6) {
+        const line = this.rival ?? (this.newRecord ? t("win.newRecord") : null);
+        if (line) outlinedText(ctx, line, VIEW_W / 2, PANEL.y + PANEL.h - 32, 24, this.rival && !this.rivalBeat ? "#FFB627" : "#3BCEAC");
+      }
       if (this.coinsEarned > 0 && this.stateTime > WIN_DELAY + 0.3) {
         drawCoin(ctx, PANEL.x + PANEL.w - 120, PANEL.y + 52, 20);
         outlinedText(ctx, `+${this.coinsEarned}`, PANEL.x + PANEL.w - 92, PANEL.y + 54, 30, "#FFD23F", "left");
@@ -551,10 +602,13 @@ export class Game {
     } else if (s === "garage") {
       drawGarage(ctx);
     } else if (s === "shop") {
-      drawShop(ctx, this.toast);
+      drawShop(ctx);
+    } else if (s === "ranking") {
+      drawRanking(ctx, this.host, friendRanking(), levels.length);
     }
 
     for (const b of this.buttons) drawButton(ctx, b, sameButton(b, this.hover), sameButton(b, this.pressed));
+    drawToast(ctx, this.toast);
     this.particles.drawConfetti(ctx);
   }
 }

@@ -49,6 +49,9 @@ src/
     Obstacles.ts     Brücke, Tunnel, Eis/Schlamm, Wippe, Lift
     themes.ts        Aussehen der Welten
     paints.ts        Farben aus dem Shop
+    Characters.ts    Kunden-Figuren am Ziel
+    SkyTraffic.ts    Flugzeuge, Ballone, Zeppelin
+  social.ts          Spielername, Rekorde, Freunde-Einladung per Link
   levels/
     index.ts         Level-Liste
     level01.ts ...   Level als Daten (Gelände-Punkte, Ladung, Ziel)
@@ -130,4 +133,6 @@ docs/GDD.md          Spielkonzept
   Bowlingkugel da; Geschenkturm fehlt)
 - [x] Weitere Fahrzeuge (Traktor, Pickup, Renn-Truck 47), Deutsch als zweite Sprache
 - [x] Coins, Shop (Fahrzeuge, Farben), Garage, Home-Bildschirm
+- [x] Rekorde, Freunde-Rangliste per Einladungs-Link, neue Kunden-Figuren, Himmel mit
+  Flugzeugen/Ballonen/Zeppelin, moderneres Design
 - [ ] Vorschaubilder (statisch und animiert) für Poki
