@@ -248,6 +248,12 @@ export function drawCargoShape(
   }
 }
 
+/** Stable pseudo-random number 0..1 from three integers. */
+function hash(a: number, b: number, c: number): number {
+  const v = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453;
+  return v - Math.floor(v);
+}
+
 export function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, angle: number, lw: number): void {
   ctx.save();
   ctx.translate(x, y);
@@ -436,20 +442,7 @@ export class Renderer {
       ctx.fillStyle = L.color;
 
       if (th.backdrop === "city") {
-        // building silhouettes with lit windows
-        const w = li === 0 ? 90 : 120;
-        const first = Math.floor(offset / w);
-        for (let k = first; k < first + VIEW_W / w + 2; k++) {
-          const r = Math.abs(Math.sin(k * 12.9898 + li * 7) * 43758.5453) % 1;
-          const h = (li === 0 ? 120 : 90) + r * (li === 0 ? 200 : 150);
-          const x = k * w - offset;
-          ctx.fillStyle = L.color;
-          ctx.fillRect(x, baseY - h, w - 8, VIEW_H);
-          ctx.fillStyle = li === 0 ? "rgba(255,230,140,0.35)" : "rgba(255,230,140,0.6)";
-          for (let wy = baseY - h + 14; wy < baseY + 60; wy += 26)
-            for (let wx = x + 10; wx < x + w - 22; wx += 22)
-              if (Math.abs(Math.sin(wx * 3.1 + wy * 1.7)) > 0.45) ctx.fillRect(wx, wy, 10, 12);
-        }
+        this.drawSkyline(li, offset, baseY, L.color);
         continue;
       }
 
@@ -483,6 +476,52 @@ export class Renderer {
         ctx.fillStyle = "rgba(255,255,255,0.85)";
         ctx.fillRect(0, 0, VIEW_W, baseY - (li === 0 ? 120 : 80));
         ctx.restore();
+      }
+    }
+  }
+
+  /**
+   * One layer of skyscrapers. Every building and window gets its look from its
+   * own index (not from the screen position), so nothing flickers while driving.
+   */
+  private drawSkyline(layer: number, offset: number, baseY: number, color: string): void {
+    const ctx = this.ctx;
+    const slot = layer === 0 ? 96 : 130;
+    const first = Math.floor(offset / slot) - 1;
+    const blink = Math.sin(this.time * 3) > 0;
+    for (let k = first; k < first + VIEW_W / slot + 3; k++) {
+      const w = slot * (0.62 + hash(k, layer, 1) * 0.3);
+      const h = (layer === 0 ? 150 : 90) + hash(k, layer, 2) * (layer === 0 ? 190 : 140);
+      const x = k * slot - offset + (slot - w) / 2;
+      const top = baseY - h;
+      ctx.fillStyle = color;
+      ctx.fillRect(x, top, w, VIEW_H - top);
+      // rooftop: some buildings get an antenna with a slow red light
+      if (hash(k, layer, 3) > 0.6) {
+        ctx.fillRect(x + w / 2 - 2, top - 26, 4, 26);
+        if (blink) {
+          ctx.fillStyle = "#FF5A5A";
+          ctx.beginPath();
+          ctx.arc(x + w / 2, top - 28, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      // windows on a fixed grid; about 45 % are lit, in two warm tones
+      const cols = Math.max(2, Math.floor((w - 12) / 20));
+      const gapX = (w - cols * 10) / (cols + 1);
+      const rows = Math.floor((VIEW_H - top) / 26);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const v = hash(k * 31 + r, layer * 7 + c, 4);
+          if (v > 0.45) continue;
+          ctx.fillStyle =
+            layer === 0
+              ? "rgba(255,226,140,0.32)"
+              : v < 0.12
+                ? "rgba(255,246,210,0.85)"
+                : "rgba(255,214,120,0.7)";
+          ctx.fillRect(x + gapX + c * (10 + gapX), top + 14 + r * 26, 10, 13);
+        }
       }
     }
   }
