@@ -136,4 +136,5 @@ docs/GDD.md          Spielkonzept
 - [x] Coins, Shop (Fahrzeuge, Farben), Garage, Home-Bildschirm
 - [x] Rekorde, Freunde-Rangliste per Einladungs-Link, neue Kunden-Figuren, Himmel mit
   Flugzeugen/Ballonen/Zeppelin, moderneres Design
-- [ ] Vorschaubilder (statisch und animiert) für Poki
+- [x] Statisches Vorschaubild für Poki (`promo/thumbnail-1024.png`)
+- [ ] Animiertes Vorschaubild (mp4, 1080 × 1080, 4–6 s) – erst für die Soft Release nötig
