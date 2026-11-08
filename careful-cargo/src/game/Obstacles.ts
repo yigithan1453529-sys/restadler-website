@@ -91,7 +91,7 @@ export class Obstacles {
   }
 
   private addTunnel(x0: number, x1: number, height: number): void {
-    const y = Math.max(this.ground(x0), this.ground(x1), this.ground((x0 + x1) / 2)) + height;
+    const y = Math.min(this.ground(x0), this.ground(x1)) + height;
     const body = this.gw.world.createBody({ type: "static" });
     body.createFixture(
       new Polygon([

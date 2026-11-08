@@ -204,16 +204,16 @@ export function drawCargoShape(
     ctx.stroke();
     ctx.fillStyle = g ? "#CFCFCF" : "#FFD1A4";
     ctx.beginPath();
-    ctx.arc(-hw * 0.4, hh * 0.78 * up, hw * 0.24, 0, Math.PI * 2);
+    ctx.arc(-hw * 0.4, hh * 0.82 * up, hw * 0.34, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = g ? "#AAAAAA" : "#F5E6A8";
     ctx.beginPath();
-    ctx.ellipse(-hw * 0.4, hh * 0.98 * up, hw * 0.38, hh * 0.08, 0, 0, Math.PI * 2);
+    ctx.ellipse(-hw * 0.4, hh * 1.1 * up, hw * 0.5, hh * 0.1, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = COLORS.outline;
-    ctx.fillRect(-hw * 0.32, hh * 0.76 * up - hh * 0.04, hw * 0.24, hh * 0.08);
+    ctx.fillRect(-hw * 0.3, hh * 0.82 * up - hh * 0.06, hw * 0.34, hh * 0.12);
   } else {
     const base = [COLORS.cakeChoco, COLORS.cakePink, COLORS.cakeWhite][layer] ?? COLORS.cakePink;
     const frosting = [COLORS.cakePink, COLORS.cakeWhite, COLORS.cakePink][layer] ?? COLORS.cakeWhite;
