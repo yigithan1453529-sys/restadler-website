@@ -1,7 +1,8 @@
 import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { poki } from "../platform/poki";
-import { loadSave, saveLevelResult, saveMuted, saveVehicle, totalStars } from "../storage";
+import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, saveMuted, savePaint, saveVehicle, spendCoins, totalStars } from "../storage";
+import { drawGarage, drawHome, drawShop, garageButtons, homeButtons, shopButtons, type MenuHost } from "../ui/Menus";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
 import { drawHint, drawHud } from "../ui/Hud";
 import {
@@ -13,13 +14,14 @@ import {
   PANEL,
 } from "../ui/Screens";
 import { drawTouchControls } from "../ui/TouchControls";
-import { drawStar, outlinedText, plainText, roundRect } from "../ui/draw";
+import { drawCoin, drawStar, outlinedText } from "../ui/draw";
 import { AudioFx } from "./Audio";
 import { Camera, VIEW_W } from "./Camera";
 import { Input } from "./Input";
 import { LevelRun } from "./Level";
 import { Particles } from "./Particles";
-import { COLORS, drawVehiclePreview, Renderer } from "./Renderer";
+import { Renderer } from "./Renderer";
+import { getPaint, PAINTS } from "./paints";
 import { THEMES } from "./themes";
 import { getVehicleSpec, VEHICLES } from "./Vehicle";
 
@@ -30,8 +32,11 @@ import { getVehicleSpec, VEHICLES } from "./Vehicle";
  * won      – success screen
  * failed   – fail screen
  * levels   – level select (on top of the frozen level)
+ * home     – start screen (Play, Levels, Garage, Shop)
+ * garage   – choose vehicle and color
+ * shop     – buy vehicles and colors with coins
  */
-export type GameState = "ready" | "playing" | "paused" | "won" | "failed" | "levels";
+export type GameState = "ready" | "playing" | "paused" | "won" | "failed" | "levels" | "home" | "garage" | "shop";
 
 const FAIL_TEXT: Record<string, TextKey> = {
   allLost: "fail.allLost",
@@ -67,13 +72,50 @@ export class Game {
   private dustTimer = 0;
   private starsPopped = 0;
   private resultStars = 0;
-  private unlockMessage: string | null = null;
+  private coinsEarned = 0;
+  private shopTab: "vehicles" | "paints" = "vehicles";
+  private toast: { text: string; good: boolean; left: number } | null = null;
+  private host: MenuHost;
 
   constructor(
     private ctx: CanvasRenderingContext2D,
     private input: Input,
   ) {
     this.renderer = new Renderer(ctx);
+    const self = this;
+    this.host = {
+      get levelId() {
+        return self.levelId;
+      },
+      get muted() {
+        return self.audio.muted;
+      },
+      get time() {
+        return self.time;
+      },
+      get shopTab() {
+        return self.shopTab;
+      },
+      play: () => this.loadLevel(this.levelId),
+      openLevels: () => this.openLevels(),
+      openGarage: () => this.setState("garage"),
+      openShop: (tab) => {
+        if (tab) this.shopTab = tab;
+        this.setState("shop");
+      },
+      goHome: () => this.goHome(),
+      toggleMute: () => this.toggleMute(),
+      selectVehicle: (id) => saveVehicle(id),
+      selectPaint: (id) => savePaint(loadSave().vehicle, id),
+      buyVehicle: (id) => this.buy(VEHICLES.find((v) => v.id === id)?.price ?? Infinity, () => {
+        addOwnedVehicle(id);
+        saveVehicle(id);
+      }),
+      buyPaint: (id) => this.buy(PAINTS.find((p) => p.id === id)?.price ?? Infinity, () => {
+        addOwnedPaint(id);
+        savePaint(loadSave().vehicle, id);
+      }),
+    };
     const save = loadSave();
     this.audio = new AudioFx(save.muted);
 
@@ -105,19 +147,38 @@ export class Game {
       }
     });
 
-    // Start in the furthest unlocked level (level 1 for new players).
+    // Prepare the furthest unlocked level (level 1 for new players) behind the home screen.
     this.loadLevel(Math.min(save.unlocked, levels.length));
+    this.setState("home");
+  }
+
+  private goHome(): void {
+    this.setState("home");
+    this.input.releaseAll();
+  }
+
+  /** Pays with coins and runs `give` on success; shows a short message either way. */
+  private buy(price: number, give: () => void): void {
+    if (spendCoins(price)) {
+      give();
+      this.audio.success();
+      this.particles.confettiBurst(VIEW_W);
+      this.toast = { text: t("shop.bought"), good: true, left: 1.6 };
+    } else {
+      this.audio.oops();
+      this.toast = { text: t("shop.noCoins"), good: false, left: 1.6 };
+    }
   }
 
   private isMenuState(): boolean {
-    return this.state === "paused" || this.state === "won" || this.state === "failed" || this.state === "levels";
+    return ["paused", "won", "failed", "levels", "home", "garage", "shop"].includes(this.state);
   }
 
   // ---------- state changes ----------
 
   loadLevel(id: number): void {
     this.levelId = id;
-    this.unlockMessage = null;
+    this.coinsEarned = 0;
     this.run = new LevelRun(getLevel(id), getVehicleSpec(loadSave().vehicle));
     this.particles.clear();
     this.lostFlash.clear();
@@ -188,11 +249,6 @@ export class Game {
   }
 
   private closeLevels(): void {
-    // A different vehicle was chosen: restart the level with it.
-    if (this.run.vehicle.spec.id !== getVehicleSpec(loadSave().vehicle).id) {
-      this.loadLevel(this.levelId);
-      return;
-    }
     const back = this.stateBeforeLevels;
     this.setState(back === "playing" || back === "ready" ? "paused" : back);
   }
@@ -204,7 +260,11 @@ export class Game {
 
   private onKey(code: string): void {
     if (code === "KeyR") {
-      if (this.state !== "levels") this.restart();
+      if (["ready", "playing", "paused", "won", "failed"].includes(this.state)) this.restart();
+      return;
+    }
+    if (code === "Escape" && (this.state === "garage" || this.state === "shop")) {
+      this.goHome();
       return;
     }
     if (code === "Escape" || code === "KeyP") {
@@ -215,7 +275,7 @@ export class Game {
     }
     if (code === "Enter" || code === "Space" || code === "NumpadEnter") {
       const primary = this.buttons.find((b) => b.primary);
-      if (primary && (this.isMenuState() || this.state === "ready")) {
+      if (primary && (this.isMenuState() || this.state === "ready") && this.state !== "shop") {
         this.audio.click();
         primary.action();
       }
@@ -259,6 +319,10 @@ export class Game {
     for (const [id, v] of this.lostFlash) {
       if (v <= dt * 2) this.lostFlash.delete(id);
       else this.lostFlash.set(id, v - dt * 2);
+    }
+    if (this.toast) {
+      this.toast.left -= dt;
+      if (this.toast.left <= 0) this.toast = null;
     }
     if (this.state !== "paused" && this.state !== "levels") this.particles.update(dt);
     this.buttons = this.buildButtons();
@@ -320,11 +384,10 @@ export class Game {
     const run = this.run;
     if (run.state === "won") {
       this.resultStars = run.stars;
-      const before = totalStars();
-      saveLevelResult(this.levelId, run.stars, levels.length);
-      const after = totalStars();
-      const unlocked = VEHICLES.find((v) => v.unlockStars > before && v.unlockStars <= after);
-      if (unlocked) this.unlockMessage = t("unlock.vehicle", { name: t(unlocked.name) });
+      const { firstClear } = saveLevelResult(this.levelId, run.stars, levels.length);
+      // Coins: 10 per star, 20 extra the first time a level is finished.
+      this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0);
+      addCoins(this.coinsEarned);
       this.setState("won");
       this.audio.success();
     } else if (run.state === "failed") {
@@ -368,7 +431,7 @@ export class Game {
       const size = 68;
       const y = 14;
       list.push(
-        { x: 202, y, w: size, h: size, icon: "menu", action: () => this.openLevels() },
+        { x: 202, y, w: size, h: size, icon: "home", action: () => this.goHome() },
         { x: VIEW_W - 20 - size * 3 - 24, y, w: size, h: size, icon: "restart", action: () => this.restart() },
         { x: VIEW_W - 20 - size * 2 - 12, y, w: size, h: size, icon: "pause", action: () => this.pause() },
         {
@@ -388,18 +451,18 @@ export class Game {
       list.push(
         { x: cx - 120, y: bottom - 150, w: 240, h: 88, label: last ? t("btn.levels") : t("btn.next"), icon: last ? "menu" : "next", primary: true, action: () => this.nextLevel() },
         { x: PANEL.x + 36, y: bottom - 138, w: 136, h: 64, label: t("btn.retry"), action: () => this.restart() },
-        { x: PANEL.x + PANEL.w - 172, y: bottom - 138, w: 136, h: 64, label: t("btn.levels"), action: () => this.openLevels() },
+        { x: PANEL.x + PANEL.w - 172, y: bottom - 138, w: 136, h: 64, label: t("btn.home"), action: () => this.goHome() },
       );
     } else if (s === "failed" && this.stateTime > 0.3) {
       list.push(
         { x: cx - 140, y: bottom - 200, w: 280, h: 92, label: t("btn.retry"), icon: "restart", primary: true, action: () => this.restart() },
-        { x: cx - 80, y: bottom - 90, w: 160, h: 60, label: t("btn.levels"), action: () => this.openLevels() },
+        { x: cx - 80, y: bottom - 90, w: 160, h: 60, label: t("btn.home"), action: () => this.goHome() },
       );
     } else if (s === "paused") {
       list.push(
         { x: cx - 140, y: bottom - 220, w: 280, h: 92, label: t("btn.resume"), icon: "play", primary: true, action: () => this.resume() },
         { x: PANEL.x + 60, y: bottom - 105, w: 220, h: 64, label: t("btn.retry"), action: () => this.restart() },
-        { x: PANEL.x + PANEL.w - 280, y: bottom - 105, w: 220, h: 64, label: t("btn.levels"), action: () => this.openLevels() },
+        { x: PANEL.x + PANEL.w - 280, y: bottom - 105, w: 220, h: 64, label: t("btn.home"), action: () => this.goHome() },
         { x: PANEL.x + PANEL.w - 84, y: PANEL.y + 20, w: 64, h: 64, icon: this.audio.muted ? "soundOff" : "soundOn", action: () => this.toggleMute() },
       );
     } else if (s === "levels") {
@@ -434,45 +497,12 @@ export class Game {
         list.push({ x: VIEW_W / 2 + 260, y: 115, w: 70, h: 70, icon: "next", action: () => this.levelPage++ });
       list.push({ x: VIEW_W - 100, y: 30, w: 70, h: 70, icon: "close", primary: false, action: () => this.closeLevels() });
 
-      // vehicle picker
-      const stars = totalStars();
-      const chosen = getVehicleSpec(save.vehicle).id;
-      const cardW = 220;
-      const cardGap = 20;
-      const cx0 = (VIEW_W - (VEHICLES.length * cardW + (VEHICLES.length - 1) * cardGap)) / 2;
-      VEHICLES.forEach((spec, i) => {
-        const locked = stars < spec.unlockStars;
-        list.push({
-          x: cx0 + i * (cardW + cardGap),
-          y: 495,
-          w: cardW,
-          h: 190,
-          disabled: locked,
-          render: (c, b) => {
-            roundRect(c, b.x, b.y + 6, b.w, b.h, 22);
-            c.fillStyle = "rgba(45,45,45,0.35)";
-            c.fill();
-            roundRect(c, b.x, b.y, b.w, b.h, 22);
-            c.fillStyle = locked ? "#D5D5D5" : spec.id === chosen ? "#FFE58A" : "#FFFFFF";
-            c.fill();
-            c.lineWidth = spec.id === chosen ? 5 : 3;
-            c.strokeStyle = COLORS.outline;
-            c.stroke();
-            c.save();
-            c.translate(b.x + b.w / 2, b.y + 68);
-            c.scale(48, -48);
-            if (locked) c.globalAlpha = 0.35;
-            drawVehiclePreview(c, spec, 3 / 48);
-            c.restore();
-            plainText(c, t(spec.name), b.x + b.w / 2, b.y + 146, 22);
-            if (locked) {
-              drawStar(c, b.x + b.w / 2 - 28, b.y + 172, 12, true);
-              plainText(c, String(spec.unlockStars), b.x + b.w / 2 + 6, b.y + 173, 20, COLORS.outline, "left");
-            }
-          },
-          action: () => saveVehicle(spec.id),
-        });
-      });
+    } else if (s === "home") {
+      list.push(...homeButtons(this.host));
+    } else if (s === "garage") {
+      list.push(...garageButtons(this.host));
+    } else if (s === "shop") {
+      list.push(...shopButtons(this.host));
     }
     return list;
   }
@@ -482,7 +512,8 @@ export class Game {
   draw(): void {
     const ctx = this.ctx;
     const run = this.run;
-    this.renderer.draw(run, this.camera, this.particles, this.time);
+    const paint = getPaint(loadSave().paint[run.vehicle.spec.id]).color;
+    this.renderer.draw(run, this.camera, this.particles, this.time, paint);
 
     const s = this.state;
     if (s === "ready" || s === "playing") {
@@ -501,7 +532,10 @@ export class Game {
         this.stateTime - WIN_DELAY,
         (i) => STAR_DELAY(i) - WIN_DELAY,
       );
-      if (this.unlockMessage && this.stateTime > WIN_DELAY + 1.4) outlinedText(ctx, this.unlockMessage, VIEW_W / 2, 92, 34, "#3BCEAC");
+      if (this.coinsEarned > 0 && this.stateTime > WIN_DELAY + 0.3) {
+        drawCoin(ctx, PANEL.x + PANEL.w - 120, PANEL.y + 52, 20);
+        outlinedText(ctx, `+${this.coinsEarned}`, PANEL.x + PANEL.w - 92, PANEL.y + 54, 30, "#FFD23F", "left");
+      }
     } else if (s === "failed") {
       drawFailScreen(ctx, t(FAIL_TEXT[run.failReason ?? "allLost"]), this.stateTime);
     } else if (s === "paused") {
@@ -512,6 +546,12 @@ export class Game {
       drawLevelSelectBackground(ctx, t("levels.title"), t(THEMES[page.world].name), this.levelPage, pages.length);
       drawStar(ctx, 52, 68, 22, true);
       outlinedText(ctx, `${totalStars()} / ${levels.length * 3}`, 84, 70, 30, "#FFFFFF", "left");
+    } else if (s === "home") {
+      drawHome(ctx, this.host);
+    } else if (s === "garage") {
+      drawGarage(ctx);
+    } else if (s === "shop") {
+      drawShop(ctx, this.toast);
     }
 
     for (const b of this.buttons) drawButton(ctx, b, sameButton(b, this.hover), sameButton(b, this.pressed));

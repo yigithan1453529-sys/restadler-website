@@ -15,9 +15,9 @@ verliert die Ladung. Wer zu langsam fährt, kommt die Hügel nicht hoch.
 - Poki (Browser), Desktop und Handy, Querformat 16:9.
 - Alle Altersgruppen, Schwerpunkt Kinder und Jugendliche. Familienfreundlich.
 - Kurze Runden: ein Level dauert 20–60 Sekunden.
-- Das Spiel startet **direkt in Level 1** mit einem Hinweis («Hold ▶ to drive»)
-  und einem grossen Knopf «Start» (Enter, Leertaste oder Gas starten ebenfalls),
-  ohne Titelbildschirm-Hürde. Ein Klick oder Tipp blendet die Fahrknöpfe ◀ ▶ ein,
+- Das Spiel startet auf dem **Home-Bildschirm** (Wunsch des Projektinhabers); «Spielen»
+  führt direkt ins aktuelle Level mit dem Hinweis («Hold ▶ to drive») und einem
+  grossen Knopf «Start» (Enter, Leertaste oder Gas starten ebenfalls). Ein Klick oder Tipp blendet die Fahrknöpfe ◀ ▶ ein,
   damit man auch mit der Maus fahren kann. Die Levelauswahl ist über einen Menü-Knopf erreichbar.
 - Auf Handys im Hochformat: Spielfläche mit Rand anzeigen und einen Hinweis
   «Gerät drehen» einblenden, das Spiel bleibt aber spielbar.
@@ -187,13 +187,29 @@ Stummschalten-Knopf, Zustand wird gespeichert.
 Tunnel (hohe Ladung stösst an), Eis (rutschig), Schlamm (rutschig und bremst),
 Wippe, Lift (fährt aus einer Grube hoch; grünes Licht = unten und bereit).
 
-**Fahrzeuge** (mit Sternen freischalten, Auswahl in der Levelauswahl):
+**Fahrzeuge** (im Shop mit Coins kaufen, in der Garage auswählen):
 
-| Fahrzeug | Sterne | Eigenschaft |
+| Fahrzeug | Preis | Eigenschaft |
 | --- | --- | --- |
-| Lieferwagen | 0 | ausgewogen |
-| Traktor | 15 | langsam, stark, grosse Hinterräder |
-| Pickup | 35 | schnell, hohe Seitenwände |
+| Lieferwagen | gratis | ausgewogen |
+| Traktor | 150 Coins | langsam, stark, grosse Hinterräder |
+| Pickup | 350 Coins | schnell, hohe Seitenwände |
+| Renn-Truck 47 | 700 Coins | sehr schnell und stark, aber niedrige Wände; rot mit grauen Kotflügeln, Startnummer 47, Heckspoiler, Auspuffrohre |
+
+Ältere Spielstände behalten Fahrzeuge, die sie schon mit Sternen freigeschaltet hatten.
+
+**Coins:** pro geschafftem Level 10 Coins pro Stern, beim ersten Schaffen eines
+Levels 20 Coins extra. Anzeige im Ergebnis-Fenster.
+
+**Home:** Startbildschirm mit «Spielen» (aktuelles Level), Levelauswahl, Garage, Shop
+und Coin-Anzeige. Der Home-Knopf im HUD, in der Pause und auf den Endbildschirmen
+führt dorthin.
+
+**Garage:** Fahrzeug wählen (Werte: Tempo, Kraft, Wände) und gekaufte Farbe pro
+Fahrzeug wählen.
+
+**Shop:** zwei Reiter, Fahrzeuge und Farben (Sonne, Ozean, Minze je 60 Coins;
+Traube, Kaugummi, Limette je 90 Coins). Nur Spielwährung, kein echtes Geld.
 
 **Kunde:** wartet winkend; bei 3 Sternen jubelt und springt er, bei 2 winkt er
 fröhlich, bei 1 kratzt er sich am Kopf. Die Kamera zeigt das kurz, bevor das
@@ -201,7 +217,7 @@ Ergebnis-Fenster erscheint.
 
 ## 15. Nicht im Prototyp
 
-Shop, Sammelobjekte, Bestenlisten, Online-Funktionen, Bilddateien und Musik.
+Echtgeld-Käufe, Sammelobjekte, Bestenlisten, Online-Funktionen, Bilddateien und Musik.
 
 ## 16. Test des Prototyps
 

@@ -10,8 +10,8 @@ export type VehicleId = "van" | "tractor" | "pickup" | "racer";
 export interface VehicleSpec {
   id: VehicleId;
   name: TextKey;
-  /** Total stars needed to unlock. */
-  unlockStars: number;
+  /** Price in the shop (coins). */
+  price: number;
   color: string;
   rear: { x: number; y: number; r: number };
   front: { x: number; y: number; r: number };
@@ -66,7 +66,7 @@ export const VEHICLES: VehicleSpec[] = [
   {
     id: "van",
     name: "vehicle.van",
-    unlockStars: 0,
+    price: 0,
     color: "#FF6B35",
     rear: { x: -1.0, y: -0.5, r: 0.45 },
     front: { x: 1.0, y: -0.5, r: 0.45 },
@@ -89,7 +89,7 @@ export const VEHICLES: VehicleSpec[] = [
     // Slow but strong; big rear wheels soak up bumps.
     id: "tractor",
     name: "vehicle.tractor",
-    unlockStars: 15,
+    price: 150,
     color: "#4CAF50",
     rear: { x: -0.95, y: -0.42, r: 0.62 },
     front: { x: 1.1, y: -0.62, r: 0.36 },
@@ -124,7 +124,7 @@ export const VEHICLES: VehicleSpec[] = [
     // Fast pickup with high side walls: cargo stays in much better.
     id: "pickup",
     name: "vehicle.pickup",
-    unlockStars: 35,
+    price: 350,
     color: "#4D9DE0",
     rear: { x: -1.0, y: -0.5, r: 0.45 },
     front: { x: 1.0, y: -0.5, r: 0.45 },
@@ -147,7 +147,7 @@ export const VEHICLES: VehicleSpec[] = [
     // Race truck: very fast and strong, but low walls: careful with the cargo!
     id: "racer",
     name: "vehicle.racer",
-    unlockStars: 50,
+    price: 700,
     color: "#E63946",
     rear: { x: -1.0, y: -0.5, r: 0.48 },
     front: { x: 1.05, y: -0.5, r: 0.48 },

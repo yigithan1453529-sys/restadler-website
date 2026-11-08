@@ -48,12 +48,13 @@ src/
     Audio.ts         WebAudio-Effekte, Stummschalten
     Obstacles.ts     Brücke, Tunnel, Eis/Schlamm, Wippe, Lift
     themes.ts        Aussehen der Welten
+    paints.ts        Farben aus dem Shop
   levels/
     index.ts         Level-Liste
     level01.ts ...   Level als Daten (Gelände-Punkte, Ladung, Ziel)
     desert.ts ...    Level pro Welt (Wüste, Schnee, Stadt)
     shapes.ts        Bausteine für Gelände (Welle, Grube, Brücke, Lift)
-  ui/                HUD, Endbildschirm, Levelauswahl (im Canvas gezeichnet)
+  ui/                HUD, Endbildschirm, Levelauswahl, Home/Garage/Shop (Menus.ts)
 docs/GDD.md          Spielkonzept
 ```
 
@@ -127,5 +128,6 @@ docs/GDD.md          Spielkonzept
 
 - [ ] 40 Level (24 da: 4 Welten à 6 Level), weitere Ladungen (Aquarium, Opa, Glace,
   Bowlingkugel da; Geschenkturm fehlt)
-- [x] Weitere Fahrzeuge (Traktor, Pickup), Deutsch als zweite Sprache
+- [x] Weitere Fahrzeuge (Traktor, Pickup, Renn-Truck 47), Deutsch als zweite Sprache
+- [x] Coins, Shop (Fahrzeuge, Farben), Garage, Home-Bildschirm
 - [ ] Vorschaubilder (statisch und animiert) für Poki

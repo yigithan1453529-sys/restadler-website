@@ -324,7 +324,7 @@ export function drawWheel(
 }
 
 /** Draws the chassis in its local frame (meters, y up). */
-export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number): void {
+export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, color = spec.color): void {
   ctx.lineWidth = lw;
   ctx.strokeStyle = COLORS.outline;
   ctx.lineJoin = "round";
@@ -335,7 +335,7 @@ export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw
     ctx.fillRect(1.25, 0.55, 0.1, 0.55);
     ctx.strokeRect(1.25, 0.55, 0.1, 0.55);
   }
-  ctx.fillStyle = spec.color;
+  ctx.fillStyle = color;
   poly(ctx, spec.cabin);
   ctx.fill();
   ctx.stroke();
@@ -353,7 +353,7 @@ export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw
   ctx.arc(d.x, d.y + 0.06, 0.13, Math.PI * 0.05, Math.PI * 0.95);
   ctx.fill();
 
-  ctx.fillStyle = spec.color;
+  ctx.fillStyle = color;
   poly(ctx, spec.body);
   ctx.fill();
   ctx.stroke();
@@ -499,20 +499,22 @@ function drawRacerFront(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: nu
 }
 
 /** A vehicle standing still (for the vehicle picker). */
-export function drawVehiclePreview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number): void {
+export function drawVehiclePreview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number, color = spec.color): void {
   drawWheel(ctx, spec.rear.x, spec.rear.y, spec.rear.r, 0, lw, spec.id === "racer");
   drawWheel(ctx, spec.front.x, spec.front.y, spec.front.r, 0, lw, spec.id === "racer");
-  drawChassis(ctx, spec, lw);
+  drawChassis(ctx, spec, lw, color);
 }
 
 export class Renderer {
   private theme: Theme = THEMES.meadow;
+  private paint: string | null = null;
   private time = 0;
   private runTime = 0;
 
   constructor(private ctx: CanvasRenderingContext2D) {}
 
-  draw(run: LevelRun, cam: Camera, particles: Particles, time: number): void {
+  draw(run: LevelRun, cam: Camera, particles: Particles, time: number, paint: string | null = null): void {
+    this.paint = paint;
     const ctx = this.ctx;
     const theme = THEMES[run.level.world ?? "meadow"];
     this.time = time;
@@ -1192,7 +1194,7 @@ export class Renderer {
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(v.chassis.getAngle());
-    drawChassis(ctx, spec, lw);
+    drawChassis(ctx, spec, lw, this.paint ?? spec.color);
     ctx.restore();
   }
 

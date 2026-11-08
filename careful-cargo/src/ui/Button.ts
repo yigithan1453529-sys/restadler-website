@@ -56,7 +56,7 @@ export function drawButton(ctx: CanvasRenderingContext2D, b: Button, hover: bool
   ctx.strokeStyle = COLORS.outline;
   ctx.stroke();
 
-  const size = b.primary ? 38 : 26;
+  const size = b.primary && b.h >= 80 ? 38 : 26;
   if (b.icon && b.label) {
     ctx.font = `bold ${size}px sans-serif`;
     const iconSize = size * 0.9;
