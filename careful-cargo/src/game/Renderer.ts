@@ -254,7 +254,50 @@ function hash(a: number, b: number, c: number): number {
   return v - Math.floor(v);
 }
 
-export function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, angle: number, lw: number): void {
+export function drawWheel(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  angle: number,
+  lw: number,
+  sport = false,
+): void {
+  if (sport) {
+    // racing rim: big silver rim with five spokes
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.fillStyle = "#2B2B2B";
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#D9DDE2";
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.62, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "#8A9099";
+    ctx.lineWidth = r * 0.12;
+    ctx.lineCap = "round";
+    for (let k = 0; k < 5; k++) {
+      const a = (k * Math.PI * 2) / 5;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * r * 0.14, Math.sin(a) * r * 0.14);
+      ctx.lineTo(Math.cos(a) * r * 0.52, Math.sin(a) * r * 0.52);
+      ctx.stroke();
+    }
+    ctx.lineCap = "butt";
+    ctx.fillStyle = "#555B63";
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
@@ -285,6 +328,7 @@ export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw
   ctx.lineWidth = lw;
   ctx.strokeStyle = COLORS.outline;
   ctx.lineJoin = "round";
+  if (spec.id === "racer") drawRacerBack(ctx, lw);
   if (spec.id === "tractor") {
     // exhaust pipe
     ctx.fillStyle = "#555555";
@@ -325,8 +369,12 @@ export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw
     ctx.stroke();
     ctx.strokeStyle = COLORS.outline;
   }
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillRect(-1.5, -0.06, 3.0, 0.1);
+  if (spec.id === "racer") {
+    drawRacerFront(ctx, spec, lw);
+  } else {
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(-1.5, -0.06, 3.0, 0.1);
+  }
   ctx.fillStyle = "#FFE45E";
   ctx.beginPath();
   ctx.arc(1.42, 0.4, 0.07, 0, Math.PI * 2);
@@ -336,10 +384,124 @@ export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw
   ctx.fillRect(-1.52, 0.02, 0.08, 0.14);
 }
 
+/** A thick bar with a dark outline (pipes, struts, roll cage). */
+function bar(ctx: CanvasRenderingContext2D, pts: Pt[], width: number, color: string, lw: number): void {
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (const p of pts.slice(1)) ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = COLORS.outline;
+  ctx.lineWidth = width + lw * 2;
+  ctx.stroke();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.stroke();
+  ctx.lineCap = "butt";
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = COLORS.outline;
+}
+
+/** Race truck parts behind the body: exhaust stacks, roll cage, rear wing. */
+function drawRacerBack(ctx: CanvasRenderingContext2D, lw: number): void {
+  // roll cage over the bed
+  bar(ctx, [{ x: 0.05, y: 0.4 }, { x: -0.05, y: 1.15 }, { x: -0.75, y: 0.45 }], 0.07, "#6C757D", lw);
+  // two exhaust stacks leaning backwards
+  for (const dx of [0, -0.22]) {
+    bar(ctx, [{ x: -0.05 + dx, y: 0.35 }, { x: -0.22 + dx, y: 1.3 }], 0.13, "#9AA1A9", lw);
+    ctx.fillStyle = "#3A3A3A";
+    ctx.beginPath();
+    ctx.ellipse(-0.22 + dx, 1.32, 0.08, 0.04, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // big rear wing on two struts
+  bar(ctx, [{ x: -1.3, y: 0.42 }, { x: -1.36, y: 1.0 }], 0.06, "#4A4F55", lw);
+  bar(ctx, [{ x: -0.95, y: 0.42 }, { x: -1.02, y: 1.0 }], 0.06, "#4A4F55", lw);
+  ctx.fillStyle = "#4A4F55";
+  poly(ctx, [
+    { x: -1.78, y: 1.0 },
+    { x: -0.82, y: 0.98 },
+    { x: -0.78, y: 1.1 },
+    { x: -1.82, y: 1.16 },
+  ]);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#E63946";
+  poly(ctx, [
+    { x: -1.86, y: 0.92 },
+    { x: -1.74, y: 0.92 },
+    { x: -1.74, y: 1.24 },
+    { x: -1.86, y: 1.24 },
+  ]);
+  ctx.fill();
+  ctx.stroke();
+}
+
+/** Race truck details on the body: fender flares, stripes, start number, grille. */
+function drawRacerFront(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number): void {
+  // grey diagonal stripes, clipped to the body and cabin
+  ctx.save();
+  ctx.beginPath();
+  for (const shape of [spec.body, spec.cabin]) {
+    ctx.moveTo(shape[0].x, shape[0].y);
+    for (const p of shape.slice(1)) ctx.lineTo(p.x, p.y);
+    ctx.closePath();
+  }
+  ctx.clip();
+  ctx.fillStyle = "#6C757D";
+  for (const x0 of [-0.9, -0.45, 1.05]) {
+    poly(ctx, [
+      { x: x0, y: -0.35 },
+      { x: x0 + 0.18, y: -0.35 },
+      { x: x0 + 0.62, y: 0.7 },
+      { x: x0 + 0.44, y: 0.7 },
+    ]);
+    ctx.fill();
+  }
+  // grey lower edge
+  ctx.fillRect(-1.6, -0.34, 3.3, 0.12);
+  ctx.restore();
+
+  // start number 47 in white
+  ctx.save();
+  ctx.translate(0.48, 0.44);
+  ctx.scale(0.0085, -0.0085);
+  ctx.font = `bold 44px ${FONT}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 7;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.strokeText("47", 0, 0);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText("47", 0, 0);
+  ctx.restore();
+
+  // grille at the front
+  ctx.fillStyle = "#4A4F55";
+  ctx.fillRect(1.52, -0.25, 0.1, 0.6);
+  ctx.strokeRect(1.52, -0.25, 0.1, 0.6);
+
+  // grey fender flares over both wheels
+  for (const w of [spec.rear, spec.front]) {
+    ctx.beginPath();
+    ctx.arc(w.x, w.y + 0.02, w.r + 0.13, Math.PI * 0.08, Math.PI * 0.92);
+    ctx.lineCap = "butt";
+    ctx.strokeStyle = COLORS.outline;
+    ctx.lineWidth = 0.17 + lw * 2;
+    ctx.stroke();
+    ctx.strokeStyle = "#6C757D";
+    ctx.lineWidth = 0.17;
+    ctx.stroke();
+  }
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = COLORS.outline;
+}
+
 /** A vehicle standing still (for the vehicle picker). */
 export function drawVehiclePreview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number): void {
-  drawWheel(ctx, spec.rear.x, spec.rear.y, spec.rear.r, 0, lw);
-  drawWheel(ctx, spec.front.x, spec.front.y, spec.front.r, 0, lw);
+  drawWheel(ctx, spec.rear.x, spec.rear.y, spec.rear.r, 0, lw, spec.id === "racer");
+  drawWheel(ctx, spec.front.x, spec.front.y, spec.front.r, 0, lw, spec.id === "racer");
   drawChassis(ctx, spec, lw);
 }
 
@@ -1024,7 +1186,7 @@ export class Renderer {
       [v.frontWheel, spec.front.r],
     ] as const) {
       const p = wheel.getPosition();
-      drawWheel(ctx, p.x, p.y, r, wheel.getAngle(), lw);
+      drawWheel(ctx, p.x, p.y, r, wheel.getAngle(), lw, spec.id === "racer");
     }
     const c = v.chassis.getPosition();
     ctx.save();

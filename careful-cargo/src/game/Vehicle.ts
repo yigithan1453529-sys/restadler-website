@@ -4,7 +4,7 @@ import type { FixtureTag, GameWorld } from "./World";
 
 type Pt = { x: number; y: number };
 
-export type VehicleId = "van" | "tractor" | "pickup";
+export type VehicleId = "van" | "tractor" | "pickup" | "racer";
 
 /** Everything that makes one vehicle different. Forces in N, speeds in m/s. */
 export interface VehicleSpec {
@@ -142,6 +142,46 @@ export const VEHICLES: VehicleSpec[] = [
     reverseForce: 13,
     airTorque: 14,
     springHz: 4,
+  },
+  {
+    // Race truck: very fast and strong, but low walls: careful with the cargo!
+    id: "racer",
+    name: "vehicle.racer",
+    unlockStars: 50,
+    color: "#E63946",
+    rear: { x: -1.0, y: -0.5, r: 0.48 },
+    front: { x: 1.05, y: -0.5, r: 0.48 },
+    bed: { left: -1.37, right: 0.1, floor: 0.2, wallTop: 0.42 },
+    body: [
+      { x: -1.55, y: -0.32 },
+      { x: 1.6, y: -0.32 },
+      { x: 1.6, y: 0.2 },
+      { x: -1.55, y: 0.2 },
+    ],
+    rearWall: wall(-1.37, 0.42),
+    cabin: [
+      { x: 0.1, y: 0.2 },
+      { x: 1.55, y: 0.2 },
+      { x: 1.55, y: 0.6 },
+      { x: 1.0, y: 0.66 },
+      { x: 0.8, y: 1.1 },
+      { x: 0.1, y: 1.1 },
+    ],
+    window: [
+      { x: 0.22, y: 0.7 },
+      { x: 0.92, y: 0.7 },
+      { x: 0.74, y: 1.0 },
+      { x: 0.22, y: 1.0 },
+    ],
+    driver: { x: 0.45, y: 0.8 },
+    density: 1.6,
+    maxSpeed: 15,
+    driveForce: 26,
+    brakeForce: 55,
+    reverseSpeed: 5,
+    reverseForce: 15,
+    airTorque: 16,
+    springHz: 4.5,
   },
 ];
 
