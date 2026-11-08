@@ -15,8 +15,10 @@ verliert die Ladung. Wer zu langsam fährt, kommt die Hügel nicht hoch.
 - Poki (Browser), Desktop und Handy, Querformat 16:9.
 - Alle Altersgruppen, Schwerpunkt Kinder und Jugendliche. Familienfreundlich.
 - Kurze Runden: ein Level dauert 20–60 Sekunden.
-- Das Spiel startet **direkt in Level 1** mit einem Hinweis («Hold ▶ to drive»),
-  ohne Titelbildschirm-Hürde. Die Levelauswahl ist über einen Menü-Knopf erreichbar.
+- Das Spiel startet **direkt in Level 1** mit einem Hinweis («Hold ▶ to drive»)
+  und einem grossen Knopf «Start» (Enter, Leertaste oder Gas starten ebenfalls),
+  ohne Titelbildschirm-Hürde. Ein Klick oder Tipp blendet die Fahrknöpfe ◀ ▶ ein,
+  damit man auch mit der Maus fahren kann. Die Levelauswahl ist über einen Menü-Knopf erreichbar.
 - Auf Handys im Hochformat: Spielfläche mit Rand anzeigen und einen Hinweis
   «Gerät drehen» einblenden, das Spiel bleibt aber spielbar.
 

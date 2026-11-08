@@ -68,7 +68,14 @@ export class Input {
     canvas.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       this.onGesture();
-      if (e.pointerType === "touch") this.showTouch = true;
+      // Any click or tap shows the on-screen drive buttons (mouse players need them too).
+      this.showTouch = true;
+      try {
+        window.focus();
+        canvas.focus({ preventScroll: true });
+      } catch {
+        /* ignore */
+      }
       try {
         canvas.setPointerCapture(e.pointerId);
       } catch {

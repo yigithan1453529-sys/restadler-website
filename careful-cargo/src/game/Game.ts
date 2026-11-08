@@ -153,6 +153,14 @@ export class Game {
     else this.audio.setSuspended(false);
   }
 
+  /** First input or the Start button: the delivery begins. */
+  private start(): void {
+    if (this.state !== "ready") return;
+    this.run.started = true;
+    this.setState("playing");
+    if (this.hint && this.hint.left === Infinity) this.hint.left = 2.5;
+  }
+
   restart(): void {
     this.loadLevel(this.levelId);
   }
@@ -207,7 +215,7 @@ export class Game {
     }
     if (code === "Enter" || code === "Space" || code === "NumpadEnter") {
       const primary = this.buttons.find((b) => b.primary);
-      if (primary && this.isMenuState()) {
+      if (primary && (this.isMenuState() || this.state === "ready")) {
         this.audio.click();
         primary.action();
       }
@@ -221,11 +229,7 @@ export class Game {
     this.stateTime += dt;
     const run = this.run;
 
-    if (this.state === "ready" && (this.input.gas || this.input.brake)) {
-      run.started = true;
-      this.setState("playing");
-      if (this.hint && this.hint.left === Infinity) this.hint.left = 2.5;
-    }
+    if (this.state === "ready" && (this.input.gas || this.input.brake)) this.start();
 
     const simulate = this.state === "ready" || this.state === "playing" || this.state === "won" || this.state === "failed";
     if (simulate) {
@@ -348,6 +352,18 @@ export class Game {
   private buildButtons(): Button[] {
     const list: Button[] = [];
     const s = this.state;
+    if (s === "ready") {
+      list.push({
+        x: VIEW_W / 2 - 160,
+        y: 250,
+        w: 320,
+        h: 110,
+        label: t("btn.start"),
+        icon: "play",
+        primary: true,
+        action: () => this.start(),
+      });
+    }
     if (s === "ready" || s === "playing") {
       const size = 68;
       const y = 14;
