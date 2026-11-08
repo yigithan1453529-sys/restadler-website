@@ -21,6 +21,20 @@ export interface LevelData {
   finishX: number;
   checkpoints: number[];
   hints: { x: number; text: TextKey }[];
+  objects?: LevelObject[];
   /** Vehicle below this height = "Fell off!". Defaults to lowest terrain point - 6. */
   killY?: number;
 }
+
+/** Obstacles placed in a level (all values in meters). */
+export type LevelObject =
+  /** Wobbly plank bridge from x0 to x1 (put a pit below it in the terrain). */
+  | { type: "bridge"; x0: number; x1: number }
+  /** Low ceiling: tall cargo bumps into it. height = free space above the ground. */
+  | { type: "tunnel"; x0: number; x1: number; height: number }
+  /** Slippery (ice) or slow and slippery (mud) ground. */
+  | { type: "ice" | "mud"; x0: number; x1: number }
+  /** Plank on a pivot; starts with the left end on the ground. */
+  | { type: "seesaw"; x: number; length: number; pivotHeight: number }
+  /** Platform in a pit that moves between `bottom` and `top` (terrain heights). */
+  | { type: "lift"; x0: number; x1: number; bottom: number; top: number };

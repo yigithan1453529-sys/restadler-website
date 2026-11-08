@@ -144,6 +144,13 @@ export class Vehicle {
     this.frontJoint.setMotorSpeed(speed);
     this.frontJoint.setMaxMotorTorque(frontDriven ? torque : VEHICLE.rollingTorque);
 
+    // Mud slows the van down.
+    if (this.onGround && this.gw.obstacles.surfaceAt(this.chassis.getPosition().x) === "mud") {
+      const v = this.chassis.getLinearVelocity();
+      const m = this.chassis.getMass() + this.rearWheel.getMass() + this.frontWheel.getMass();
+      this.chassis.applyForceToCenter({ x: -v.x * m * 1.6, y: 0 }, true);
+    }
+
     // Tilt in the air: right = nose down (clockwise), left = nose up.
     if (!this.onGround && input.gas !== input.brake) {
       const dir = input.gas ? -1 : 1;

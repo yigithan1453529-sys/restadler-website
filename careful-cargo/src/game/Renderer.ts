@@ -2,6 +2,7 @@ import type { CargoItem } from "./Cargo";
 import { Camera, VIEW_H, VIEW_W } from "./Camera";
 import type { LevelRun } from "./Level";
 import type { Particles } from "./Particles";
+import { Obstacles } from "./Obstacles";
 import { THEMES, type Theme } from "./themes";
 import { CHASSIS_SHAPES, VEHICLE } from "./Vehicle";
 
@@ -140,6 +141,7 @@ export class Renderer {
     this.drawCheckpoints(run, lw);
     this.drawFinish(run, lw, time);
     this.drawTerrain(run, cam, lw);
+    this.drawObstacles(run, lw, time);
     for (const item of run.cargo.items) if (item.lost) this.drawCargo(item, lw);
     this.drawVehicle(run, lw);
     for (const item of run.cargo.items) if (!item.lost) this.drawCargo(item, lw);
@@ -441,6 +443,162 @@ export class Renderer {
     ctx.lineWidth = lw;
     ctx.lineJoin = "round";
     ctx.stroke();
+  }
+
+  private drawObstacles(run: LevelRun, lw: number, time: number): void {
+    const ctx = this.ctx;
+    const obs = run.gw.obstacles;
+    ctx.lineJoin = "round";
+
+    // ice and mud bands along the ground
+    for (const sf of obs.surfaces) {
+      const pts = run.gw.terrain.filter((p) => p.x >= sf.x0 && p.x <= sf.x1);
+      pts.unshift({ x: sf.x0, y: this.groundAt(run, sf.x0) });
+      pts.push({ x: sf.x1, y: this.groundAt(run, sf.x1) });
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (const p of pts) ctx.lineTo(p.x, p.y);
+      ctx.lineWidth = 0.5;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = sf.type === "ice" ? "#BDEBFF" : "#5A3A1E";
+      ctx.stroke();
+      ctx.lineCap = "butt";
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = COLORS.outline;
+      ctx.stroke();
+      for (let x = Math.ceil(sf.x0) + 0.5; x < sf.x1; x += 1.7) {
+        const y = this.groundAt(run, x);
+        if (sf.type === "ice") {
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.lineWidth = 0.07;
+          ctx.beginPath();
+          ctx.moveTo(x - 0.3, y - 0.12);
+          ctx.lineTo(x + 0.2, y + 0.05);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = "#6E4826";
+          ctx.beginPath();
+          ctx.ellipse(x, y + 0.08, 0.32, 0.14, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    for (const o of obs.items) {
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = COLORS.outline;
+      if (o.type === "bridge") {
+        // ropes
+        ctx.strokeStyle = "#6B4A2E";
+        ctx.lineWidth = 0.06;
+        ctx.beginPath();
+        ctx.moveTo(o.anchors[0].x, o.anchors[0].y + 0.9);
+        for (const p of o.planks) {
+          const top = p.getWorldPoint({ x: 0, y: 0.9 });
+          ctx.lineTo(top.x, top.y);
+        }
+        ctx.lineTo(o.anchors[1].x, o.anchors[1].y + 0.9);
+        ctx.stroke();
+        for (const a of o.anchors) {
+          ctx.fillStyle = "#8B5A2B";
+          ctx.lineWidth = lw;
+          ctx.strokeStyle = COLORS.outline;
+          ctx.fillRect(a.x - 0.1, a.y - 0.4, 0.2, 1.5);
+          ctx.strokeRect(a.x - 0.1, a.y - 0.4, 0.2, 1.5);
+        }
+        for (const p of o.planks) {
+          const c = p.getPosition();
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(p.getAngle());
+          ctx.fillStyle = "#C68642";
+          ctx.fillRect(-o.hw + 0.02, -0.1, o.hw * 2 - 0.04, 0.2);
+          ctx.strokeRect(-o.hw + 0.02, -0.1, o.hw * 2 - 0.04, 0.2);
+          ctx.restore();
+        }
+      } else if (o.type === "tunnel") {
+        const h = 6;
+        ctx.fillStyle = "#9A8F86";
+        ctx.fillRect(o.x0, o.y, o.x1 - o.x0, h);
+        ctx.strokeRect(o.x0, o.y, o.x1 - o.x0, h);
+        ctx.fillStyle = "#857A72";
+        for (let row = 0; row < h / 0.6; row++) {
+          const off = row % 2 === 0 ? 0 : 0.6;
+          for (let x = o.x0 + off; x < o.x1 - 0.3; x += 1.2) {
+            ctx.fillRect(x + 0.08, o.y + row * 0.6 + 0.08, Math.min(1.05, o.x1 - x - 0.1), 0.44);
+          }
+        }
+        // warning stripes on the edge
+        for (let x = o.x0; x < o.x1; x += 0.8) {
+          ctx.fillStyle = (Math.round((x - o.x0) / 0.8) % 2 === 0) ? "#FFD23F" : COLORS.outline;
+          ctx.fillRect(x, o.y, Math.min(0.8, o.x1 - x), 0.25);
+        }
+        ctx.strokeRect(o.x0, o.y, o.x1 - o.x0, 0.25);
+      } else if (o.type === "seesaw") {
+        const { pivot } = o;
+        ctx.fillStyle = "#7A8B99";
+        ctx.beginPath();
+        ctx.moveTo(pivot.x - 0.6, pivot.ground - 0.2);
+        ctx.lineTo(pivot.x + 0.6, pivot.ground - 0.2);
+        ctx.lineTo(pivot.x, pivot.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const c = o.plank.getPosition();
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(o.plank.getAngle());
+        ctx.fillStyle = "#E8A33D";
+        ctx.fillRect(-o.hw, -0.12, o.hw * 2, 0.24);
+        ctx.strokeRect(-o.hw, -0.12, o.hw * 2, 0.24);
+        ctx.restore();
+        ctx.fillStyle = "#DDDDDD";
+        ctx.beginPath();
+        ctx.arc(pivot.x, pivot.y, 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (o.type === "lift") {
+        const c = o.body.getPosition();
+        // guide rails
+        ctx.fillStyle = "#7A8B99";
+        for (const gx of [o.x0 + 0.1, o.x1 - 0.25]) {
+          ctx.fillRect(gx, o.bottom - 8, 0.15, o.top - o.bottom + 11);
+          ctx.strokeRect(gx, o.bottom - 8, 0.15, o.top - o.bottom + 11);
+        }
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.beginPath();
+        ctx.rect(-o.hw, -0.15, o.hw * 2, 0.3);
+        ctx.fillStyle = "#FFD23F";
+        ctx.fill();
+        ctx.save();
+        ctx.clip();
+        ctx.fillStyle = COLORS.outline;
+        for (let x = -o.hw; x < o.hw; x += 0.6) {
+          ctx.beginPath();
+          ctx.moveTo(x, -0.15);
+          ctx.lineTo(x + 0.3, -0.15);
+          ctx.lineTo(x + 0.6, 0.15);
+          ctx.lineTo(x + 0.3, 0.15);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+        ctx.stroke();
+        ctx.restore();
+        // blinking light shows when the lift is down and ready
+        const ready = Math.abs(Obstacles.liftHeight(o, run.gw.time) - o.bottom) < 0.05;
+        const lx = o.x0 - 1.2;
+        const ly = o.bottom;
+        ctx.fillStyle = "#555555";
+        ctx.fillRect(lx - 0.06, ly - 0.2, 0.12, 2.2);
+        ctx.fillStyle = ready ? (Math.sin(time * 10) > 0 ? "#3BCEAC" : "#2A9C82") : "#E8283C";
+        ctx.beginPath();
+        ctx.arc(lx, ly + 2.1, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
   }
 
   private heightNear(pts: Pt[], x: number): number {
