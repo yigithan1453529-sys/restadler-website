@@ -15,6 +15,14 @@ export interface Button {
   render?: (ctx: CanvasRenderingContext2D, b: Button, hover: boolean) => void;
 }
 
+/**
+ * Buttons are rebuilt every frame, so compare them by place and size,
+ * not by object identity (a press can last several frames).
+ */
+export function sameButton(a: Button | null, b: Button | null): boolean {
+  return !!a && !!b && a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
+}
+
 export function hitButton(buttons: Button[], x: number, y: number): Button | null {
   for (let i = buttons.length - 1; i >= 0; i--) {
     const b = buttons[i];

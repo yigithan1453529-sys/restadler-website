@@ -2,7 +2,7 @@ import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { poki } from "../platform/poki";
 import { loadSave, saveLevelResult, saveMuted, saveVehicle, totalStars } from "../storage";
-import { Button, drawButton, hitButton } from "../ui/Button";
+import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
 import { drawHint, drawHud } from "../ui/Hud";
 import {
   drawFailScreen,
@@ -86,7 +86,7 @@ export class Game {
     };
     input.onPointerUp = (x, y) => {
       const b = hitButton(this.buttons, x, y);
-      if (b && b === this.pressed && !b.disabled) {
+      if (b && sameButton(b, this.pressed) && !b.disabled) {
         this.audio.click();
         b.action();
       }
@@ -514,7 +514,7 @@ export class Game {
       outlinedText(ctx, `${totalStars()} / ${levels.length * 3}`, 84, 70, 30, "#FFFFFF", "left");
     }
 
-    for (const b of this.buttons) drawButton(ctx, b, b === this.hover, b === this.pressed);
+    for (const b of this.buttons) drawButton(ctx, b, sameButton(b, this.hover), sameButton(b, this.pressed));
     this.particles.drawConfetti(ctx);
   }
 }
