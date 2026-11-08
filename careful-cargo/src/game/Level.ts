@@ -1,7 +1,7 @@
 import { heightAt } from "../levels/terrain";
 import type { LevelData } from "../levels/types";
 import { CargoManager, CargoItem } from "./Cargo";
-import { DriveInput, Vehicle } from "./Vehicle";
+import { DriveInput, Vehicle, VEHICLES, type VehicleSpec } from "./Vehicle";
 import { GameWorld, PHYSICS_STEP } from "./World";
 
 export type FailReason = "allLost" | "flipped" | "fell";
@@ -38,10 +38,13 @@ export class LevelRun {
   private flipTimer = 0;
   private allLostTimer = 0;
 
-  constructor(readonly level: LevelData) {
+  constructor(
+    readonly level: LevelData,
+    spec: VehicleSpec = VEHICLES[0],
+  ) {
     this.gw = new GameWorld(level);
     const y = heightAt(this.gw.terrain, START_X) + 1.05;
-    this.vehicle = new Vehicle(this.gw, { x: START_X, y });
+    this.vehicle = new Vehicle(this.gw, { x: START_X, y }, spec);
     this.cargo = new CargoManager(this.gw, this.vehicle, level);
     this.killY = level.killY ?? this.gw.minY - 6;
   }

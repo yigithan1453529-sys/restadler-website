@@ -63,8 +63,13 @@ Im Prototyp drei Typen:
 
 - Verlorene Ladung bleibt sichtbar liegen (lustig), zählt aber nicht mehr.
 - Zerbrochene Eier: gelbe Spritzer-Partikel, das Ei verschwindet.
-- Später (Meilenstein 3): Aquarium mit Fisch, Opa im Liegestuhl, Geschenkturm,
-  Glace-Kugeln, Bowlingkugel.
+- Glace-Kugeln: schmelzen nacheinander nach einer festen Fahrzeit (Timer im HUD)
+  → «Geschmolzen!». Gegenteil der Eier: hier ist Tempo gefragt.
+- Aquarium mit Fisch: das Wasser schwappt (schwere Kugel im Becken) und bringt den
+  Wagen ins Schaukeln; verloren, wenn es zu stark kippt → «Platsch!».
+- Bowlingkugeln: schwer, rollen herum und verändern das Fahrverhalten.
+- Opa im Liegestuhl: ruft «Huch!» bei harten Stössen.
+- Später (Meilenstein 3): Geschenkturm.
 
 ## 7. Ziel, Sterne und Fehlschlag
 
@@ -165,12 +170,38 @@ Stummschalten-Knopf, Zustand wird gespeichert.
   - «Skip level» nach 3 Fehlschlägen im selben Level
 - Nie Werbung mitten im Fahren.
 
-## 14. Nicht im Prototyp
+## 14. Welten, Hindernisse, Fahrzeuge
 
-Shop, mehrere Fahrzeuge, Sammelobjekte, Bestenlisten, Online-Funktionen,
-Bilddateien und Musik.
+**4 Welten à 6 Level** (je 3 normale, 1 Prüfung, 1 leichteres, 1 normales):
 
-## 15. Test des Prototyps
+| Welt | Level | Neu |
+| --- | --- | --- |
+| Wiese | 1–6 | Grundlagen, Prüfung 6 «Egg Exam» |
+| Wüste | 7–12 | Glace, Wackelbrücke, Bowlingkugeln, Schlamm, Prüfung 10 |
+| Schnee | 13–18 | Eis, Aquarium, niedriger Tunnel, Wippe, Prüfung 16 |
+| Stadt bei Nacht | 19–24 | Lift, Opa, Dächer-Sprünge, Prüfung 22, Finale 24 |
+
+**Hindernisse:** Wackelbrücke (Bretter an Gelenken über einer Grube), niedriger
+Tunnel (hohe Ladung stösst an), Eis (rutschig), Schlamm (rutschig und bremst),
+Wippe, Lift (fährt aus einer Grube hoch; grünes Licht = unten und bereit).
+
+**Fahrzeuge** (mit Sternen freischalten, Auswahl in der Levelauswahl):
+
+| Fahrzeug | Sterne | Eigenschaft |
+| --- | --- | --- |
+| Lieferwagen | 0 | ausgewogen |
+| Traktor | 15 | langsam, stark, grosse Hinterräder |
+| Pickup | 35 | schnell, hohe Seitenwände |
+
+**Kunde:** wartet winkend; bei 3 Sternen jubelt und springt er, bei 2 winkt er
+fröhlich, bei 1 kratzt er sich am Kopf. Die Kamera zeigt das kurz, bevor das
+Ergebnis-Fenster erscheint.
+
+## 15. Nicht im Prototyp
+
+Shop, Sammelobjekte, Bestenlisten, Online-Funktionen, Bilddateien und Musik.
+
+## 16. Test des Prototyps
 
 5–10 Testspieler, ohne Erklärung spielen lassen und beobachten:
 

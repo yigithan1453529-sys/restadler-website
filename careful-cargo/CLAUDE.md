@@ -46,9 +46,13 @@ src/
     Input.ts         Tastatur, Touch-Tasten, Maus
     Renderer.ts      Zeichnen von Gelände, Wagen, Ladung, Partikeln
     Audio.ts         WebAudio-Effekte, Stummschalten
+    Obstacles.ts     Brücke, Tunnel, Eis/Schlamm, Wippe, Lift
+    themes.ts        Aussehen der Welten
   levels/
     index.ts         Level-Liste
     level01.ts ...   Level als Daten (Gelände-Punkte, Ladung, Ziel)
+    desert.ts ...    Level pro Welt (Wüste, Schnee, Stadt)
+    shapes.ts        Bausteine für Gelände (Welle, Grube, Brücke, Lift)
   ui/                HUD, Endbildschirm, Levelauswahl (im Canvas gezeichnet)
 docs/GDD.md          Spielkonzept
 ```
@@ -121,6 +125,7 @@ docs/GDD.md          Spielkonzept
 
 ### Meilenstein 3 – Inhalt und Feinschliff
 
-- [ ] 40 Level, weitere Ladungen (Aquarium, Opa im Liegestuhl, Geschenkturm)
-- [ ] Weitere Fahrzeuge, Deutsch als zweite Sprache
+- [ ] 40 Level (24 da: 4 Welten à 6 Level), weitere Ladungen (Aquarium, Opa, Glace,
+  Bowlingkugel da; Geschenkturm fehlt)
+- [x] Weitere Fahrzeuge (Traktor, Pickup), Deutsch als zweite Sprache
 - [ ] Vorschaubilder (statisch und animiert) für Poki

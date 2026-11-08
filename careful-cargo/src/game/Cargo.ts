@@ -1,6 +1,6 @@
 import { Body, Box, Circle, Vec2Value } from "planck";
 import type { CargoType, LevelData } from "../levels/types";
-import { BED, Vehicle } from "./Vehicle";
+import type { Vehicle } from "./Vehicle";
 import type { FixtureTag, GameWorld } from "./World";
 
 export const CARGO = {
@@ -88,10 +88,10 @@ export class CargoManager {
     const n = Math.min(count, Math.floor(this.bedWidth() / (2 * r + 0.06)));
     const gap = (this.bedWidth() - n * 2 * r) / (n + 1);
     for (let i = 0; i < n; i++) {
-      const lx = BED.left + gap + r + i * (2 * r + gap);
+      const lx = this.bed.left + gap + r + i * (2 * r + gap);
       const body = this.gw.world.createBody({
         type: "dynamic",
-        position: this.localToWorld(lx, BED.floor + r + 0.01),
+        position: this.localToWorld(lx, this.bed.floor + r + 0.01),
         angularDamping: 4,
       });
       body.createFixture(new Circle(r), { density: 0.9, friction: 1.1, restitution: 0 });
@@ -102,8 +102,8 @@ export class CargoManager {
 
   private spawnAquarium(): void {
     const { hw, hh, wall } = CARGO.tank;
-    const cx = (BED.left + BED.right) / 2;
-    const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, BED.floor + hh + 0.01) });
+    const cx = (this.bed.left + this.bed.right) / 2;
+    const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, this.bed.floor + hh + 0.01) });
     const opt = { density: 0.6, friction: 0.7, filterCategoryBits: TANK_CATEGORY };
     body.createFixture(new Box(hw, wall, { x: 0, y: -hh + wall }), opt);
     body.createFixture(new Box(wall, hh, { x: -hw + wall, y: 0 }), opt);
@@ -112,7 +112,7 @@ export class CargoManager {
     // The water: a heavy ball that only touches the tank and rolls around inside.
     const water = this.gw.world.createBody({
       type: "dynamic",
-      position: this.localToWorld(cx, BED.floor + 0.3),
+      position: this.localToWorld(cx, this.bed.floor + 0.3),
       linearDamping: 0.6,
     });
     water.createFixture(new Circle(0.2), {
@@ -128,8 +128,8 @@ export class CargoManager {
   private spawnBowling(count: number): void {
     const r = CARGO.bowlingRadius;
     for (let i = 0; i < Math.min(count, 2); i++) {
-      const lx = BED.left + 0.35 + i * 0.6;
-      const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(lx, BED.floor + r + 0.01) });
+      const lx = this.bed.left + 0.35 + i * 0.6;
+      const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(lx, this.bed.floor + r + 0.01) });
       body.createFixture(new Circle(r), { density: 5, friction: 0.4, restitution: 0.05 });
       this.add("bowling", body, r, r);
     }
@@ -137,8 +137,8 @@ export class CargoManager {
 
   private spawnGrandpa(): void {
     const { hw, hh } = CARGO.grandpa;
-    const cx = (BED.left + BED.right) / 2;
-    const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, BED.floor + hh + 0.01) });
+    const cx = (this.bed.left + this.bed.right) / 2;
+    const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, this.bed.floor + hh + 0.01) });
     body.createFixture(new Box(hw, hh), { density: 0.8, friction: 0.9, restitution: 0.05 });
     this.add("grandpa", body, hw, hh);
   }
@@ -155,8 +155,12 @@ export class CargoManager {
     return this.total - this.lostCount;
   }
 
+  private get bed(): Vehicle["spec"]["bed"] {
+    return this.vehicle.spec.bed;
+  }
+
   private bedWidth(): number {
-    return BED.right - BED.left;
+    return this.bed.right - this.bed.left;
   }
 
   private localToWorld(x: number, y: number): Vec2Value {
@@ -180,8 +184,8 @@ export class CargoManager {
       const n = Math.min(perRow, count - placed);
       const gap = (this.bedWidth() - n * s) / (n + 1);
       for (let i = 0; i < n; i++) {
-        const lx = BED.left + gap + s / 2 + i * (s + gap);
-        const ly = BED.floor + s / 2 + 0.01 + row * (s + 0.01);
+        const lx = this.bed.left + gap + s / 2 + i * (s + gap);
+        const ly = this.bed.floor + s / 2 + 0.01 + row * (s + 0.01);
         const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(lx, ly) });
         body.createFixture(new Box(s / 2, s / 2), { density: 1, friction: 0.55, restitution: 0.05 });
         this.add("crate", body, s / 2, s / 2);
@@ -200,8 +204,8 @@ export class CargoManager {
       const n = Math.min(perRow, count - placed);
       const gap = (this.bedWidth() - n * 2 * r) / (n + 1);
       for (let i = 0; i < n; i++) {
-        const lx = BED.left + gap + r + i * (2 * r + gap) + row * r;
-        const ly = BED.floor + r + 0.01 + row * 2 * r;
+        const lx = this.bed.left + gap + r + i * (2 * r + gap) + row * r;
+        const ly = this.bed.floor + r + 0.01 + row * 2 * r;
         const body = this.gw.world.createBody({
           type: "dynamic",
           position: this.localToWorld(lx, ly),
@@ -216,8 +220,8 @@ export class CargoManager {
   }
 
   private spawnCake(layers: number): void {
-    const cx = (BED.left + BED.right) / 2;
-    let y = BED.floor + 0.005;
+    const cx = (this.bed.left + this.bed.right) / 2;
+    let y = this.bed.floor + 0.005;
     for (let i = 0; i < layers; i++) {
       const { w, h } = CARGO.cakeLayers[i];
       const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, y + h / 2) });

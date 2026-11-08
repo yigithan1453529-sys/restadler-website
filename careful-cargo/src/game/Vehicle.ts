@@ -1,60 +1,161 @@
-import { Body, Box, Circle, Polygon, Vec2Value, WheelJoint } from "planck";
+import { Body, Polygon, Vec2Value, WheelJoint, Circle } from "planck";
+import type { TextKey } from "../i18n";
 import type { FixtureTag, GameWorld } from "./World";
 
-// Start values from the GDD; tune while testing.
-export const VEHICLE = {
-  wheelRadius: 0.45,
-  wheelOffsetX: 1.0,
-  wheelOffsetY: -0.5,
-  springHz: 4,
-  springDamping: 0.7,
-  maxSpeed: 28, // wheel rad/s (≈ 12.6 m/s)
-  driveTorque: 9,
-  brakeTorque: 22,
-  reverseSpeed: 11,
-  reverseTorque: 6,
-  rollingTorque: 0.35,
-  airTorque: 14,
-  maxAirSpin: 4,
-  allWheelDrive: true,
-};
+type Pt = { x: number; y: number };
 
-/** Cargo bed in chassis-local coordinates (meters). */
-export const BED = {
-  left: -1.37, // inner face of the rear wall
-  right: 0.2, // back of the cabin
-  floor: 0.2,
-  wallTop: 0.45, // low walls: 0.25 m
-};
+export type VehicleId = "van" | "tractor" | "pickup";
+
+/** Everything that makes one vehicle different. Forces in N, speeds in m/s. */
+export interface VehicleSpec {
+  id: VehicleId;
+  name: TextKey;
+  /** Total stars needed to unlock. */
+  unlockStars: number;
+  color: string;
+  rear: { x: number; y: number; r: number };
+  front: { x: number; y: number; r: number };
+  /** Cargo bed in chassis-local coordinates. */
+  bed: { left: number; right: number; floor: number; wallTop: number };
+  body: Pt[];
+  rearWall: Pt[];
+  cabin: Pt[];
+  window: Pt[];
+  driver: Pt;
+  density: number;
+  maxSpeed: number;
+  driveForce: number;
+  brakeForce: number;
+  reverseSpeed: number;
+  reverseForce: number;
+  airTorque: number;
+  springHz: number;
+}
+
+const BODY: Pt[] = [
+  { x: -1.5, y: -0.2 },
+  { x: 1.5, y: -0.2 },
+  { x: 1.5, y: 0.2 },
+  { x: -1.5, y: 0.2 },
+];
+const VAN_CABIN: Pt[] = [
+  { x: 0.2, y: 0.2 },
+  { x: 1.5, y: 0.2 },
+  { x: 1.5, y: 0.55 },
+  { x: 1.15, y: 0.62 },
+  { x: 0.9, y: 1.05 },
+  { x: 0.2, y: 1.05 },
+];
+const VAN_WINDOW: Pt[] = [
+  { x: 0.32, y: 0.62 },
+  { x: 1.04, y: 0.62 },
+  { x: 0.84, y: 0.95 },
+  { x: 0.32, y: 0.95 },
+];
+
+function wall(left: number, top: number): Pt[] {
+  return [
+    { x: -1.5, y: 0.2 },
+    { x: left, y: 0.2 },
+    { x: left, y: top },
+    { x: -1.5, y: top },
+  ];
+}
+
+export const VEHICLES: VehicleSpec[] = [
+  {
+    id: "van",
+    name: "vehicle.van",
+    unlockStars: 0,
+    color: "#FF6B35",
+    rear: { x: -1.0, y: -0.5, r: 0.45 },
+    front: { x: 1.0, y: -0.5, r: 0.45 },
+    bed: { left: -1.37, right: 0.2, floor: 0.2, wallTop: 0.45 },
+    body: BODY,
+    rearWall: wall(-1.37, 0.45),
+    cabin: VAN_CABIN,
+    window: VAN_WINDOW,
+    driver: { x: 0.55, y: 0.76 },
+    density: 1.5,
+    maxSpeed: 12.6,
+    driveForce: 20,
+    brakeForce: 49,
+    reverseSpeed: 5,
+    reverseForce: 13,
+    airTorque: 14,
+    springHz: 4,
+  },
+  {
+    // Slow but strong; big rear wheels soak up bumps.
+    id: "tractor",
+    name: "vehicle.tractor",
+    unlockStars: 15,
+    color: "#4CAF50",
+    rear: { x: -0.95, y: -0.42, r: 0.62 },
+    front: { x: 1.1, y: -0.62, r: 0.36 },
+    bed: { left: -1.37, right: 0.2, floor: 0.2, wallTop: 0.5 },
+    body: BODY,
+    rearWall: wall(-1.37, 0.5),
+    cabin: [
+      { x: 0.2, y: 0.2 },
+      { x: 1.5, y: 0.2 },
+      { x: 1.5, y: 0.6 },
+      { x: 0.95, y: 0.62 },
+      { x: 0.95, y: 1.15 },
+      { x: 0.2, y: 1.15 },
+    ],
+    window: [
+      { x: 0.32, y: 0.66 },
+      { x: 0.84, y: 0.66 },
+      { x: 0.84, y: 1.04 },
+      { x: 0.32, y: 1.04 },
+    ],
+    driver: { x: 0.55, y: 0.82 },
+    density: 1.9,
+    maxSpeed: 9,
+    driveForce: 30,
+    brakeForce: 60,
+    reverseSpeed: 4,
+    reverseForce: 18,
+    airTorque: 16,
+    springHz: 3,
+  },
+  {
+    // Fast pickup with high side walls: cargo stays in much better.
+    id: "pickup",
+    name: "vehicle.pickup",
+    unlockStars: 35,
+    color: "#4D9DE0",
+    rear: { x: -1.0, y: -0.5, r: 0.45 },
+    front: { x: 1.0, y: -0.5, r: 0.45 },
+    bed: { left: -1.37, right: 0.2, floor: 0.2, wallTop: 0.75 },
+    body: BODY,
+    rearWall: wall(-1.37, 0.75),
+    cabin: VAN_CABIN,
+    window: VAN_WINDOW,
+    driver: { x: 0.55, y: 0.76 },
+    density: 1.5,
+    maxSpeed: 13.5,
+    driveForce: 22,
+    brakeForce: 52,
+    reverseSpeed: 5,
+    reverseForce: 13,
+    airTorque: 14,
+    springHz: 4,
+  },
+];
+
+export function getVehicleSpec(id: string): VehicleSpec {
+  return VEHICLES.find((v) => v.id === id) ?? VEHICLES[0];
+}
+
+const ROLLING_FORCE = 0.8;
+const MAX_AIR_SPIN = 4;
 
 export interface DriveInput {
   gas: boolean;
   brake: boolean;
 }
-
-/** Shapes used for drawing (chassis-local). */
-export const CHASSIS_SHAPES = {
-  body: [
-    { x: -1.5, y: -0.2 },
-    { x: 1.5, y: -0.2 },
-    { x: 1.5, y: 0.2 },
-    { x: -1.5, y: 0.2 },
-  ],
-  rearWall: [
-    { x: -1.5, y: 0.2 },
-    { x: BED.left, y: 0.2 },
-    { x: BED.left, y: BED.wallTop },
-    { x: -1.5, y: BED.wallTop },
-  ],
-  cabin: [
-    { x: BED.right, y: 0.2 },
-    { x: 1.5, y: 0.2 },
-    { x: 1.5, y: 0.55 },
-    { x: 1.15, y: 0.62 },
-    { x: 0.9, y: 1.05 },
-    { x: BED.right, y: 1.05 },
-  ],
-};
 
 export class Vehicle {
   readonly chassis: Body;
@@ -63,44 +164,50 @@ export class Vehicle {
   readonly rearJoint: WheelJoint;
   readonly frontJoint: WheelJoint;
   onGround = false;
-  /** True while the throttle is pressed (for dust and engine sound). */
+  /** 0..1 while driving (for dust and engine sound). */
   throttle = 0;
 
-  constructor(private gw: GameWorld, position: Vec2Value) {
+  constructor(
+    private gw: GameWorld,
+    position: Vec2Value,
+    readonly spec: VehicleSpec = VEHICLES[0],
+  ) {
     const world = gw.world;
     const carTag: FixtureTag = { kind: "car" };
     const wheelTag: FixtureTag = { kind: "wheel" };
 
     this.chassis = world.createBody({ type: "dynamic", position });
-    this.chassis.createFixture(new Box(1.5, 0.2), { density: 1.5, friction: 0.6, userData: carTag });
-    this.chassis.createFixture(new Polygon(CHASSIS_SHAPES.rearWall), { density: 1, friction: 0.6, userData: carTag });
-    this.chassis.createFixture(new Polygon(CHASSIS_SHAPES.cabin), { density: 0.8, friction: 0.6, userData: carTag });
+    this.chassis.createFixture(new Polygon(spec.body), { density: spec.density, friction: 0.6, userData: carTag });
+    this.chassis.createFixture(new Polygon(spec.rearWall), { density: 1, friction: 0.6, userData: carTag });
+    this.chassis.createFixture(new Polygon(spec.cabin), { density: 0.8, friction: 0.6, userData: carTag });
 
-    const mkWheel = (dx: number): Body => {
-      const w = world.createBody({
-        type: "dynamic",
-        position: { x: position.x + dx, y: position.y + VEHICLE.wheelOffsetY },
-      });
-      w.createFixture(new Circle(VEHICLE.wheelRadius), { density: 1, friction: 1.0, userData: wheelTag });
-      return w;
+    const mkWheel = (w: { x: number; y: number; r: number }): Body => {
+      const b = world.createBody({ type: "dynamic", position: { x: position.x + w.x, y: position.y + w.y } });
+      b.createFixture(new Circle(w.r), { density: 1, friction: 1.0, userData: wheelTag });
+      return b;
     };
-    this.rearWheel = mkWheel(-VEHICLE.wheelOffsetX);
-    this.frontWheel = mkWheel(VEHICLE.wheelOffsetX);
+    this.rearWheel = mkWheel(spec.rear);
+    this.frontWheel = mkWheel(spec.front);
 
-    const jointOpt = {
-      enableMotor: true,
-      motorSpeed: 0,
-      maxMotorTorque: VEHICLE.rollingTorque,
-      frequencyHz: VEHICLE.springHz,
-      dampingRatio: VEHICLE.springDamping,
-    };
     const axis = { x: 0, y: 1 };
-    this.rearJoint = world.createJoint(
-      new WheelJoint(jointOpt, this.chassis, this.rearWheel, this.rearWheel.getPosition(), axis),
-    )!;
-    this.frontJoint = world.createJoint(
-      new WheelJoint(jointOpt, this.chassis, this.frontWheel, this.frontWheel.getPosition(), axis),
-    )!;
+    const mkJoint = (wheel: Body, r: number): WheelJoint =>
+      world.createJoint(
+        new WheelJoint(
+          {
+            enableMotor: true,
+            motorSpeed: 0,
+            maxMotorTorque: ROLLING_FORCE * r,
+            frequencyHz: spec.springHz,
+            dampingRatio: 0.7,
+          },
+          this.chassis,
+          wheel,
+          wheel.getPosition(),
+          axis,
+        ),
+      )!;
+    this.rearJoint = mkJoint(this.rearWheel, spec.rear.r);
+    this.frontJoint = mkJoint(this.frontWheel, spec.front.r);
   }
 
   /** Forward speed in m/s (positive = to the right). */
@@ -114,37 +221,37 @@ export class Vehicle {
 
   /** Called before every physics step. */
   control(input: DriveInput): void {
-    const rearGround = this.gw.touchesGround(this.rearWheel);
-    const frontGround = this.gw.touchesGround(this.frontWheel);
-    this.onGround = rearGround || frontGround;
+    const s = this.spec;
+    this.onGround = this.gw.touchesGround(this.rearWheel) || this.gw.touchesGround(this.frontWheel);
 
+    // Linear target speed (m/s) and force (N); converted per wheel below.
     let speed = 0;
-    let torque = VEHICLE.rollingTorque;
+    let force = ROLLING_FORCE;
     this.throttle = 0;
 
     if (input.gas && !input.brake) {
-      speed = -VEHICLE.maxSpeed; // negative angular velocity = clockwise = drive right
-      torque = VEHICLE.driveTorque;
+      speed = s.maxSpeed;
+      force = s.driveForce;
       this.throttle = 1;
     } else if (input.brake && !input.gas) {
-      const wheelSpin = -this.rearWheel.getAngularVelocity() * VEHICLE.wheelRadius;
+      const wheelSpin = -this.rearWheel.getAngularVelocity() * s.rear.r;
       if (wheelSpin > 0.4 || this.speed > 0.6) {
         speed = 0;
-        torque = VEHICLE.brakeTorque;
+        force = s.brakeForce;
       } else {
-        speed = VEHICLE.reverseSpeed;
-        torque = VEHICLE.reverseTorque;
+        speed = -s.reverseSpeed;
+        force = s.reverseForce;
         this.throttle = 0.6;
       }
     }
 
-    this.rearJoint.setMotorSpeed(speed);
-    this.rearJoint.setMaxMotorTorque(torque);
-    const frontDriven = VEHICLE.allWheelDrive || (speed === 0 && torque === VEHICLE.brakeTorque);
-    this.frontJoint.setMotorSpeed(speed);
-    this.frontJoint.setMaxMotorTorque(frontDriven ? torque : VEHICLE.rollingTorque);
+    // Negative angular velocity = clockwise = drive to the right. All-wheel drive.
+    this.rearJoint.setMotorSpeed(-speed / s.rear.r);
+    this.rearJoint.setMaxMotorTorque(force * s.rear.r);
+    this.frontJoint.setMotorSpeed(-speed / s.front.r);
+    this.frontJoint.setMaxMotorTorque(force * s.front.r);
 
-    // Mud slows the van down.
+    // Mud slows the vehicle down.
     if (this.onGround && this.gw.obstacles.surfaceAt(this.chassis.getPosition().x) === "mud") {
       const v = this.chassis.getLinearVelocity();
       const m = this.chassis.getMass() + this.rearWheel.getMass() + this.frontWheel.getMass();
@@ -155,7 +262,7 @@ export class Vehicle {
     if (!this.onGround && input.gas !== input.brake) {
       const dir = input.gas ? -1 : 1;
       const spin = this.chassis.getAngularVelocity();
-      if (spin * dir < VEHICLE.maxAirSpin) this.chassis.applyTorque(dir * VEHICLE.airTorque, true);
+      if (spin * dir < MAX_AIR_SPIN) this.chassis.applyTorque(dir * s.airTorque, true);
     }
   }
 
@@ -166,6 +273,7 @@ export class Vehicle {
 
   /** World position of the center of the cargo bed. */
   bedCenter(): Vec2Value {
-    return this.chassis.getWorldPoint({ x: (BED.left + BED.right) / 2, y: BED.floor + 0.3 });
+    const b = this.spec.bed;
+    return this.chassis.getWorldPoint({ x: (b.left + b.right) / 2, y: b.floor + 0.3 });
   }
 }

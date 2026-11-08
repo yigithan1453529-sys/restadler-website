@@ -4,12 +4,10 @@ import type { LevelRun } from "./Level";
 import type { Particles } from "./Particles";
 import { Obstacles } from "./Obstacles";
 import { THEMES, type Theme } from "./themes";
-import { CHASSIS_SHAPES, VEHICLE } from "./Vehicle";
+import type { VehicleSpec } from "./Vehicle";
 
 export const COLORS = {
   outline: "#2D2D2D",
-  van: "#FF6B35",
-  vanDark: "#E2541F",
   window: "#BDE7FF",
   wheel: "#333333",
   hub: "#BBBBBB",
@@ -248,6 +246,95 @@ export function drawCargoShape(
       ctx.stroke();
     }
   }
+}
+
+export function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, angle: number, lw: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.fillStyle = COLORS.wheel;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = COLORS.hub;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.45, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = COLORS.outline;
+  for (let k = 0; k < 4; k++) {
+    const a = (k * Math.PI) / 2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * r * 0.25, Math.sin(a) * r * 0.25, r * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** Draws the chassis in its local frame (meters, y up). */
+export function drawChassis(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number): void {
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.lineJoin = "round";
+  if (spec.id === "tractor") {
+    // exhaust pipe
+    ctx.fillStyle = "#555555";
+    ctx.fillRect(1.25, 0.55, 0.1, 0.55);
+    ctx.strokeRect(1.25, 0.55, 0.1, 0.55);
+  }
+  ctx.fillStyle = spec.color;
+  poly(ctx, spec.cabin);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = COLORS.window;
+  poly(ctx, spec.window);
+  ctx.fill();
+  ctx.stroke();
+  const d = spec.driver;
+  ctx.fillStyle = "#FFD1A4";
+  ctx.beginPath();
+  ctx.arc(d.x, d.y, 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = spec.id === "tractor" ? "#FFD23F" : "#4D9DE0";
+  ctx.beginPath();
+  ctx.arc(d.x, d.y + 0.06, 0.13, Math.PI * 0.05, Math.PI * 0.95);
+  ctx.fill();
+
+  ctx.fillStyle = spec.color;
+  poly(ctx, spec.body);
+  ctx.fill();
+  ctx.stroke();
+  poly(ctx, spec.rearWall);
+  ctx.fill();
+  ctx.stroke();
+  if (spec.id === "pickup") {
+    // rails on the high walls
+    ctx.strokeStyle = "rgba(45,45,45,0.5)";
+    ctx.beginPath();
+    ctx.moveTo(-1.5, 0.48);
+    ctx.lineTo(spec.bed.left, 0.48);
+    ctx.stroke();
+    ctx.strokeStyle = COLORS.outline;
+  }
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(-1.5, -0.06, 3.0, 0.1);
+  ctx.fillStyle = "#FFE45E";
+  ctx.beginPath();
+  ctx.arc(1.42, 0.4, 0.07, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#E8283C";
+  ctx.fillRect(-1.52, 0.02, 0.08, 0.14);
+}
+
+/** A vehicle standing still (for the vehicle picker). */
+export function drawVehiclePreview(ctx: CanvasRenderingContext2D, spec: VehicleSpec, lw: number): void {
+  drawWheel(ctx, spec.rear.x, spec.rear.y, spec.rear.r, 0, lw);
+  drawWheel(ctx, spec.front.x, spec.front.y, spec.front.r, 0, lw);
+  drawChassis(ctx, spec, lw);
 }
 
 export class Renderer {
@@ -819,13 +906,39 @@ export class Renderer {
     ctx.lineTo(hx + 3.8, hy + 1.65);
     ctx.stroke();
 
-    // waving customer
+    // the customer: waves while waiting, then reacts to the delivery
+    const won = run.state === "won";
+    const mood = !won ? "wave" : run.stars >= 3 ? "cheer" : run.stars === 2 ? "happy" : "puzzled";
     const px = fx + 2.6;
-    const py = this.groundAt(run, px);
+    const jump = mood === "cheer" ? Math.abs(Math.sin(time * 7)) * 0.6 : 0;
+    const py = this.groundAt(run, px) + jump;
     ctx.fillStyle = "#3BCEAC";
     roundRectPath(ctx, px - 0.32, py, 0.64, 1.1, 0.25);
     ctx.fill();
     ctx.stroke();
+    ctx.lineWidth = 0.13;
+    ctx.lineCap = "round";
+    const arm = (side: number, angle: number): void => {
+      ctx.beginPath();
+      ctx.moveTo(px + side * 0.25, py + 0.85);
+      ctx.lineTo(px + side * (0.25 + Math.sin(angle) * 0.65), py + 0.85 + Math.cos(angle) * 0.65);
+      ctx.stroke();
+    };
+    if (mood === "cheer") {
+      arm(1, 0.35 + Math.sin(time * 14) * 0.15);
+      arm(-1, 0.35 + Math.sin(time * 14 + 1) * 0.15);
+    } else if (mood === "puzzled") {
+      // scratching the head
+      ctx.beginPath();
+      ctx.moveTo(px + 0.25, py + 0.85);
+      ctx.lineTo(px + 0.5, py + 1.3);
+      ctx.lineTo(px + 0.25 + Math.sin(time * 12) * 0.05, py + 1.62);
+      ctx.stroke();
+    } else {
+      arm(1, 0.5 + Math.sin(time * (mood === "happy" ? 12 : 6)) * 0.45);
+    }
+    ctx.lineCap = "butt";
+    ctx.lineWidth = lw;
     ctx.fillStyle = "#FFD1A4";
     ctx.beginPath();
     ctx.arc(px, py + 1.45, 0.33, 0, Math.PI * 2);
@@ -836,14 +949,28 @@ export class Renderer {
     ctx.arc(px - 0.11, py + 1.5, 0.045, 0, Math.PI * 2);
     ctx.arc(px + 0.11, py + 1.5, 0.045, 0, Math.PI * 2);
     ctx.fill();
-    const armAngle = 0.5 + Math.sin(time * 6) * 0.45;
-    ctx.lineWidth = 0.13;
-    ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(px + 0.25, py + 0.85);
-    ctx.lineTo(px + 0.25 + Math.sin(armAngle) * 0.65, py + 0.85 + Math.cos(armAngle) * 0.65);
+    if (mood === "puzzled") {
+      ctx.moveTo(px - 0.1, py + 1.33);
+      ctx.lineTo(px + 0.1, py + 1.36);
+    } else {
+      const big = mood === "cheer" || mood === "happy";
+      ctx.arc(px, py + 1.4, big ? 0.14 : 0.1, Math.PI * 1.15, Math.PI * 1.85);
+    }
     ctx.stroke();
-    ctx.lineCap = "butt";
+    if (mood === "puzzled") {
+      ctx.save();
+      ctx.translate(px + 0.2, py + 2.35);
+      ctx.scale(0.02, -0.02);
+      ctx.font = `bold 40px ${FONT}`;
+      ctx.textAlign = "center";
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = COLORS.outline;
+      ctx.strokeText("?", 0, 0);
+      ctx.fillStyle = "#FFD23F";
+      ctx.fillText("?", 0, 0);
+      ctx.restore();
+    }
 
     // finish flag
     this.drawFlag(fx, gy, lw, "#FFFFFF", true, Math.sin(time * 3));
@@ -852,83 +979,19 @@ export class Renderer {
   private drawVehicle(run: LevelRun, lw: number): void {
     const ctx = this.ctx;
     const v = run.vehicle;
-
-    for (const wheel of [v.rearWheel, v.frontWheel]) {
+    const spec = v.spec;
+    for (const [wheel, r] of [
+      [v.rearWheel, spec.rear.r],
+      [v.frontWheel, spec.front.r],
+    ] as const) {
       const p = wheel.getPosition();
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(wheel.getAngle());
-      ctx.lineWidth = lw;
-      ctx.strokeStyle = COLORS.outline;
-      ctx.fillStyle = COLORS.wheel;
-      ctx.beginPath();
-      ctx.arc(0, 0, VEHICLE.wheelRadius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = COLORS.hub;
-      ctx.beginPath();
-      ctx.arc(0, 0, VEHICLE.wheelRadius * 0.45, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = COLORS.outline;
-      for (let k = 0; k < 4; k++) {
-        const a = (k * Math.PI) / 2;
-        ctx.beginPath();
-        ctx.arc(Math.cos(a) * 0.11, Math.sin(a) * 0.11, 0.035, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
+      drawWheel(ctx, p.x, p.y, r, wheel.getAngle(), lw);
     }
-
     const c = v.chassis.getPosition();
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(v.chassis.getAngle());
-    ctx.lineWidth = lw;
-    ctx.strokeStyle = COLORS.outline;
-    ctx.lineJoin = "round";
-
-    ctx.fillStyle = COLORS.van;
-    poly(ctx, CHASSIS_SHAPES.cabin);
-    ctx.fill();
-    ctx.stroke();
-    // window (cut-out look)
-    ctx.fillStyle = COLORS.window;
-    poly(ctx, [
-      { x: 0.32, y: 0.62 },
-      { x: 1.04, y: 0.62 },
-      { x: 0.84, y: 0.95 },
-      { x: 0.32, y: 0.95 },
-    ]);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = "#FFD1A4";
-    ctx.beginPath();
-    ctx.arc(0.55, 0.76, 0.12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#4D9DE0";
-    ctx.beginPath();
-    ctx.arc(0.55, 0.82, 0.13, Math.PI * 0.05, Math.PI * 0.95);
-    ctx.fill();
-
-    ctx.fillStyle = COLORS.van;
-    poly(ctx, CHASSIS_SHAPES.body);
-    ctx.fill();
-    ctx.stroke();
-    poly(ctx, CHASSIS_SHAPES.rearWall);
-    ctx.fill();
-    ctx.stroke();
-    // stripe
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(-1.5, -0.06, 3.0, 0.1);
-    // lights
-    ctx.fillStyle = "#FFE45E";
-    ctx.beginPath();
-    ctx.arc(1.42, 0.4, 0.07, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = "#E8283C";
-    ctx.fillRect(-1.52, 0.02, 0.08, 0.14);
+    drawChassis(ctx, spec, lw);
     ctx.restore();
   }
 

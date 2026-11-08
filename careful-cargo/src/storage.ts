@@ -7,10 +7,11 @@ export interface SaveData {
   unlocked: number; // highest unlocked level id
   stars: Record<number, number>; // best stars per level id
   muted: boolean;
+  vehicle: string;
 }
 
 function defaults(): SaveData {
-  return { unlocked: 1, stars: {}, muted: false };
+  return { unlocked: 1, stars: {}, muted: false, vehicle: "van" };
 }
 
 let cache: SaveData | null = null;
@@ -29,6 +30,7 @@ export function loadSave(): SaveData {
         }
       }
       if (typeof parsed.muted === "boolean") data.muted = parsed.muted;
+      if (typeof parsed.vehicle === "string") data.vehicle = parsed.vehicle;
     }
   } catch {
     // Storage not available: play without saving.
@@ -60,4 +62,14 @@ export function saveLevelResult(levelId: number, stars: number, levelCount: numb
 export function saveMuted(muted: boolean): void {
   loadSave().muted = muted;
   write();
+}
+
+export function saveVehicle(id: string): void {
+  loadSave().vehicle = id;
+  write();
+}
+
+/** Sum of the best stars of all levels. */
+export function totalStars(): number {
+  return Object.values(loadSave().stars).reduce((a, b) => a + b, 0);
 }

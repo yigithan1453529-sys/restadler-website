@@ -1,7 +1,7 @@
 import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { poki } from "../platform/poki";
-import { loadSave, saveLevelResult, saveMuted } from "../storage";
+import { loadSave, saveLevelResult, saveMuted, saveVehicle, totalStars } from "../storage";
 import { Button, drawButton, hitButton } from "../ui/Button";
 import { drawHint, drawHud } from "../ui/Hud";
 import {
@@ -13,13 +13,15 @@ import {
   PANEL,
 } from "../ui/Screens";
 import { drawTouchControls } from "../ui/TouchControls";
+import { drawStar, outlinedText, plainText, roundRect } from "../ui/draw";
 import { AudioFx } from "./Audio";
 import { Camera, VIEW_W } from "./Camera";
 import { Input } from "./Input";
 import { LevelRun } from "./Level";
 import { Particles } from "./Particles";
-import { Renderer } from "./Renderer";
+import { COLORS, drawVehiclePreview, Renderer } from "./Renderer";
 import { THEMES } from "./themes";
+import { getVehicleSpec, VEHICLES } from "./Vehicle";
 
 /**
  * ready    – level loaded, waiting for the first input
@@ -38,7 +40,9 @@ const FAIL_TEXT: Record<string, TextKey> = {
 };
 
 const HARD_LANDING = 2.0; // impact per kg that counts as a hard landing
-const STAR_DELAY = (i: number): number => 0.45 + i * 0.35;
+/** Seconds the camera shows the customer's reaction before the result panel opens. */
+const WIN_DELAY = 1.4;
+const STAR_DELAY = (i: number): number => WIN_DELAY + 0.45 + i * 0.35;
 
 export class Game {
   state: GameState = "ready";
@@ -63,6 +67,7 @@ export class Game {
   private dustTimer = 0;
   private starsPopped = 0;
   private resultStars = 0;
+  private unlockMessage: string | null = null;
 
   constructor(
     private ctx: CanvasRenderingContext2D,
@@ -112,7 +117,8 @@ export class Game {
 
   loadLevel(id: number): void {
     this.levelId = id;
-    this.run = new LevelRun(getLevel(id));
+    this.unlockMessage = null;
+    this.run = new LevelRun(getLevel(id), getVehicleSpec(loadSave().vehicle));
     this.particles.clear();
     this.lostFlash.clear();
     this.hintsShown.clear();
@@ -174,6 +180,11 @@ export class Game {
   }
 
   private closeLevels(): void {
+    // A different vehicle was chosen: restart the level with it.
+    if (this.run.vehicle.spec.id !== getVehicleSpec(loadSave().vehicle).id) {
+      this.loadLevel(this.levelId);
+      return;
+    }
     const back = this.stateBeforeLevels;
     this.setState(back === "playing" || back === "ready" ? "paused" : back);
   }
@@ -223,11 +234,12 @@ export class Game {
       this.handleEffects(dt);
       if (this.state === "playing") this.checkRunEnd();
       const p = run.vehicle.position;
-      this.camera.follow(p.x, p.y, run.vehicle.speed, dt);
+      if (this.state === "won") this.camera.follow(run.level.finishX - 1, p.y, 0, dt);
+      else this.camera.follow(p.x, p.y, run.vehicle.speed, dt);
     }
 
     if (this.state === "playing" || this.state === "ready") {
-      const wheelSpeed = Math.abs(run.vehicle.rearWheel.getAngularVelocity()) * 0.45;
+      const wheelSpeed = Math.abs(run.vehicle.rearWheel.getAngularVelocity()) * run.vehicle.spec.rear.r;
       this.audio.updateEngine(wheelSpeed, run.vehicle.throttle);
       this.updateHints(dt);
     }
@@ -304,7 +316,11 @@ export class Game {
     const run = this.run;
     if (run.state === "won") {
       this.resultStars = run.stars;
+      const before = totalStars();
       saveLevelResult(this.levelId, run.stars, levels.length);
+      const after = totalStars();
+      const unlocked = VEHICLES.find((v) => v.unlockStars > before && v.unlockStars <= after);
+      if (unlocked) this.unlockMessage = t("unlock.vehicle", { name: t(unlocked.name) });
       this.setState("won");
       this.audio.success();
     } else if (run.state === "failed") {
@@ -351,7 +367,7 @@ export class Game {
     }
     const cx = PANEL.x + PANEL.w / 2;
     const bottom = PANEL.y + PANEL.h;
-    if (s === "won" && this.stateTime > 0.3) {
+    if (s === "won" && this.stateTime > WIN_DELAY + 0.3) {
       const last = this.levelId >= levels.length;
       list.push(
         { x: cx - 120, y: bottom - 150, w: 240, h: 88, label: last ? t("btn.levels") : t("btn.next"), icon: last ? "menu" : "next", primary: true, action: () => this.nextLevel() },
@@ -401,6 +417,46 @@ export class Game {
       if (this.levelPage < pages.length - 1)
         list.push({ x: VIEW_W / 2 + 260, y: 115, w: 70, h: 70, icon: "next", action: () => this.levelPage++ });
       list.push({ x: VIEW_W - 100, y: 30, w: 70, h: 70, icon: "close", primary: false, action: () => this.closeLevels() });
+
+      // vehicle picker
+      const stars = totalStars();
+      const chosen = getVehicleSpec(save.vehicle).id;
+      const cardW = 220;
+      const cardGap = 20;
+      const cx0 = (VIEW_W - (VEHICLES.length * cardW + (VEHICLES.length - 1) * cardGap)) / 2;
+      VEHICLES.forEach((spec, i) => {
+        const locked = stars < spec.unlockStars;
+        list.push({
+          x: cx0 + i * (cardW + cardGap),
+          y: 495,
+          w: cardW,
+          h: 190,
+          disabled: locked,
+          render: (c, b) => {
+            roundRect(c, b.x, b.y + 6, b.w, b.h, 22);
+            c.fillStyle = "rgba(45,45,45,0.35)";
+            c.fill();
+            roundRect(c, b.x, b.y, b.w, b.h, 22);
+            c.fillStyle = locked ? "#D5D5D5" : spec.id === chosen ? "#FFE58A" : "#FFFFFF";
+            c.fill();
+            c.lineWidth = spec.id === chosen ? 5 : 3;
+            c.strokeStyle = COLORS.outline;
+            c.stroke();
+            c.save();
+            c.translate(b.x + b.w / 2, b.y + 68);
+            c.scale(48, -48);
+            if (locked) c.globalAlpha = 0.35;
+            drawVehiclePreview(c, spec, 3 / 48);
+            c.restore();
+            plainText(c, t(spec.name), b.x + b.w / 2, b.y + 146, 22);
+            if (locked) {
+              drawStar(c, b.x + b.w / 2 - 28, b.y + 172, 12, true);
+              plainText(c, String(spec.unlockStars), b.x + b.w / 2 + 6, b.y + 173, 20, COLORS.outline, "left");
+            }
+          },
+          action: () => saveVehicle(spec.id),
+        });
+      });
     }
     return list;
   }
@@ -420,15 +476,16 @@ export class Game {
         drawHint(ctx, t(this.hint.text), alpha, this.time);
       }
       if (this.input.showTouch) drawTouchControls(ctx, this.input.gas, this.input.brake);
-    } else if (s === "won") {
+    } else if (s === "won" && this.stateTime > WIN_DELAY) {
       drawWinScreen(
         ctx,
         t("win.title"),
         t("win.delivered", { n: run.cargo.delivered, total: run.cargo.total }),
         this.resultStars,
-        this.stateTime,
-        STAR_DELAY,
+        this.stateTime - WIN_DELAY,
+        (i) => STAR_DELAY(i) - WIN_DELAY,
       );
+      if (this.unlockMessage && this.stateTime > WIN_DELAY + 1.4) outlinedText(ctx, this.unlockMessage, VIEW_W / 2, 92, 34, "#3BCEAC");
     } else if (s === "failed") {
       drawFailScreen(ctx, t(FAIL_TEXT[run.failReason ?? "allLost"]), this.stateTime);
     } else if (s === "paused") {
@@ -437,6 +494,8 @@ export class Game {
       const pages = worldPages();
       const page = pages[Math.min(this.levelPage, pages.length - 1)];
       drawLevelSelectBackground(ctx, t("levels.title"), t(THEMES[page.world].name), this.levelPage, pages.length);
+      drawStar(ctx, 52, 68, 22, true);
+      outlinedText(ctx, `${totalStars()} / ${levels.length * 3}`, 84, 70, 30, "#FFFFFF", "left");
     }
 
     for (const b of this.buttons) drawButton(ctx, b, b === this.hover, b === this.pressed);
