@@ -22,7 +22,22 @@ import {
   shopButtons,
   type MenuHost,
 } from "../ui/Menus";
-import { addStats, claimGift, claimMission, pendingGift, TROPHY_REWARD, type StatKey, type Trophy } from "../progress";
+import {
+  addStats,
+  claimGift,
+  claimHourly,
+  claimMission,
+  claimSupplyTier,
+  countLevelForWheel,
+  pendingGift,
+  pickPrize,
+  TROPHY_REWARD,
+  useSpin,
+  WHEEL,
+  type StatKey,
+  type Trophy,
+} from "../progress";
+import { drawSupply, drawWheel, supplyButtons, wheelButtons, wheelTarget, type RewardHost } from "../ui/Rewards";
 import { bestFriendRecord, displayName, formatTime, friendRanking, inviteFriend, receiveChallenge, rerollName } from "../social";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
 import { drawHint, drawHud, drawNitroGauge, drawPickedCoins, drawSpeedometer, drawTimer } from "../ui/Hud";
@@ -58,6 +73,8 @@ import { getVehicleSpec, MAX_UPGRADE, UPGRADE_PRICES, upgradedSpec, VEHICLES } f
  * missions – three daily missions
  * trophies – trophies (achievements)
  * daily    – the daily gift popup over the home screen
+ * wheel    – prize wheel (free spin per day, more with videos or levels)
+ * supply   – daily supplies (free coins every hour, more with videos)
  */
 export type GameState =
   | "ready"
@@ -73,7 +90,9 @@ export type GameState =
   | "ranking"
   | "missions"
   | "trophies"
-  | "daily";
+  | "daily"
+  | "wheel"
+  | "supply";
 
 const FAIL_TEXT: Record<string, TextKey> = {
   allLost: "fail.allLost",
@@ -100,6 +119,9 @@ export class Game {
   /** Island shown in the island view. */
   private levelPage = 0;
   private mapHost: MapHost;
+  private rewardHost: RewardHost;
+  private wheelAngle = 0;
+  private spin: { from: number; to: number; start: number; prize: number; lastTick: number } | null = null;
   private buttons: Button[] = [];
   private hover: Button | null = null;
   private pressed: Button | null = null;
@@ -168,6 +190,8 @@ export class Game {
           this.particles.confettiBurst(VIEW_W);
         }
       },
+      openWheel: () => this.setState("wheel"),
+      openSupply: () => this.setState("supply"),
       claimGift: () => {
         const coins = claimGift();
         if (coins > 0) {
@@ -234,6 +258,33 @@ export class Game {
       }
     });
 
+    this.rewardHost = {
+      goHome: () => this.goHome(),
+      spin: (how) => this.spinWheel(how),
+      get spinning() {
+        return self.spin !== null;
+      },
+      get wheelAngle() {
+        return self.wheelAngle;
+      },
+      claimHourly: () => {
+        const coins = claimHourly();
+        if (coins > 0) {
+          this.audio.coin(true);
+          this.toast = { text: `+${coins}`, good: true, left: 1.6 };
+        }
+      },
+      claimSupply: () =>
+        this.rewarded(() => {
+          const coins = claimSupplyTier();
+          if (coins > 0) {
+            this.audio.success();
+            this.particles.confettiBurst(VIEW_W);
+            this.toast = { text: `+${coins}`, good: true, left: 2 };
+          }
+        }),
+    };
+
     this.mapHost = {
       get levelId() {
         return self.levelId;
@@ -276,6 +327,54 @@ export class Game {
     // The daily gift pops up over the home screen once a day.
     this.setState(pendingGift() ? "daily" : "home");
     this.input.releaseAll();
+  }
+
+  /** Starts the prize wheel (a free spin, or one paid with a watched video). */
+  private spinWheel(how: "free" | "ad"): void {
+    if (this.spin) return;
+    const go = (): void => {
+      const prize = pickPrize();
+      this.spin = { from: this.wheelAngle, to: wheelTarget(this.wheelAngle, prize), start: this.time, prize, lastTick: 0 };
+    };
+    if (how === "free") {
+      if (useSpin("free")) go();
+    } else {
+      this.rewarded(() => {
+        if (useSpin("ad")) go();
+      });
+    }
+  }
+
+  /** Turns the wheel; pays the prize when it stops. */
+  private updateWheel(): void {
+    const sp = this.spin;
+    if (!sp) return;
+    const duration = 3.6;
+    const k = Math.min(1, (this.time - sp.start) / duration);
+    const ease = 1 - Math.pow(1 - k, 3);
+    this.wheelAngle = sp.from + (sp.to - sp.from) * ease;
+    // a tick for every 30° turned
+    const ticks = Math.floor((this.wheelAngle - sp.from) / (Math.PI / 6));
+    if (ticks > sp.lastTick) {
+      sp.lastTick = ticks;
+      this.audio.click();
+    }
+    if (k < 1) return;
+    this.spin = null;
+    this.wheelAngle %= Math.PI * 2;
+    const p = WHEEL[sp.prize];
+    const save = loadSave();
+    const missing = PAINTS.filter((x) => !save.paints.includes(x.id));
+    if (p.kind === "paint" && missing.length > 0) {
+      const paint = missing[Math.floor(Math.random() * missing.length)];
+      addOwnedPaint(paint.id);
+      this.toast = { text: t("wheel.wonPaint", { name: t(paint.name) }), good: true, left: 3 };
+    } else {
+      addCoins(p.coins);
+      this.toast = { text: t("wheel.won", { n: p.coins }), good: true, left: 3 };
+    }
+    this.audio.success();
+    this.particles.confettiBurst(VIEW_W);
   }
 
   /** Where the ghost is right now (interpolated), or null. */
@@ -322,7 +421,7 @@ export class Game {
   }
 
   private isMenuState(): boolean {
-    return ["paused", "won", "failed", "levels", "island", "home", "garage", "shop", "ranking", "missions", "trophies", "daily"].includes(
+    return ["paused", "won", "failed", "levels", "island", "home", "garage", "shop", "ranking", "missions", "trophies", "daily", "wheel", "supply"].includes(
       this.state,
     );
   }
@@ -485,7 +584,7 @@ export class Game {
       else if (["ready", "playing", "paused", "won"].includes(this.state)) this.restart();
       return;
     }
-    if (code === "Escape" && ["garage", "shop", "ranking", "missions", "trophies"].includes(this.state)) {
+    if (code === "Escape" && ["garage", "shop", "ranking", "missions", "trophies", "supply"].includes(this.state)) {
       this.goHome();
       return;
     }
@@ -498,7 +597,7 @@ export class Game {
     }
     if (code === "Enter" || code === "Space" || code === "NumpadEnter") {
       const primary = this.buttons.find((b) => b.primary);
-      if (primary && (this.isMenuState() || this.state === "ready") && !["shop", "ranking", "missions"].includes(this.state)) {
+      if (primary && (this.isMenuState() || this.state === "ready") && !["shop", "ranking", "missions", "supply"].includes(this.state)) {
         this.audio.click();
         primary.action();
       }
@@ -554,6 +653,7 @@ export class Game {
       if (v <= dt * 2) this.lostFlash.delete(id);
       else this.lostFlash.set(id, v - dt * 2);
     }
+    this.updateWheel();
     if (this.toast) {
       this.toast.left -= dt;
       if (this.toast.left <= 0) this.toast = null;
@@ -662,6 +762,7 @@ export class Game {
       this.newRecord = saveRecord(this.levelId, run.stars, run.time);
       if (this.newRecord && !run.resumed) saveGhost(this.levelId, { vehicle: run.vehicle.spec.id, samples: this.ghostRecording });
       this.trophyToasts(addStats({ ...this.statsAfterWin, recordsSet: this.newRecord ? 1 : 0 }));
+      countLevelForWheel();
       const friend = bestFriendRecord(this.levelId);
       this.rival = null;
       if (friend) {
@@ -788,6 +889,10 @@ export class Game {
       list.push(...trophyButtons(this.host));
     } else if (s === "daily") {
       list.push(...dailyButtons(this.host));
+    } else if (s === "wheel") {
+      list.push(...wheelButtons(this.rewardHost));
+    } else if (s === "supply") {
+      list.push(...supplyButtons(this.rewardHost));
     }
     return list;
   }
@@ -854,6 +959,10 @@ export class Game {
       drawShop(ctx);
     } else if (s === "ranking") {
       drawRanking(ctx, this.host, friendRanking(), levels.length);
+    } else if (s === "wheel") {
+      drawWheel(ctx, this.rewardHost, this.time);
+    } else if (s === "supply") {
+      drawSupply(ctx);
     } else if (s === "missions") {
       drawMissions(ctx);
     } else if (s === "trophies") {

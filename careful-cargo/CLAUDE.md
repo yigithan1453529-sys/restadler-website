@@ -61,7 +61,8 @@ src/
     meadow.ts ...    Level pro Insel (Wiese 7–10, Wüste, Schnee, Stadt); ids 1–40
     shapes.ts        Bausteine für Gelände (Welle, Grube, Brücke, Lift)
     pickups.ts       Coins und Bonus-Stern entlang der Strecke
-  ui/                HUD, Endbildschirm, Weltkarte (WorldMap.ts), Home/Garage/Shop (Menus.ts)
+  ui/                HUD, Endbildschirm, Weltkarte (WorldMap.ts), Home/Garage/Shop (Menus.ts),
+                     Glücksrad und Vorräte (Rewards.ts)
 docs/GDD.md          Spielkonzept
 ```
 
@@ -77,7 +78,9 @@ docs/GDD.md          Spielkonzept
 - Pfeiltasten und Leertaste dürfen die Seite **nicht scrollen** (`preventDefault`).
 - Inhalte familienfreundlich: keine Gewalt, kein Glücksspiel, keine Marken, keine
   Namen oder Grafiken anderer Spiele.
-- Kein Debug-Code und keine Test-Overlays im Produktions-Build.
+- Kein Debug-Code und keine Test-Overlays im Produktions-Build. (Die Demo-Werbung in
+  `poki.ts` läuft nur, wenn eine Testseite `window.CC_DEMO_ADS = true` setzt; der
+  Poki-Build setzt das nie.)
 
 ### Poki-SDK (ab Meilenstein 2)
 
@@ -145,3 +148,4 @@ docs/GDD.md          Spielkonzept
 - [x] Animiertes Vorschaubild (`promo/thumbnail-animated-1080.mp4`, 1080 × 1080, 50 fps, 5 s)
 - [x] Upgrades, Coins auf der Strecke, Nitro, Geister-Rennen, Tagesgeschenk, Aufgaben,
   Pokale, Wetter, Fässer, Zugbrücke, Anhänger, Musik
+- [x] Glücksrad (ohne Einsatz, jedes Feld gewinnt) und tägliche Vorräte (stündlich + Videos)

@@ -20,6 +20,31 @@ declare global {
 }
 
 let gameplayActive = false;
+
+/**
+ * Test pages without the Poki SDK can set `window.CC_DEMO_ADS = true`: rewarded
+ * ads are then replaced by a short "demo ad" screen so the rewards can be tried.
+ * The Poki build never sets this flag.
+ */
+function demoAds(): boolean {
+  return typeof window !== "undefined" && (window as unknown as { CC_DEMO_ADS?: boolean }).CC_DEMO_ADS === true;
+}
+
+async function demoAd(): Promise<boolean> {
+  adRunning = true;
+  onAdStart();
+  const box = document.createElement("div");
+  box.textContent = "▶ Demo ad (on Poki a real video plays here)";
+  box.style.cssText =
+    "position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(20,25,45,.92);" +
+    "color:#fff;font:800 22px 'Trebuchet MS',system-ui,sans-serif;text-align:center;padding:20px";
+  document.body.append(box);
+  await new Promise((r) => setTimeout(r, 1500));
+  box.remove();
+  adRunning = false;
+  onAdEnd();
+  return true;
+}
 let ready = false;
 let adRunning = false;
 
@@ -71,7 +96,7 @@ export const poki = {
   },
   /** True when the real Poki SDK is available (rewarded ads can be offered). */
   get available(): boolean {
-    return ready && !!sdk();
+    return (ready && !!sdk()) || demoAds();
   },
   setAdHandlers(start: () => void, end: () => void): void {
     onAdStart = start;
@@ -94,6 +119,7 @@ export const poki = {
   /** Rewarded ad, only after a clear choice by the player. Resolves to true if it was watched. */
   async rewardedBreak(): Promise<boolean> {
     const s = sdk();
+    if (demoAds() && !s && !adRunning) return demoAd();
     if (!ready || !s || adRunning) return false;
     adRunning = true;
     try {

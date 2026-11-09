@@ -2,7 +2,7 @@ import { COLORS, FONT } from "../game/Renderer";
 
 export { FONT };
 
-export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice" | "ad" | "check";
+export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice" | "ad" | "check" | "wheel" | "fuel";
 
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   const rr = Math.min(r, w / 2, h / 2);
@@ -235,6 +235,53 @@ export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: numbe
         ctx.arc(px * h, py * h, h * 0.11, 0, Math.PI * 2);
         ctx.fill();
       }
+      break;
+    case "wheel": {
+      const cols = ["#FFE066", "#FF9EC7", "#7FD3FF", "#B8F2C8", "#FFB627", "#C9A7FF"];
+      for (let k = 0; k < 6; k++) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, h * 0.75, (k / 6) * Math.PI * 2, ((k + 1) / 6) * Math.PI * 2);
+        ctx.closePath();
+        ctx.fillStyle = cols[k];
+        ctx.fill();
+        ctx.lineWidth = s * 0.04;
+        ctx.strokeStyle = COLORS.outline;
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, h * 0.18, 0, Math.PI * 2);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#E84A5F";
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.18, -h * 0.95);
+      ctx.lineTo(h * 0.18, -h * 0.95);
+      ctx.lineTo(0, -h * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
+    }
+    case "fuel":
+      // fuel pump
+      ctx.fillStyle = "#3D8BFF";
+      roundRect(ctx, -h * 0.55, -h * 0.65, h * 0.8, h * 1.3, h * 0.12);
+      ctx.fill();
+      ctx.lineWidth = s * 0.05;
+      ctx.strokeStyle = COLORS.outline;
+      ctx.stroke();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(-h * 0.42, -h * 0.5, h * 0.54, h * 0.38);
+      ctx.strokeStyle = COLORS.outline;
+      ctx.lineWidth = s * 0.08;
+      ctx.beginPath();
+      ctx.moveTo(h * 0.25, -h * 0.3);
+      ctx.quadraticCurveTo(h * 0.65, -h * 0.25, h * 0.6, h * 0.2);
+      ctx.lineTo(h * 0.6, h * 0.45);
+      ctx.stroke();
+      drawCoin(ctx, -h * 0.15, h * 0.25, h * 0.2);
       break;
     case "check":
       roundRect(ctx, -h * 0.65, -h * 0.65, h * 1.3, h * 1.3, h * 0.25);

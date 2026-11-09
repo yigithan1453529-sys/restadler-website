@@ -279,6 +279,12 @@ bietet keine Rangliste im SDK.
 - **Anhänger** mit eigener Ladung (Level 12, 22).
 - **Geschenkturm** als Ladung (Level 15).
 - **Musik:** eigene Melodie pro Insel, im Code erzeugt.
+- **Glücksrad** (runder Knopf links auf Home): 1 Gratis-Drehung pro Tag, 1 Extra-Drehung
+  pro 5 geschaffte Level, bis zu 3 weitere pro Tag mit Video. Felder: 30, 60, 100, 150,
+  300 Coins oder eine gratis Farbe. **Kein Glücksspiel:** Drehen kostet nie etwas,
+  jedes Feld gewinnt, und die Feldgrösse entspricht der Wahrscheinlichkeit.
+- **Tägliche Vorräte** (runder Knopf links auf Home): jede Stunde 10 Coins gratis;
+  dazu pro Tag 20, 50, 70 und 100 Coins mit je einem Video, nacheinander freigeschaltet.
 
 ## 16. Nicht im Prototyp
 

@@ -19,6 +19,8 @@ import { drawDim } from "./Screens";
 import { formatTime, type RankRow } from "../social";
 import {
   claimableMissions,
+  freeSpins,
+  hourlyWait,
   MISSION_REWARD,
   missions,
   pendingGift,
@@ -41,6 +43,8 @@ export interface MenuHost {
   openTrophies(): void;
   claimMission(id: string): void;
   claimGift(): void;
+  openWheel(): void;
+  openSupply(): void;
   play(): void;
   openLevels(): void;
   openGarage(): void;
@@ -150,6 +154,9 @@ export function homeButtons(host: MenuHost): Button[] {
     { x: 650, y: 440, w: 230, h: 92, label: t("btn.shop"), icon: "shop", action: () => host.openShop() },
     { x: 900, y: 440, w: 230, h: 92, label: t("btn.ranking"), icon: "trophy", action: () => host.openRanking() },
     { x: 230, y: 562, w: 260, h: 76, label: t("btn.missions"), icon: "check", action: () => host.openMissions() },
+    // round side buttons: prize wheel and daily supplies
+    { x: 22, y: 118, w: 96, h: 96, icon: "wheel", action: () => host.openWheel() },
+    { x: 22, y: 250, w: 96, h: 96, icon: "fuel", action: () => host.openSupply() },
     { x: 510, y: 562, w: 260, h: 76, label: t("btn.trophies"), icon: "trophy", action: () => host.openTrophies() },
     { x: 790, y: 562, w: 260, h: 76, label: t("btn.invite"), icon: "share", action: () => host.invite() },
     { x: 20, y: 18, w: 68, h: 68, icon: host.muted ? "soundOff" : "soundOn", action: () => host.toggleMute() },
@@ -163,8 +170,26 @@ export function drawHome(ctx: CanvasRenderingContext2D, host: MenuHost): void {
   outlinedText(ctx, t("hud.level", { n: host.levelId }), VIEW_W / 2, 400, 30, "#FFFFFF");
 }
 
+/** Labels and red dots for the side buttons (drawn after the buttons). */
+function sideBadges(ctx: CanvasRenderingContext2D): void {
+  outlinedText(ctx, t("btn.wheel"), 70, 228, 17, "#FFFFFF");
+  outlinedText(ctx, t("btn.supply"), 70, 360, 17, "#FFFFFF");
+  const dot = (x: number, y: number): void => {
+    ctx.beginPath();
+    ctx.arc(x, y, 12, 0, Math.PI * 2);
+    ctx.fillStyle = "#E84A5F";
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.stroke();
+  };
+  if (freeSpins() > 0) dot(110, 124);
+  if (hourlyWait() <= 0) dot(110, 256);
+}
+
 /** Red counter badge (drawn after the buttons). */
 export function drawHomeBadges(ctx: CanvasRenderingContext2D): void {
+  sideBadges(ctx);
   const n = claimableMissions();
   if (n <= 0) return;
   ctx.beginPath();

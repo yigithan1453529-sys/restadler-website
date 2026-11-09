@@ -47,10 +47,19 @@ export interface ProgressData {
   daily: { claimed: string; streak: number };
   missions: { date: string; list: { id: string; base: number; claimed: boolean }[] };
   trophies: string[];
+  wheel: { date: string; freeUsed: boolean; adSpins: number; bonusSpins: number; levelsToward: number };
+  supply: { date: string; hourlyAt: number; tiers: number };
 }
 
 function defaultProgress(): ProgressData {
-  return { stats: {}, daily: { claimed: "", streak: 0 }, missions: { date: "", list: [] }, trophies: [] };
+  return {
+    stats: {},
+    daily: { claimed: "", streak: 0 },
+    missions: { date: "", list: [] },
+    trophies: [],
+    wheel: { date: "", freeUsed: false, adSpins: 0, bonusSpins: 0, levelsToward: 0 },
+    supply: { date: "", hourlyAt: 0, tiers: 0 },
+  };
 }
 
 export interface LevelRecord {
@@ -148,6 +157,18 @@ export function loadSave(): SaveData {
               .map((m) => ({ id: m.id, base: Number(m.base) || 0, claimed: !!m.claimed })),
           };
         data.progress.trophies = strings(pr.trophies);
+        const w = pr.wheel;
+        if (w && typeof w.date === "string")
+          data.progress.wheel = {
+            date: w.date,
+            freeUsed: !!w.freeUsed,
+            adSpins: Math.max(0, Number(w.adSpins) || 0),
+            bonusSpins: Math.max(0, Math.min(20, Number(w.bonusSpins) || 0)),
+            levelsToward: Math.max(0, Number(w.levelsToward) || 0),
+          };
+        const sp = pr.supply;
+        if (sp && typeof sp.date === "string")
+          data.progress.supply = { date: sp.date, hourlyAt: Number(sp.hourlyAt) || 0, tiers: Math.max(0, Math.min(4, Number(sp.tiers) || 0)) };
       }
       if (parsed.upgrades && typeof parsed.upgrades === "object") {
         for (const [veh, ups] of Object.entries(parsed.upgrades)) {

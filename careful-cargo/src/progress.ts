@@ -183,3 +183,127 @@ function checkTrophies(): Trophy[] {
   }
   return fresh;
 }
+
+// ---------- prize wheel ----------
+// Not gambling: spinning never costs anything and every field wins something.
+// Field sizes match how often they come up.
+
+export interface WheelPrize {
+  kind: "coins" | "paint";
+  coins: number;
+  /** Share of the wheel (and the chance), all add up to 1. */
+  share: number;
+  color: string;
+}
+
+export const WHEEL: WheelPrize[] = [
+  { kind: "coins", coins: 30, share: 0.28, color: "#FFE066" },
+  { kind: "coins", coins: 60, share: 0.24, color: "#FF9EC7" },
+  { kind: "coins", coins: 100, share: 0.2, color: "#7FD3FF" },
+  { kind: "paint", coins: 120, share: 0.1, color: "#B8F2C8" },
+  { kind: "coins", coins: 150, share: 0.13, color: "#FFB627" },
+  { kind: "coins", coins: 300, share: 0.05, color: "#C9A7FF" },
+];
+
+export const WHEEL_AD_SPINS = 3;
+export const LEVELS_PER_BONUS_SPIN = 5;
+
+function wheelState() {
+  const w = loadSave().progress.wheel;
+  if (w.date !== today()) {
+    w.date = today();
+    w.freeUsed = false;
+    w.adSpins = 0;
+  }
+  return w;
+}
+
+export function wheelInfo(): { free: boolean; bonus: number; adLeft: number; toward: number } {
+  const w = wheelState();
+  return { free: !w.freeUsed, bonus: w.bonusSpins, adLeft: WHEEL_AD_SPINS - w.adSpins, toward: w.levelsToward };
+}
+
+/** Spins available without watching a video. */
+export function freeSpins(): number {
+  const i = wheelInfo();
+  return (i.free ? 1 : 0) + i.bonus;
+}
+
+/** Called for every finished level: every few levels earn a bonus spin. */
+export function countLevelForWheel(): void {
+  const w = wheelState();
+  w.levelsToward++;
+  if (w.levelsToward >= LEVELS_PER_BONUS_SPIN) {
+    w.levelsToward = 0;
+    w.bonusSpins++;
+  }
+  saveProgress();
+}
+
+/** Uses up one spin. "ad" = a spin paid by a watched video. */
+export function useSpin(how: "free" | "ad"): boolean {
+  const w = wheelState();
+  if (how === "ad") {
+    if (w.adSpins >= WHEEL_AD_SPINS) return false;
+    w.adSpins++;
+  } else if (!w.freeUsed) w.freeUsed = true;
+  else if (w.bonusSpins > 0) w.bonusSpins--;
+  else return false;
+  saveProgress();
+  return true;
+}
+
+/** Picks a field: the chance of each field is its share of the wheel. */
+export function pickPrize(): number {
+  let r = Math.random();
+  for (let i = 0; i < WHEEL.length; i++) {
+    r -= WHEEL[i].share;
+    if (r <= 0) return i;
+  }
+  return 0;
+}
+
+// ---------- daily supplies ----------
+
+export const SUPPLY_HOURLY = 10;
+export const SUPPLY_HOUR_MS = 60 * 60 * 1000;
+/** Video rewards, unlocked one after another each day. */
+export const SUPPLY_TIERS = [20, 50, 70, 100];
+
+function supplyState() {
+  const s = loadSave().progress.supply;
+  if (s.date !== today()) {
+    s.date = today();
+    s.tiers = 0;
+  }
+  return s;
+}
+
+/** Milliseconds until the free hourly coins can be taken again (0 = now). */
+export function hourlyWait(now = Date.now()): number {
+  const s = supplyState();
+  return Math.max(0, s.hourlyAt + SUPPLY_HOUR_MS - now);
+}
+
+export function claimHourly(): number {
+  if (hourlyWait() > 0) return 0;
+  supplyState().hourlyAt = Date.now();
+  addCoins(SUPPLY_HOURLY);
+  saveProgress();
+  return SUPPLY_HOURLY;
+}
+
+/** Number of video tiers already taken today. */
+export function suppliesTaken(): number {
+  return supplyState().tiers;
+}
+
+export function claimSupplyTier(): number {
+  const s = supplyState();
+  if (s.tiers >= SUPPLY_TIERS.length) return 0;
+  const coins = SUPPLY_TIERS[s.tiers];
+  s.tiers++;
+  addCoins(coins);
+  saveProgress();
+  return coins;
+}
