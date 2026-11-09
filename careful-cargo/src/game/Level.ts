@@ -36,6 +36,7 @@ export class LevelRun {
   impactThisFrame = 0;
   checkpointThisFrame: number | null = null;
   shiftedThisFrame = false;
+  nitroThisFrame = false;
   /** Coins and the bonus star floating along the road. */
   readonly pickups: Pickup[];
   /** Value of everything picked up so far (paid out at the finish). */
@@ -91,6 +92,7 @@ export class LevelRun {
     this.impactThisFrame = 0;
     this.checkpointThisFrame = null;
     this.shiftedThisFrame = false;
+    this.nitroThisFrame = false;
     this.pickedThisFrame = [];
     const active = this.state === "running";
     const controls: DriveInput = active ? input : { gas: false, brake: false };
@@ -101,6 +103,7 @@ export class LevelRun {
       () => {
         this.vehicle.control(controls);
         if (this.vehicle.shiftedUp) this.shiftedThisFrame = true;
+        if (this.vehicle.nitroFired) this.nitroThisFrame = true;
       },
       () => {
         for (const ev of this.gw.events) {

@@ -506,7 +506,17 @@ const MAX_AIR_SPIN = 4;
 export interface DriveInput {
   gas: boolean;
   brake: boolean;
+  nitro?: boolean;
 }
+
+export const NITRO = {
+  /** Seconds a full tank lasts. */
+  burn: 1.6,
+  /** Seconds to refill from empty. */
+  refill: 6,
+  speedBoost: 1.35,
+  forceBoost: 1.6,
+};
 
 /** Share of the top speed reached at the end of each gear (gear 1..n). */
 export function gearTop(spec: VehicleSpec, gear: number): number {
@@ -536,6 +546,11 @@ export class Vehicle {
   rpm = 0;
   /** Set for one step when the gearbox shifts up (for sound and exhaust puff). */
   shiftedUp = false;
+  /** Nitro tank 0..1 and whether it burns right now. */
+  nitro = 1;
+  nitroActive = false;
+  /** Set for one step when nitro is fired (for sound and statistics). */
+  nitroFired = false;
   private shiftTimer = 0;
 
   constructor(
@@ -613,10 +628,21 @@ export class Vehicle {
     while (this.gear > 1 && v < gearTop(s, this.gear - 1) * 0.72) this.gear--;
     this.rpm = Math.min(1, Math.max(0.12, v / gearTop(s, this.gear)));
 
+    // Nitro: needs gas and some charge to start; burns until empty or released.
+    this.nitroFired = false;
+    const wantNitro = !!input.nitro && input.gas && !input.brake;
+    if (wantNitro && !this.nitroActive && this.nitro > 0.25) {
+      this.nitroActive = true;
+      this.nitroFired = true;
+    }
+    if (!wantNitro || this.nitro <= 0) this.nitroActive = false;
+    if (this.nitroActive) this.nitro = Math.max(0, this.nitro - PHYSICS_STEP / NITRO.burn);
+    else this.nitro = Math.min(1, this.nitro + PHYSICS_STEP / NITRO.refill);
+
     if (input.gas && !input.brake) {
-      speed = gearTop(s, this.gear) * 1.02;
+      speed = gearTop(s, this.gear) * 1.02 * (this.nitroActive ? NITRO.speedBoost : 1);
       // Less pull for a moment while shifting (a soft clutch, no hard jerk).
-      force = gearForce(s, this.gear) * (this.shiftTimer > 0 ? 0.55 : 1);
+      force = gearForce(s, this.gear) * (this.shiftTimer > 0 ? 0.55 : 1) * (this.nitroActive ? NITRO.forceBoost : 1);
       this.throttle = this.shiftTimer > 0 ? 0.5 : 1;
     } else if (input.brake && !input.gas) {
       const wheelSpin = -this.rearWheel.getAngularVelocity() * s.rear.r;

@@ -116,6 +116,12 @@ export class AudioFx {
     this.engineGain.gain.setTargetAtTime(0.05 + throttle * 0.07, t, 0.06);
   }
 
+  /** Nitro whoosh. */
+  nitro(): void {
+    this.noiseBurst(0.5, 0.35, "bandpass", 1400);
+    this.tone(220, 0, 0.4, "sawtooth", 0.08, 660);
+  }
+
   /** Short "blip" when the gearbox shifts up. */
   shift(): void {
     this.noiseBurst(0.06, 0.12, "bandpass", 900);

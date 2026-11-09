@@ -9,6 +9,8 @@ export interface Circle {
 /** Big on-screen drive buttons (virtual 1280 × 720 coordinates). */
 export const TOUCH_BRAKE: Circle = { x: 150, y: VIEW_H - 150, r: 88 };
 export const TOUCH_GAS: Circle = { x: VIEW_W - 150, y: VIEW_H - 150, r: 88 };
+/** Nitro button above the gas button. */
+export const TOUCH_NITRO: Circle = { x: VIEW_W - 150, y: VIEW_H - 345, r: 56 };
 
 interface PointerState {
   x: number;
@@ -20,6 +22,7 @@ interface PointerState {
 const BLOCKED_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space", "PageUp", "PageDown", "Home", "End"]);
 
 function inside(c: Circle, x: number, y: number, extra = 1.25): boolean {
+  if (c === TOUCH_NITRO) extra = 1.1;
   return Math.hypot(x - c.x, y - c.y) <= c.r * extra;
 }
 
@@ -114,7 +117,19 @@ export class Input {
   }
 
   get gas(): boolean {
-    return this.keys.has("ArrowRight") || this.keys.has("KeyD") || this.pointerIn(TOUCH_GAS);
+    // The nitro button also gives gas (one thumb can only press one button).
+    return this.keys.has("ArrowRight") || this.keys.has("KeyD") || this.pointerIn(TOUCH_GAS) || this.pointerIn(TOUCH_NITRO);
+  }
+
+  get nitro(): boolean {
+    return (
+      this.keys.has("ArrowUp") ||
+      this.keys.has("KeyW") ||
+      this.keys.has("ShiftLeft") ||
+      this.keys.has("ShiftRight") ||
+      this.keys.has("Space") ||
+      this.pointerIn(TOUCH_NITRO)
+    );
   }
 
   get brake(): boolean {

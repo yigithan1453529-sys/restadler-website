@@ -124,3 +124,21 @@ export function drawPickedCoins(ctx: CanvasRenderingContext2D, value: number): v
   drawCoin(ctx, 46, 111, 14);
   plainText(ctx, String(value), 70, 112, 22, "#2D2D2D", "left");
 }
+
+/** Nitro tank next to the speedometer. */
+export function drawNitroGauge(ctx: CanvasRenderingContext2D, charge: number, active: boolean): void {
+  const x = 735;
+  const y = 662;
+  glassPill(ctx, x, y, 150, 34);
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect?.(x + 34, y + 9, 104, 16, 8);
+  ctx.fillStyle = "rgba(45,45,45,0.15)";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect?.(x + 34, y + 9, Math.max(12, 104 * charge), 16, 8);
+  ctx.fillStyle = active ? "#FF6B35" : charge > 0.25 ? "#3D8BFF" : "#9BB8E8";
+  ctx.fill();
+  ctx.restore();
+  plainText(ctx, "N₂O", x + 18, y + 18, 13, "#2D2D2D");
+}

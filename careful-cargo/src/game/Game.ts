@@ -25,7 +25,7 @@ import {
 import { addStats, claimGift, claimMission, pendingGift, TROPHY_REWARD, type StatKey, type Trophy } from "../progress";
 import { bestFriendRecord, displayName, formatTime, friendRanking, inviteFriend, receiveChallenge, rerollName } from "../social";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
-import { drawHint, drawHud, drawPickedCoins, drawSpeedometer, drawTimer } from "../ui/Hud";
+import { drawHint, drawHud, drawNitroGauge, drawPickedCoins, drawSpeedometer, drawTimer } from "../ui/Hud";
 import {
   drawFailScreen,
   drawPauseScreen,
@@ -491,7 +491,10 @@ export class Game {
 
     const simulate = this.state === "ready" || this.state === "playing" || this.state === "won" || this.state === "failed";
     if (simulate) {
-      const drive = this.state === "playing" ? { gas: this.input.gas, brake: this.input.brake } : { gas: false, brake: false };
+      const drive =
+        this.state === "playing"
+          ? { gas: this.input.gas, brake: this.input.brake, nitro: this.input.nitro }
+          : { gas: false, brake: false };
       run.update(dt, drive);
       this.handleEffects(dt);
       if (this.state === "playing") this.checkRunEnd();
@@ -582,6 +585,13 @@ export class Game {
       this.particles.splat(p.x, p.y, "#FFD23F");
       this.audio.coin(p.kind === "star");
       if (p.kind === "star") this.particles.text("+10", p.x, p.y + 0.8);
+    }
+
+    // Nitro fired: whoosh, count it for missions and trophies.
+    if (run.nitroThisFrame) {
+      this.audio.nitro();
+      this.camera.shake(0.15);
+      this.trophyToasts(addStats({ nitroUsed: 1 }));
     }
 
     // Gear change: blip and a little exhaust puff.
@@ -778,7 +788,8 @@ export class Game {
         const alpha = this.hint.left === Infinity ? 1 : Math.min(1, this.hint.left * 2);
         drawHint(ctx, t(this.hint.text), alpha, this.time);
       }
-      if (this.input.showTouch) drawTouchControls(ctx, this.input.gas, this.input.brake);
+      if (this.input.showTouch) drawTouchControls(ctx, this.input.gas, this.input.brake, this.input.nitro, run.vehicle.nitro);
+      drawNitroGauge(ctx, run.vehicle.nitro, run.vehicle.nitroActive);
     } else if (s === "won" && this.stateTime > WIN_DELAY) {
       drawWinScreen(
         ctx,

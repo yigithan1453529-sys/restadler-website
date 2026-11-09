@@ -1341,6 +1341,21 @@ export class Renderer {
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(v.chassis.getAngle());
+    if (v.nitroActive) {
+      // flickering nitro flame out of the back
+      const len = 1.1 + Math.random() * 0.5;
+      const g = ctx.createLinearGradient(-1.55, 0, -1.55 - len, 0);
+      g.addColorStop(0, "#FFF6B0");
+      g.addColorStop(0.4, "#FFB627");
+      g.addColorStop(1, "rgba(255,80,40,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(-1.5, 0.12);
+      ctx.quadraticCurveTo(-1.55 - len * 0.6, 0.3, -1.55 - len, 0.02);
+      ctx.quadraticCurveTo(-1.55 - len * 0.6, -0.26, -1.5, -0.12);
+      ctx.closePath();
+      ctx.fill();
+    }
     drawChassis(ctx, spec, lw, this.paint ?? spec.color, this.time);
     ctx.restore();
   }

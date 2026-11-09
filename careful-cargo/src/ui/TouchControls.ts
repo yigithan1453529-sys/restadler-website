@@ -1,4 +1,4 @@
-import { TOUCH_BRAKE, TOUCH_GAS, type Circle } from "../game/Input";
+import { TOUCH_BRAKE, TOUCH_GAS, TOUCH_NITRO, type Circle } from "../game/Input";
 
 function arrow(ctx: CanvasRenderingContext2D, c: Circle, dir: 1 | -1): void {
   const s = c.r * 0.42;
@@ -11,7 +11,30 @@ function arrow(ctx: CanvasRenderingContext2D, c: Circle, dir: 1 | -1): void {
 }
 
 /** Semi-transparent drive buttons (touch devices). */
-export function drawTouchControls(ctx: CanvasRenderingContext2D, gas: boolean, brake: boolean): void {
+export function drawTouchControls(ctx: CanvasRenderingContext2D, gas: boolean, brake: boolean, nitro = false, charge = 1): void {
+  // nitro button with a ring that shows the charge
+  const n = TOUCH_NITRO;
+  ctx.save();
+  ctx.globalAlpha = nitro ? 0.9 : 0.75;
+  ctx.beginPath();
+  ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+  ctx.fillStyle = charge > 0.25 ? "rgba(61,139,255,0.55)" : "rgba(160,170,190,0.45)";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(45,45,45,0.7)";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(n.x, n.y, n.r - 7, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * charge);
+  ctx.lineWidth = 7;
+  ctx.strokeStyle = "#FFB627";
+  ctx.stroke();
+  ctx.font = '900 22px "Trebuchet MS", system-ui, sans-serif';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText("NITRO", n.x, n.y + 1);
+  ctx.restore();
+
   const pairs: [Circle, boolean, 1 | -1][] = [
     [TOUCH_BRAKE, brake, -1],
     [TOUCH_GAS, gas, 1],
