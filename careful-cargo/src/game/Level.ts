@@ -30,6 +30,8 @@ export class LevelRun {
   lostThisFrame: CargoItem[] = [];
   brokenThisFrame: CargoItem[] = [];
   bumpedThisFrame: CargoItem[] = [];
+  /** Continued from a checkpoint (such a run is not saved as a ghost). */
+  resumed = false;
   /** Set by the game on the first input; the clock (melting) only runs after that. */
   started = false;
   /** Strongest vehicle/ground impact this frame (impulse per kg). */
@@ -73,6 +75,7 @@ export class LevelRun {
         if (p.taken && this.pickups[i]) this.pickups[i].taken = true;
       });
       this.started = true;
+      this.resumed = true;
     }
   }
 

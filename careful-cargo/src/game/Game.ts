@@ -2,7 +2,7 @@ import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { drawIsland, drawMap, islandButtons, islandOf, mapButtons, type MapHost } from "../ui/WorldMap";
 import { poki } from "../platform/poki";
-import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, saveUpgrade, spendCoins, upgradeLevel } from "../storage";
+import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, saveUpgrade, spendCoins, upgradeLevel, loadGhost, saveGhost, GHOST_STEP, type Ghost } from "../storage";
 import {
   dailyButtons,
   drawDaily,
@@ -112,6 +112,9 @@ export class Game {
   private starsPopped = 0;
   private resultStars = 0;
   private coinsEarned = 0;
+  /** Best run of this level, replayed as a see-through vehicle. */
+  private ghost: Ghost | null = null;
+  private ghostRecording: number[] = [];
   private statsAfterWin: Partial<Record<StatKey, number>> = {};
   private coinsDoubled = false;
   private adRunning = false;
@@ -275,6 +278,25 @@ export class Game {
     this.input.releaseAll();
   }
 
+  /** Where the ghost is right now (interpolated), or null. */
+  private ghostPose(): { x: number; y: number; angle: number; vehicle: string } | null {
+    const g = this.ghost;
+    const run = this.run;
+    if (!g || !run.started || run.state !== "running" || g.samples.length < 6) return null;
+    const f = run.time / GHOST_STEP;
+    const i = Math.floor(f);
+    const n = g.samples.length / 3;
+    if (i >= n - 1) return null;
+    const k = f - i;
+    const at = (j: number, o: number): number => g.samples[j * 3 + o];
+    return {
+      x: at(i, 0) + (at(i + 1, 0) - at(i, 0)) * k,
+      y: at(i, 1) + (at(i + 1, 1) - at(i, 1)) * k,
+      angle: at(i, 2) + (at(i + 1, 2) - at(i, 2)) * k,
+      vehicle: g.vehicle,
+    };
+  }
+
   /** Shows a message for every newly unlocked trophy (one after another). */
   private trophyToasts(fresh: Trophy[]): void {
     fresh.forEach((tr, i) => {
@@ -317,6 +339,8 @@ export class Game {
   /** Shared setup for a fresh attempt or a continue from a checkpoint. */
   private beginRun(run: LevelRun): void {
     this.run = run;
+    this.ghostRecording = [];
+    this.ghost = run.resumed ? null : loadGhost(run.level.id);
     this.coinsEarned = 0;
     this.coinsDoubled = false;
     this.particles.clear();
@@ -497,7 +521,15 @@ export class Game {
           : { gas: false, brake: false };
       run.update(dt, drive);
       this.handleEffects(dt);
-      if (this.state === "playing") this.checkRunEnd();
+      if (this.state === "playing") {
+        // record this run for a future ghost
+        while (run.started && this.ghostRecording.length / 3 <= run.time / GHOST_STEP) {
+          const c = run.vehicle.chassis;
+          const p = c.getPosition();
+          this.ghostRecording.push(Math.round(p.x * 100) / 100, Math.round(p.y * 100) / 100, Math.round(c.getAngle() * 100) / 100);
+        }
+        this.checkRunEnd();
+      }
       const p = run.vehicle.position;
       if (this.state === "won") this.camera.follow(run.level.finishX - 1, p.y, 0, dt);
       else this.camera.follow(p.x, p.y, run.vehicle.speed, dt);
@@ -627,6 +659,7 @@ export class Game {
       };
       addCoins(this.coinsEarned);
       this.newRecord = saveRecord(this.levelId, run.stars, run.time);
+      if (this.newRecord && !run.resumed) saveGhost(this.levelId, { vehicle: run.vehicle.spec.id, samples: this.ghostRecording });
       this.trophyToasts(addStats({ ...this.statsAfterWin, recordsSet: this.newRecord ? 1 : 0 }));
       const friend = bestFriendRecord(this.levelId);
       this.rival = null;
@@ -776,7 +809,7 @@ export class Game {
       this.particles.drawConfetti(ctx);
       return;
     }
-    this.renderer.draw(run, this.camera, this.particles, this.time, paint);
+    this.renderer.draw(run, this.camera, this.particles, this.time, paint, this.ghostPose());
 
     const s = this.state;
     if (s === "ready" || s === "playing") {

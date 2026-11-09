@@ -295,3 +295,33 @@ export function saveUpgrade(vehicle: string, kind: string, level: number): void 
 export function saveProgress(): void {
   write();
 }
+
+// ---------- ghosts (best runs), stored apart from the main save ----------
+
+export interface Ghost {
+  vehicle: string;
+  /** One sample every GHOST_STEP seconds: x, y, angle. */
+  samples: number[];
+}
+
+export const GHOST_STEP = 0.1;
+
+export function saveGhost(levelId: number, ghost: Ghost): void {
+  try {
+    localStorage.setItem(`careful-cargo-ghost-${levelId}`, JSON.stringify(ghost));
+  } catch {
+    // Storage full or blocked: no ghost then.
+  }
+}
+
+export function loadGhost(levelId: number): Ghost | null {
+  try {
+    const raw = localStorage.getItem(`careful-cargo-ghost-${levelId}`);
+    if (!raw) return null;
+    const g = JSON.parse(raw) as Ghost;
+    if (typeof g.vehicle !== "string" || !Array.isArray(g.samples) || g.samples.some((v) => typeof v !== "number")) return null;
+    return g;
+  } catch {
+    return null;
+  }
+}

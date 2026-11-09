@@ -6,7 +6,7 @@ import { CUSTOMER_KINDS, drawCustomer, type Mood } from "./Characters";
 import { Obstacles } from "./Obstacles";
 import { drawSkyTraffic } from "./SkyTraffic";
 import { THEMES, type Theme } from "./themes";
-import type { VehicleSpec } from "./Vehicle";
+import { getVehicleSpec, type VehicleSpec } from "./Vehicle";
 
 export const COLORS = {
   outline: "#2D2D2D",
@@ -666,7 +666,14 @@ export class Renderer {
 
   constructor(private ctx: CanvasRenderingContext2D) {}
 
-  draw(run: LevelRun, cam: Camera, particles: Particles, time: number, paint: string | null = null): void {
+  draw(
+    run: LevelRun,
+    cam: Camera,
+    particles: Particles,
+    time: number,
+    paint: string | null = null,
+    ghost: { x: number; y: number; angle: number; vehicle: string } | null = null,
+  ): void {
     this.paint = paint;
     const ctx = this.ctx;
     const theme = THEMES[run.level.world ?? "meadow"];
@@ -687,6 +694,16 @@ export class Renderer {
     this.drawObstacles(run, lw, time);
     for (const item of run.cargo.items) if (item.lost) this.drawCargo(item, lw);
     this.drawPickups(run, lw, time);
+    if (ghost) {
+      // the best run so far, see-through
+      const spec = getVehicleSpec(ghost.vehicle);
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.translate(ghost.x, ghost.y);
+      ctx.rotate(ghost.angle);
+      drawVehiclePreview(ctx, spec, lw, "#FFFFFF", time);
+      ctx.restore();
+    }
     this.drawVehicle(run, lw);
     for (const item of run.cargo.items) if (!item.lost) this.drawCargo(item, lw);
     if (theme.night) this.drawHeadlight(run);
