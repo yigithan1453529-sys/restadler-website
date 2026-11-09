@@ -1,4 +1,5 @@
 import { heightAt } from "../levels/terrain";
+import { makePickups, PICKUP_VALUE, type Pickup } from "../levels/pickups";
 import type { LevelData } from "../levels/types";
 import { CargoManager, CargoItem } from "./Cargo";
 import { DriveInput, Vehicle, VEHICLES, type VehicleSpec } from "./Vehicle";
@@ -35,6 +36,11 @@ export class LevelRun {
   impactThisFrame = 0;
   checkpointThisFrame: number | null = null;
   shiftedThisFrame = false;
+  /** Coins and the bonus star floating along the road. */
+  readonly pickups: Pickup[];
+  /** Value of everything picked up so far (paid out at the finish). */
+  pickedValue = 0;
+  pickedThisFrame: Pickup[] = [];
 
   private flipTimer = 0;
   private allLostTimer = 0;
@@ -51,6 +57,7 @@ export class LevelRun {
     this.vehicle = new Vehicle(this.gw, { x: startX, y }, spec);
     this.cargo = new CargoManager(this.gw, this.vehicle, level);
     this.killY = level.killY ?? this.gw.minY - 6;
+    this.pickups = makePickups(level, this.gw.terrain);
     if (resume) {
       // Cargo lost before stays lost; the clock and checkpoints carry over.
       const lost = resume.from.cargo.items.filter((i) => i.lost);
@@ -60,6 +67,10 @@ export class LevelRun {
       );
       this.time = resume.from.time;
       this.reachedCheckpoints = [...resume.from.reachedCheckpoints];
+      this.pickedValue = resume.from.pickedValue;
+      resume.from.pickups.forEach((p, i) => {
+        if (p.taken && this.pickups[i]) this.pickups[i].taken = true;
+      });
       this.started = true;
     }
   }
@@ -80,6 +91,7 @@ export class LevelRun {
     this.impactThisFrame = 0;
     this.checkpointThisFrame = null;
     this.shiftedThisFrame = false;
+    this.pickedThisFrame = [];
     const active = this.state === "running";
     const controls: DriveInput = active ? input : { gas: false, brake: false };
     const carMass = this.vehicle.chassis.getMass();
@@ -104,9 +116,27 @@ export class LevelRun {
         this.cargo.newlyBroken.length = 0;
         this.bumpedThisFrame.push(...this.cargo.newlyBumped);
         this.cargo.newlyBumped.length = 0;
-        if (this.state === "running") this.checkRules();
+        if (this.state === "running") {
+          this.collectPickups();
+          this.checkRules();
+        }
       },
     );
+  }
+
+  /** The vehicle body (cabin and bed) touches a pickup → collect it. */
+  private collectPickups(): void {
+    const c = this.vehicle.chassis;
+    const pts = [c.getWorldPoint({ x: 0.6, y: 0.5 }), c.getWorldPoint({ x: -0.7, y: 0.4 })];
+    for (const p of this.pickups) {
+      if (p.taken) continue;
+      const r = p.kind === "star" ? 1.2 : 1.0;
+      if (pts.some((q) => Math.hypot(q.x - p.x, q.y - p.y) < r)) {
+        p.taken = true;
+        this.pickedValue += PICKUP_VALUE[p.kind];
+        this.pickedThisFrame.push(p);
+      }
+    }
   }
 
   private checkRules(): void {

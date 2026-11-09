@@ -686,6 +686,7 @@ export class Renderer {
     this.drawTerrain(run, cam, lw);
     this.drawObstacles(run, lw, time);
     for (const item of run.cargo.items) if (item.lost) this.drawCargo(item, lw);
+    this.drawPickups(run, lw, time);
     this.drawVehicle(run, lw);
     for (const item of run.cargo.items) if (!item.lost) this.drawCargo(item, lw);
     if (theme.night) this.drawHeadlight(run);
@@ -1019,6 +1020,56 @@ export class Renderer {
     ctx.lineWidth = lw;
     ctx.lineJoin = "round";
     ctx.stroke();
+  }
+
+  /** Spinning coins and the big bonus star. */
+  private drawPickups(run: LevelRun, lw: number, time: number): void {
+    const ctx = this.ctx;
+    for (const p of run.pickups) {
+      if (p.taken) continue;
+      ctx.save();
+      ctx.translate(p.x, p.y + Math.sin(time * 3 + p.x) * 0.08);
+      if (p.kind === "coin") {
+        const sx = Math.max(0.15, Math.abs(Math.cos(time * 3 + p.x * 0.7)));
+        ctx.scale(sx, 1);
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = "#FFC93C";
+        ctx.fill();
+        ctx.lineWidth = lw / sx;
+        ctx.strokeStyle = COLORS.outline;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, 0.2, 0, Math.PI * 2);
+        ctx.strokeStyle = "#E0A21B";
+        ctx.lineWidth = 0.05;
+        ctx.stroke();
+      } else {
+        const glow = ctx.createRadialGradient(0, 0, 0.1, 0, 0, 1.2);
+        glow.addColorStop(0, "rgba(255,230,120,0.7)");
+        glow.addColorStop(1, "rgba(255,230,120,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.rotate(time * 1.5);
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+          const a = Math.PI / 2 + (i * Math.PI) / 5;
+          const r = i % 2 === 0 ? 0.6 : 0.28;
+          if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fillStyle = "#FFD23F";
+        ctx.fill();
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = COLORS.outline;
+        ctx.lineJoin = "round";
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   private drawObstacles(run: LevelRun, lw: number, time: number): void {

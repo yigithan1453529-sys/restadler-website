@@ -17,7 +17,7 @@ import {
 } from "../ui/Menus";
 import { bestFriendRecord, displayName, formatTime, friendRanking, inviteFriend, receiveChallenge, rerollName } from "../social";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
-import { drawHint, drawHud, drawSpeedometer, drawTimer } from "../ui/Hud";
+import { drawHint, drawHud, drawPickedCoins, drawSpeedometer, drawTimer } from "../ui/Hud";
 import {
   drawFailScreen,
   drawPauseScreen,
@@ -528,6 +528,13 @@ export class Game {
 
     if (run.checkpointThisFrame !== null) this.audio.checkpoint();
 
+    // Coins and the bonus star
+    for (const p of run.pickedThisFrame) {
+      this.particles.splat(p.x, p.y, "#FFD23F");
+      this.audio.coin(p.kind === "star");
+      if (p.kind === "star") this.particles.text("+10", p.x, p.y + 0.8);
+    }
+
     // Gear change: blip and a little exhaust puff.
     if (run.shiftedThisFrame) {
       this.audio.shift();
@@ -546,7 +553,7 @@ export class Game {
       const pages = worldPages();
       const isl = pages[islandOf(this.levelId, pages)];
       const islandFinale = isl.levels[isl.levels.length - 1].id === this.levelId;
-      this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0) + (firstClear && islandFinale ? ISLAND_BONUS : 0);
+      this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0) + (firstClear && islandFinale ? ISLAND_BONUS : 0) + run.pickedValue;
       if (firstClear && islandFinale) this.toast = { text: t("island.complete", { n: ISLAND_BONUS }), good: true, left: 4 };
       addCoins(this.coinsEarned);
       this.newRecord = saveRecord(this.levelId, run.stars, run.time);
@@ -698,6 +705,7 @@ export class Game {
     if (s === "ready" || s === "playing") {
       drawHud(ctx, t("hud.level", { n: this.levelId }), run.cargo.items, this.lostFlash, run.cargo.meltLeft(run.time), this.time);
       drawTimer(ctx, formatTime(run.time));
+      drawPickedCoins(ctx, run.pickedValue);
       drawSpeedometer(ctx, Math.abs(run.vehicle.speed) * 3.6, run.vehicle.gear, run.vehicle.rpm, run.vehicle.spec.maxSpeed * 3.6);
       if (this.hint) {
         const alpha = this.hint.left === Infinity ? 1 : Math.min(1, this.hint.left * 2);

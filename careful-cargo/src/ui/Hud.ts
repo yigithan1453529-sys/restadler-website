@@ -1,7 +1,7 @@
 import type { CargoItem } from "../game/Cargo";
 import { VIEW_W } from "../game/Camera";
 import { drawCargoShape } from "../game/Renderer";
-import { glassPill, outlinedText, plainText } from "./draw";
+import { drawCoin, glassPill, outlinedText, plainText } from "./draw";
 
 /** Level label (left) and cargo icons (center). Buttons are added by Game. */
 export function drawHud(
@@ -116,4 +116,11 @@ export function drawSpeedometer(ctx: CanvasRenderingContext2D, kmh: number, gear
   // gear and speed
   plainText(ctx, gear === 0 ? "R" : String(gear), cx, cy - 34, 26, "#2D2D2D");
   plainText(ctx, `${Math.round(kmh)} km/h`, cx, cy - 10, 17, "#555555");
+}
+
+/** Coins picked up on the road in this run (paid out at the finish). */
+export function drawPickedCoins(ctx: CanvasRenderingContext2D, value: number): void {
+  glassPill(ctx, 20, 88, 130, 46);
+  drawCoin(ctx, 46, 111, 14);
+  plainText(ctx, String(value), 70, 112, 22, "#2D2D2D", "left");
 }
