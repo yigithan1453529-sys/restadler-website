@@ -1,4 +1,4 @@
-import { Body, Box, Polygon, RevoluteJoint } from "planck";
+import { Body, Box, Circle, Polygon, RevoluteJoint } from "planck";
 import { heightAt } from "../levels/terrain";
 import type { LevelObject } from "../levels/types";
 import type { FixtureTag, GameWorld } from "./World";
@@ -35,7 +35,23 @@ export interface LiftObj {
   bottom: number;
   top: number;
 }
-export type ObstacleObj = BridgeObj | TunnelObj | SeesawObj | LiftObj;
+export interface BarrelsObj {
+  type: "barrels";
+  x: number;
+  every: number;
+  timer: number;
+  barrels: { body: Body; age: number }[];
+}
+export interface DrawbridgeObj {
+  type: "drawbridge";
+  body: Body;
+  len: number;
+  hinge: { x: number; y: number };
+}
+export type ObstacleObj = BridgeObj | TunnelObj | SeesawObj | LiftObj | BarrelsObj | DrawbridgeObj;
+
+export const DRAWBRIDGE = { closed: 3.5, move: 1.2, open: 2.1, angle: 1.2 };
+const BARREL: FixtureTag = { kind: "barrel" };
 
 /** Builds the physics bodies for a level's obstacles and moves the lifts. */
 export class Obstacles {
@@ -52,6 +68,8 @@ export class Obstacles {
       else if (o.type === "tunnel") this.addTunnel(o.x0, o.x1, o.height);
       else if (o.type === "seesaw") this.addSeesaw(o.x, o.length, o.pivotHeight);
       else if (o.type === "lift") this.addLift(o.x0, o.x1, o.bottom, o.top);
+      else if (o.type === "barrels") this.items.push({ type: "barrels", x: o.x, every: o.every, timer: 2, barrels: [] });
+      else if (o.type === "drawbridge") this.addDrawbridge(o.x0, o.x1);
       else this.surfaces.push({ type: o.type, x0: o.x0, x1: o.x1 });
     }
   }
@@ -135,6 +153,25 @@ export class Obstacles {
     this.items.push({ type: "lift", body, hw, x0, x1, bottom, top });
   }
 
+  private addDrawbridge(x0: number, x1: number): void {
+    const hinge = { x: x0, y: this.ground(x0 - 0.05) };
+    const len = x1 - x0 + 0.1;
+    const body = this.gw.world.createBody({ type: "kinematic", position: hinge });
+    body.createFixture(new Box(len / 2, 0.12, { x: len / 2, y: -0.12 }), { friction: 0.9, userData: GROUND });
+    this.items.push({ type: "drawbridge", body, len, hinge });
+  }
+
+  /** Drawbridge angle at time t: closed, rising, open, coming down. */
+  static drawbridgeAngle(t: number): number {
+    const d = DRAWBRIDGE;
+    const cycle = d.closed + d.open + 2 * d.move;
+    const p = t % cycle;
+    if (p < d.closed) return 0;
+    if (p < d.closed + d.move) return ((p - d.closed) / d.move) * d.angle;
+    if (p < d.closed + d.move + d.open) return d.angle;
+    return d.angle * (1 - (p - d.closed - d.move - d.open) / d.move);
+  }
+
   /** Lift height (top surface) at time t: wait at the bottom, rise, wait at the top, sink. */
   static liftHeight(o: { bottom: number; top: number }, t: number): number {
     const travel = (o.top - o.bottom) / LIFT.speed;
@@ -150,6 +187,32 @@ export class Obstacles {
   beforeStep(dt: number): void {
     this.time += dt;
     for (const o of this.items) {
+      if (o.type === "drawbridge") {
+        const target = Obstacles.drawbridgeAngle(this.time + dt);
+        o.body.setAngularVelocity((target - o.body.getAngle()) / dt);
+        continue;
+      }
+      if (o.type === "barrels") {
+        o.timer -= dt;
+        if (o.timer <= 0) {
+          o.timer = o.every;
+          const b = this.gw.world.createBody({
+            type: "dynamic",
+            position: { x: o.x, y: this.ground(o.x) + 0.6 },
+            linearVelocity: { x: -3, y: 0 },
+          });
+          b.createFixture(new Circle(0.35), { density: 1.2, friction: 0.6, restitution: 0.1, userData: BARREL });
+          o.barrels.push({ body: b, age: 0 });
+        }
+        for (const br of o.barrels) br.age += dt;
+        // remove old barrels or barrels that fell into a pit
+        o.barrels = o.barrels.filter((br) => {
+          const keep = br.age < 16 && br.body.getPosition().y > this.gw.minY - 4;
+          if (!keep) this.gw.world.destroyBody(br.body);
+          return keep;
+        });
+        continue;
+      }
       if (o.type !== "lift") continue;
       const target = Obstacles.liftHeight(o, this.time + dt) - 0.15;
       const y = o.body.getPosition().y;

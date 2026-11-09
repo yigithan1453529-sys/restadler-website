@@ -105,6 +105,7 @@ export class LevelRun {
       dt,
       () => {
         this.vehicle.control(controls);
+        if (this.level.weather === "wind") this.applyWind();
         if (this.vehicle.shiftedUp) this.shiftedThisFrame = true;
         if (this.vehicle.nitroFired) this.nitroThisFrame = true;
       },
@@ -128,6 +129,15 @@ export class LevelRun {
         }
       },
     );
+  }
+
+  /** Gusty headwind: pushes loose cargo backwards. */
+  private applyWind(): void {
+    const gust = 2.2 + Math.sin(this.gw.time * 0.9) * 1.4;
+    for (const item of this.cargo.items) {
+      if (!item.body || item.lost) continue;
+      item.body.applyForceToCenter({ x: -gust * item.body.getMass(), y: 0 }, true);
+    }
   }
 
   /** The vehicle body (cabin and bed) touches a pickup → collect it. */

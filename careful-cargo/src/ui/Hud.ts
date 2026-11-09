@@ -34,6 +34,7 @@ export function drawHud(
     // normalise sizes so every icon fits the slot
     if (item.type === "crate") drawCargoShape(ctx, "crate", 15, 15, 0, 3, false, item.lost);
     else if (item.type === "egg") drawCargoShape(ctx, "egg", 13, 13, 0, 3, false, item.lost);
+    else if (item.type === "gift") drawCargoShape(ctx, "gift", 17 - item.layer * 2, 12, item.layer, 3, false, item.lost);
     else if (item.type === "cake") drawCargoShape(ctx, "cake", 19 - item.layer * 3, 11, item.layer, 3, false, item.lost);
     else if (item.type === "icecream") drawCargoShape(ctx, "icecream", 14, 14, item.layer, 3, false, item.lost);
     else if (item.type === "aquarium") drawCargoShape(ctx, "aquarium", 19, 14, 0, 3, false, item.lost, { time });

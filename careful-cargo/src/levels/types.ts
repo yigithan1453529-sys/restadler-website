@@ -1,7 +1,7 @@
 import type { TextKey } from "../i18n";
 import type { WorldId } from "../game/themes";
 
-export type CargoType = "crate" | "egg" | "cake" | "icecream" | "aquarium" | "bowling" | "grandpa";
+export type CargoType = "crate" | "egg" | "cake" | "icecream" | "aquarium" | "bowling" | "grandpa" | "gift";
 
 /**
  * Terrain control point in meters, y points up.
@@ -22,6 +22,8 @@ export interface LevelData {
   checkpoints: number[];
   hints: { x: number; text: TextKey }[];
   objects?: LevelObject[];
+  /** Rain makes the road slippery; wind pushes the cargo backwards. */
+  weather?: "rain" | "wind";
   /** Ice cream: seconds of driving until the first scoop melts (default 40). */
   meltTime?: number;
   /** Vehicle below this height = "Fell off!". Defaults to lowest terrain point - 6. */
@@ -39,4 +41,8 @@ export type LevelObject =
   /** Plank on a pivot; starts with the left end on the ground. */
   | { type: "seesaw"; x: number; length: number; pivotHeight: number }
   /** Platform in a pit that moves between `bottom` and `top` (terrain heights). */
-  | { type: "lift"; x0: number; x1: number; bottom: number; top: number };
+  | { type: "lift"; x0: number; x1: number; bottom: number; top: number }
+  /** Barrels that roll down a hill towards the van, one every `every` seconds. */
+  | { type: "barrels"; x: number; every: number }
+  /** A bridge over a pit that lifts up and comes down again (hinge at x0). */
+  | { type: "drawbridge"; x0: number; x1: number };

@@ -62,7 +62,7 @@ export const desertLevels: LevelData[] = [
     // Easier level: a mud pit in the oasis.
     terrain: [[0, 0], [25, 0], [50, 0], [60, 1], [70, 0], [110, 0]],
     objects: [{ type: "mud", x0: 26, x1: 44 }],
-    cargo: [{ type: "crate", count: 3 }],
+    cargo: [{ type: "gift", count: 3 }],
     finishX: 90,
     checkpoints: [],
     hints: [{ x: 14, text: "hint.mud" }],
@@ -86,10 +86,11 @@ export const desertLevels: LevelData[] = [
     name: "level.17",
     world: "desert",
     terrain: [[0, 0], [16, 0], [26, 1.6], [36, 0], [46, 2.2], [56, 0], [66, 1.4], [76, 0], ...bump(82, 0.9), [94, 0], [104, 2.4], [114, 0], [145, 0]],
+    weather: "wind",
     cargo: [{ type: "bowling", count: 2 }],
     finishX: 126,
     checkpoints: [],
-    hints: [],
+    hints: [{ x: 0, text: "hint.wind" }],
   },
   {
     id: 18,

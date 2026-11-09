@@ -11,6 +11,7 @@ export const GRAVITY = 10;
 export type FixtureTag =
   | { kind: "ground" }
   | { kind: "ceiling" }
+  | { kind: "barrel" }
   | { kind: "car" }
   | { kind: "wheel" }
   | { kind: "cargo"; item: CargoItem };
@@ -32,6 +33,7 @@ export class GameWorld {
   readonly minY: number;
   readonly maxY: number;
   readonly obstacles: Obstacles;
+  readonly weather: LevelData["weather"];
   events: WorldEvent[] = [];
   /** Simulated time in seconds. */
   time = 0;
@@ -53,6 +55,7 @@ export class GameWorld {
     this.ground.createFixture(new Edge({ x: first.x, y: first.y - 1 }, { x: first.x, y: first.y + 30 }), groundOpt);
     this.ground.createFixture(new Edge({ x: last.x, y: last.y - 1 }, { x: last.x, y: last.y + 30 }), groundOpt);
 
+    this.weather = level.weather;
     this.obstacles = new Obstacles(this, level.objects ?? []);
 
     this.world.on("begin-contact", (c: Contact) => this.onBegin(c));
@@ -70,7 +73,7 @@ export class GameWorld {
 
   /** Ice and mud: change the friction of contacts on those ground parts. */
   private onPreSolve(c: Contact): void {
-    if (this.obstacles.surfaces.length === 0) return;
+    if (this.obstacles.surfaces.length === 0 && this.weather !== "rain") return;
     const a = tagOf(c.getFixtureA());
     const b = tagOf(c.getFixtureB());
     if (a?.kind !== "ground" && b?.kind !== "ground") return;
@@ -80,6 +83,7 @@ export class GameWorld {
     const surface = this.obstacles.surfaceAt(p.x);
     if (surface === "ice") c.setFriction(0.03);
     else if (surface === "mud") c.setFriction(0.45);
+    else if (this.weather === "rain") c.setFriction(0.55); // wet road
   }
 
   private onPostSolve(c: Contact, imp: ContactImpulse): void {

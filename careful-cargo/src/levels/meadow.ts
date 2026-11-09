@@ -9,20 +9,26 @@ export const meadowLevels: LevelData[] = [
     id: 7,
     name: "level.7",
     terrain: [[0, 0], [18, 0], [30, 2.5], [42, 0], [52, 0], [64, 3.5], [76, 0], [84, 0], ...bump(88, 0.8), [100, 0], [112, 2], [124, 0], [150, 0]],
+    // barrels roll down the second hill
+    objects: [{ type: "barrels", x: 66, every: 6 }],
     cargo: [{ type: "crate", count: 3 }],
     finishX: 132,
     checkpoints: [],
-    hints: [],
+    hints: [{ x: 46, text: "hint.barrels" }],
   },
   {
     id: 8,
     name: "level.8",
     terrain: [[0, 0], [20, 0], [30, 0.8], [40, 0], [70, 0], [80, 1.2], [92, 0], ...bump(98, 0.5, 5), [110, 0], [140, 0]],
     objects: [{ type: "mud", x0: 44, x1: 64 }],
+    weather: "rain",
     cargo: [{ type: "egg", count: 4 }],
     finishX: 122,
     checkpoints: [],
-    hints: [{ x: 30, text: "hint.mud" }],
+    hints: [
+      { x: 0, text: "hint.rain" },
+      { x: 30, text: "hint.mud" },
+    ],
   },
   {
     // Exam: bumps on a plateau, a long downhill, a bump in the valley, uphill.

@@ -22,6 +22,11 @@ export const CARGO = {
   spillAngle: 1.0,
   bowlingRadius: 0.22,
   grandpa: { hw: 0.32, hh: 0.3 },
+  giftLayers: [
+    { w: 0.74, h: 0.38 },
+    { w: 0.58, h: 0.34 },
+    { w: 0.44, h: 0.3 },
+  ],
 };
 
 export const SCOOP_COLORS = ["#FF9EC7", "#B8F2C8", "#FFF3C4", "#9C6644", "#FFB6A3"];
@@ -72,6 +77,7 @@ export class CargoManager {
       else if (spec.type === "icecream") this.spawnScoops(spec.count, level.meltTime ?? 40);
       else if (spec.type === "aquarium") this.spawnAquarium();
       else if (spec.type === "bowling") this.spawnBowling(spec.count);
+      else if (spec.type === "gift") this.spawnGifts(Math.min(spec.count, CARGO.giftLayers.length));
       else this.spawnGrandpa();
     }
   }
@@ -227,6 +233,19 @@ export class CargoManager {
       const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, y + h / 2) });
       body.createFixture(new Box(w / 2, h / 2), { density: 0.9, friction: 1.3, restitution: 0 });
       this.add("cake", body, w / 2, h / 2, i);
+      y += h + 0.005;
+    }
+  }
+
+  /** Gift tower: three wrapped boxes stacked, less sticky than the cake. */
+  private spawnGifts(layers: number): void {
+    const cx = (this.bed.left + this.bed.right) / 2;
+    let y = this.bed.floor + 0.005;
+    for (let i = 0; i < layers; i++) {
+      const { w, h } = CARGO.giftLayers[i];
+      const body = this.gw.world.createBody({ type: "dynamic", position: this.localToWorld(cx, y + h / 2) });
+      body.createFixture(new Box(w / 2, h / 2), { density: 0.7, friction: 1.05, restitution: 0.02 });
+      this.add("gift", body, w / 2, h / 2, i);
       y += h + 0.005;
     }
   }

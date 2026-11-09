@@ -214,6 +214,30 @@ export function drawCargoShape(
     ctx.stroke();
     ctx.fillStyle = COLORS.outline;
     ctx.fillRect(-hw * 0.3, hh * 0.82 * up - hh * 0.06, hw * 0.34, hh * 0.12);
+  } else if (type === "gift") {
+    const wrap = grey ? "#C8C8C8" : ["#E84A5F", "#3D8BFF", "#3BCEAC"][layer % 3];
+    const ribbon = grey ? "#E6E6E6" : "#FFD23F";
+    ctx.fillStyle = wrap;
+    roundRectPath(ctx, -hw, -hh, hw * 2, hh * 2, Math.min(hw, hh) * 0.15);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = ribbon;
+    ctx.fillRect(-hw * 0.14, -hh, hw * 0.28, hh * 2);
+    ctx.fillRect(-hw, -hh * 0.16, hw * 2, hh * 0.32);
+    ctx.lineWidth = lw * 0.6;
+    ctx.strokeRect(-hw * 0.14, -hh, hw * 0.28, hh * 2);
+    if (layer === 2 || hh > 10) {
+      // bow on top
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      ctx.ellipse(-hw * 0.28, hh * up + hh * 0.22 * up, hw * 0.3, hh * 0.22, -0.4 * up, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(hw * 0.28, hh * up + hh * 0.22 * up, hw * 0.3, hh * 0.22, 0.4 * up, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
   } else {
     const base = [COLORS.cakeChoco, COLORS.cakePink, COLORS.cakeWhite][layer] ?? COLORS.cakePink;
     const frosting = [COLORS.cakePink, COLORS.cakeWhite, COLORS.cakePink][layer] ?? COLORS.cakeWhite;
@@ -711,6 +735,8 @@ export class Renderer {
     ctx.restore();
 
     if (theme.snowfall) this.drawSnowfall(cam, time);
+    if (run.level.weather === "rain") this.drawRain(cam, time);
+    if (run.level.weather === "wind") this.drawWind(cam, time);
     this.drawTextPops(particles, cam);
   }
 
@@ -965,6 +991,38 @@ export class Renderer {
     ctx.restore();
   }
 
+  private drawRain(cam: Camera, time: number): void {
+    const ctx = this.ctx;
+    ctx.fillStyle = "rgba(40,60,90,0.12)";
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+    ctx.strokeStyle = "rgba(200,225,255,0.7)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < 90; i++) {
+      const x = (((i * 137.1 - cam.x * 10 - time * 120) % (VIEW_W + 100)) + VIEW_W + 100) % (VIEW_W + 100) - 50;
+      const y = (i * 71.3 + time * 900) % (VIEW_H + 40) - 20;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - 6, y + 22);
+    }
+    ctx.stroke();
+  }
+
+  private drawWind(cam: Camera, time: number): void {
+    const ctx = this.ctx;
+    ctx.strokeStyle = "rgba(150,105,55,0.45)";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    for (let i = 0; i < 26; i++) {
+      const x = VIEW_W - ((((i * 211.7 + time * 700 + cam.x * 6) % (VIEW_W + 300)) + VIEW_W + 300) % (VIEW_W + 300)) + 150;
+      const y = 60 + ((i * 97.3) % 560);
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(x - 30, y - 6, x - 70, y);
+    }
+    ctx.stroke();
+    ctx.lineCap = "butt";
+  }
+
   private drawSnowfall(cam: Camera, time: number): void {
     const ctx = this.ctx;
     ctx.fillStyle = "rgba(255,255,255,0.9)";
@@ -1200,6 +1258,70 @@ export class Renderer {
         ctx.beginPath();
         ctx.arc(pivot.x, pivot.y, 0.12, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
+      } else if (o.type === "barrels") {
+        for (const br of o.barrels) {
+          const p = br.body.getPosition();
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(br.body.getAngle());
+          ctx.beginPath();
+          ctx.arc(0, 0, 0.35, 0, Math.PI * 2);
+          ctx.fillStyle = "#B5651D";
+          ctx.fill();
+          ctx.lineWidth = lw;
+          ctx.strokeStyle = COLORS.outline;
+          ctx.stroke();
+          ctx.strokeStyle = "#5A3A1E";
+          ctx.lineWidth = 0.05;
+          ctx.beginPath();
+          ctx.arc(0, 0, 0.22, 0, Math.PI * 2);
+          ctx.moveTo(-0.35, 0);
+          ctx.lineTo(0.35, 0);
+          ctx.stroke();
+          ctx.restore();
+        }
+      } else if (o.type === "drawbridge") {
+        const a = o.body.getAngle();
+        // post with a chain to the bridge tip
+        ctx.fillStyle = "#6B4A2E";
+        ctx.fillRect(o.hinge.x - 0.25, o.hinge.y - 0.3, 0.2, 2.6);
+        ctx.strokeRect(o.hinge.x - 0.25, o.hinge.y - 0.3, 0.2, 2.6);
+        const tip = { x: o.hinge.x + Math.cos(a) * o.len, y: o.hinge.y + Math.sin(a) * o.len };
+        ctx.strokeStyle = "#8A9099";
+        ctx.lineWidth = 0.06;
+        ctx.setLineDash([0.12, 0.08]);
+        ctx.beginPath();
+        ctx.moveTo(o.hinge.x - 0.15, o.hinge.y + 2.2);
+        ctx.lineTo(tip.x, tip.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.save();
+        ctx.translate(o.hinge.x, o.hinge.y);
+        ctx.rotate(a);
+        ctx.fillStyle = "#C68642";
+        ctx.fillRect(0, -0.24, o.len, 0.24);
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = COLORS.outline;
+        ctx.strokeRect(0, -0.24, o.len, 0.24);
+        ctx.strokeStyle = "#9C6630";
+        for (let x = 0.6; x < o.len; x += 0.6) {
+          ctx.beginPath();
+          ctx.moveTo(x, -0.24);
+          ctx.lineTo(x, 0);
+          ctx.stroke();
+        }
+        ctx.restore();
+        // light: green while the bridge is down
+        const down = a < 0.02;
+        ctx.fillStyle = "#555555";
+        ctx.fillRect(o.hinge.x - 2.2, o.hinge.y - 0.2, 0.12, 2.2);
+        ctx.fillStyle = down ? "#3BCEAC" : "#E8283C";
+        ctx.beginPath();
+        ctx.arc(o.hinge.x - 2.14, o.hinge.y + 2.1, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = COLORS.outline;
+        ctx.lineWidth = lw;
         ctx.stroke();
       } else if (o.type === "lift") {
         const c = o.body.getPosition();
