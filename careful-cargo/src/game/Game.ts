@@ -2,7 +2,7 @@ import { t, type TextKey } from "../i18n";
 import { getLevel, levels, worldPages } from "../levels";
 import { drawIsland, drawMap, islandButtons, islandOf, mapButtons, type MapHost } from "../ui/WorldMap";
 import { poki } from "../platform/poki";
-import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, spendCoins } from "../storage";
+import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, saveUpgrade, spendCoins, upgradeLevel } from "../storage";
 import {
   drawGarage,
   drawHome,
@@ -33,7 +33,7 @@ import { LevelRun } from "./Level";
 import { Particles } from "./Particles";
 import { Renderer } from "./Renderer";
 import { getPaint, PAINTS } from "./paints";
-import { getVehicleSpec, VEHICLES } from "./Vehicle";
+import { getVehicleSpec, MAX_UPGRADE, UPGRADE_PRICES, upgradedSpec, VEHICLES } from "./Vehicle";
 
 /**
  * ready    – level loaded, waiting for the first input
@@ -154,6 +154,12 @@ export class Game {
         addOwnedVehicle(id);
         saveVehicle(id);
       }),
+      buyUpgrade: (kind) => {
+        const veh = loadSave().vehicle;
+        const level = upgradeLevel(veh, kind);
+        if (level >= MAX_UPGRADE) return;
+        this.buy(UPGRADE_PRICES[level], () => saveUpgrade(veh, kind, level + 1));
+      },
       buyPaint: (id) => this.buy(PAINTS.find((p) => p.id === id)?.price ?? Infinity, () => {
         addOwnedPaint(id);
         savePaint(loadSave().vehicle, id);
@@ -254,7 +260,9 @@ export class Game {
 
   loadLevel(id: number): void {
     this.levelId = id;
-    this.beginRun(new LevelRun(getLevel(id), getVehicleSpec(loadSave().vehicle)));
+    const save = loadSave();
+    const spec = upgradedSpec(getVehicleSpec(save.vehicle), save.upgrades[save.vehicle] ?? {});
+    this.beginRun(new LevelRun(getLevel(id), spec));
   }
 
   /** Shared setup for a fresh attempt or a continue from a checkpoint. */

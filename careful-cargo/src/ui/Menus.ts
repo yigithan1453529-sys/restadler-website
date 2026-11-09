@@ -1,9 +1,18 @@
 import { VIEW_W } from "../game/Camera";
 import { getPaint, PAINTS } from "../game/paints";
 import { COLORS, drawVehiclePreview } from "../game/Renderer";
-import { getVehicleSpec, VEHICLES, type VehicleSpec } from "../game/Vehicle";
-import { t } from "../i18n";
-import { loadSave } from "../storage";
+import {
+  getVehicleSpec,
+  MAX_UPGRADE,
+  UPGRADE_KINDS,
+  UPGRADE_PRICES,
+  upgradedSpec,
+  VEHICLES,
+  type UpgradeKind,
+  type VehicleSpec,
+} from "../game/Vehicle";
+import { t, type TextKey } from "../i18n";
+import { loadSave, upgradeLevel } from "../storage";
 import type { Button } from "./Button";
 import { drawCoin, drawCoinPill, drawIcon, drawStar, drawSurface, outlinedText, plainText, roundRect, SURFACES } from "./draw";
 import { drawDim } from "./Screens";
@@ -29,6 +38,7 @@ export interface MenuHost {
   selectPaint(id: string): void;
   buyVehicle(id: string): void;
   buyPaint(id: string): void;
+  buyUpgrade(kind: UpgradeKind): void;
 }
 
 function card(ctx: CanvasRenderingContext2D, b: Button, kind: "normal" | "selected" | "disabled" | "owned"): void {
@@ -169,6 +179,34 @@ export function garageButtons(host: MenuHost): Button[] {
       action: () => (owned ? host.selectVehicle(spec.id) : host.openShop("vehicles")),
     });
   });
+  // upgrade buttons next to the upgrade rows
+  UPGRADE_KINDS.forEach((kind, i) => {
+    const level = upgradeLevel(save.vehicle, kind);
+    const max = level >= MAX_UPGRADE;
+    const price = UPGRADE_PRICES[Math.min(level, MAX_UPGRADE - 1)];
+    const afford = save.coins >= price;
+    list.push({
+      x: 470,
+      y: 412 + i * 44,
+      w: 150,
+      h: 38,
+      disabled: max,
+      render: (c, b) => {
+        roundRect(c, b.x, b.y, b.w, b.h, 19);
+        c.fillStyle = max ? "#3BCEAC" : afford ? "#FFD23F" : "#DDDDDD";
+        c.fill();
+        c.lineWidth = 2.5;
+        c.strokeStyle = COLORS.outline;
+        c.stroke();
+        if (max) plainText(c, "MAX", b.x + b.w / 2, b.y + b.h / 2 + 1, 18);
+        else {
+          drawCoin(c, b.x + 30, b.y + b.h / 2, 11);
+          plainText(c, `+  ${price}`, b.x + 48, b.y + b.h / 2 + 1, 18, afford ? COLORS.outline : "#888888", "left");
+        }
+      },
+      action: () => host.buyUpgrade(kind),
+    });
+  });
   // paint swatches (only bought ones) under the big preview
   const spec = getVehicleSpec(save.vehicle);
   const chosenPaint = save.paint[spec.id] ?? "original";
@@ -176,7 +214,7 @@ export function garageButtons(host: MenuHost): Button[] {
   owned.forEach((paint, i) => {
     list.push({
       x: 70 + i * 74,
-      y: 610,
+      y: 618,
       w: 64,
       h: 64,
       render: (c, b) => {
@@ -201,7 +239,7 @@ export function garageButtons(host: MenuHost): Button[] {
   if (owned.length < PAINTS.length) {
     list.push({
       x: 70 + owned.length * 74,
-      y: 610,
+      y: 618,
       w: 64,
       h: 64,
       icon: "shop",
@@ -209,20 +247,6 @@ export function garageButtons(host: MenuHost): Button[] {
     });
   }
   return list;
-}
-
-function statBar(ctx: CanvasRenderingContext2D, label: string, value: number, y: number): void {
-  plainText(ctx, label, 70, y, 22, "#FFFFFF", "left");
-  roundRect(ctx, 200, y - 11, 360, 22, 11);
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.fill();
-  roundRect(ctx, 200, y - 11, Math.max(22, 360 * Math.min(1, value)), 22, 11);
-  ctx.fillStyle = "#FFD23F";
-  ctx.fill();
-  roundRect(ctx, 200, y - 11, 360, 22, 11);
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = COLORS.outline;
-  ctx.stroke();
 }
 
 export function drawGarage(ctx: CanvasRenderingContext2D): void {
@@ -238,10 +262,23 @@ export function drawGarage(ctx: CanvasRenderingContext2D): void {
   ctx.fill();
   preview(ctx, spec, 330, 290, 92);
   outlinedText(ctx, t(spec.name), 330, 140, 38, "#FFD23F");
-  statBar(ctx, t("garage.speed"), spec.maxSpeed / 27, 450);
-  statBar(ctx, t("garage.power"), spec.driveForce / 35, 492);
-  statBar(ctx, t("garage.walls"), (spec.bed.wallTop - 0.2) / 0.55, 534);
-  plainText(ctx, t("garage.colors"), 70, 588, 22, "#FFFFFF", "left");
+  // upgrade rows: name and three level pips
+  UPGRADE_KINDS.forEach((kind, i) => {
+    const y = 431 + i * 44;
+    const level = upgradeLevel(save.vehicle, kind);
+    plainText(ctx, t(`upgrade.${kind}` as TextKey), 70, y, 21, "#FFFFFF", "left");
+    for (let k = 0; k < MAX_UPGRADE; k++) {
+      roundRect(ctx, 260 + k * 64, y - 10, 56, 20, 10);
+      ctx.fillStyle = k < level ? "#FFD23F" : "rgba(255,255,255,0.25)";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = COLORS.outline;
+      ctx.stroke();
+    }
+  });
+  const up = upgradedSpec(spec, save.upgrades[spec.id] ?? {});
+  plainText(ctx, `${Math.round(up.maxSpeed * 3.6)} km/h`, 330, 395, 20, "#FFFFFF");
+  plainText(ctx, t("garage.colors"), 70, 600, 20, "#FFFFFF", "left");
 }
 
 // ---------------- Shop ----------------

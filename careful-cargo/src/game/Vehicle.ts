@@ -43,6 +43,8 @@ export interface VehicleSpec {
   springHz: number;
   /** Number of forward gears (automatic gearbox). */
   gears: number;
+  /** Spring damping ratio (default 0.7). */
+  damping?: number;
 }
 
 const BODY: Pt[] = [
@@ -462,6 +464,38 @@ export const VEHICLES: VehicleSpec[] = [
   },
 ];
 
+// ---------- upgrades ----------
+
+export type UpgradeKind = "engine" | "suspension" | "brakes" | "walls";
+export const UPGRADE_KINDS: UpgradeKind[] = ["engine", "suspension", "brakes", "walls"];
+export const MAX_UPGRADE = 3;
+/** Coins for upgrade level 1, 2 and 3. */
+export const UPGRADE_PRICES = [80, 160, 300];
+export type UpgradeLevels = Partial<Record<UpgradeKind, number>>;
+
+/**
+ * A copy of the spec with the bought upgrades applied:
+ * engine = faster and stronger, suspension = softer landings,
+ * brakes = stronger brakes, walls = higher bed walls.
+ */
+export function upgradedSpec(spec: VehicleSpec, up: UpgradeLevels): VehicleSpec {
+  const e = up.engine ?? 0;
+  const su = up.suspension ?? 0;
+  const b = up.brakes ?? 0;
+  const w = up.walls ?? 0;
+  const wallTop = spec.bed.wallTop + 0.06 * w;
+  return {
+    ...spec,
+    maxSpeed: spec.maxSpeed * (1 + 0.07 * e),
+    driveForce: spec.driveForce * (1 + 0.1 * e),
+    brakeForce: spec.brakeForce * (1 + 0.15 * b),
+    springHz: spec.springHz * (1 - 0.07 * su),
+    damping: Math.min(1, (spec.damping ?? 0.7) + 0.07 * su),
+    bed: { ...spec.bed, wallTop },
+    rearWall: wall(spec.bed.left, wallTop),
+  };
+}
+
 export function getVehicleSpec(id: string): VehicleSpec {
   return VEHICLES.find((v) => v.id === id) ?? VEHICLES[0];
 }
@@ -535,7 +569,7 @@ export class Vehicle {
             motorSpeed: 0,
             maxMotorTorque: ROLLING_FORCE * r,
             frequencyHz: spec.springHz,
-            dampingRatio: 0.7,
+            dampingRatio: spec.damping ?? 0.7,
           },
           this.chassis,
           wheel,

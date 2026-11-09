@@ -38,6 +38,7 @@ export interface SaveData {
   records: Record<number, LevelRecord>; // best result per level
   friends: Record<string, FriendData>; // keyed by the friend's name key
   v: number; // save format version
+  upgrades: Record<string, Record<string, number>>; // per vehicle: upgrade kind → level
 }
 
 export interface LevelRecord {
@@ -64,6 +65,7 @@ function defaults(): SaveData {
     records: {},
     friends: {},
     v: SAVE_VERSION,
+    upgrades: {},
   };
 }
 
@@ -119,6 +121,14 @@ export function loadSave(): SaveData {
       }
       if (!data.owned.includes(data.vehicle)) data.vehicle = "van";
       const oldIds = parsed.v !== SAVE_VERSION;
+      if (parsed.upgrades && typeof parsed.upgrades === "object") {
+        for (const [veh, ups] of Object.entries(parsed.upgrades)) {
+          if (!ups || typeof ups !== "object") continue;
+          const clean: Record<string, number> = {};
+          for (const [k, lv] of Object.entries(ups)) if (typeof lv === "number") clean[k] = Math.max(0, Math.min(3, Math.floor(lv)));
+          data.upgrades[veh] = clean;
+        }
+      }
       if (typeof parsed.name === "string") data.name = parsed.name;
       data.records = cleanRecords(parsed.records);
       if (parsed.friends && typeof parsed.friends === "object") {
@@ -241,5 +251,15 @@ export function removeFriend(name: string): void {
 export function skipLevelSave(levelId: number, levelCount: number): void {
   const data = loadSave();
   data.unlocked = Math.min(levelCount, Math.max(data.unlocked, levelId + 1));
+  write();
+}
+
+export function upgradeLevel(vehicle: string, kind: string): number {
+  return loadSave().upgrades[vehicle]?.[kind] ?? 0;
+}
+
+export function saveUpgrade(vehicle: string, kind: string, level: number): void {
+  const data = loadSave();
+  data.upgrades[vehicle] = { ...(data.upgrades[vehicle] ?? {}), [kind]: level };
   write();
 }
