@@ -22,6 +22,8 @@ export interface LevelData {
   checkpoints: number[];
   hints: { x: number; text: TextKey }[];
   objects?: LevelObject[];
+  /** A trailer behind the vehicle carrying extra cargo. */
+  trailer?: { cargo: { type: CargoType; count: number; perRow?: number }[] };
   /** Rain makes the road slippery; wind pushes the cargo backwards. */
   weather?: "rain" | "wind";
   /** Ice cream: seconds of driving until the first scoop melts (default 40). */

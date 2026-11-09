@@ -6,6 +6,7 @@ import { CUSTOMER_KINDS, drawCustomer, type Mood } from "./Characters";
 import { Obstacles } from "./Obstacles";
 import { drawSkyTraffic } from "./SkyTraffic";
 import { THEMES, type Theme } from "./themes";
+import { TRAILER_WHEEL } from "./Trailer";
 import { getVehicleSpec, type VehicleSpec } from "./Vehicle";
 
 export const COLORS = {
@@ -1465,7 +1466,37 @@ export class Renderer {
     this.drawFlag(fx, gy, lw, "#FFFFFF", true, Math.sin(time * 3));
   }
 
+  private drawTrailer(run: LevelRun, lw: number): void {
+    const tr = run.trailer;
+    if (!tr) return;
+    const ctx = this.ctx;
+    const w = tr.wheel.getPosition();
+    drawWheel(ctx, w.x, w.y, TRAILER_WHEEL.r, tr.wheel.getAngle(), lw);
+    const p = tr.body.getPosition();
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(tr.body.getAngle());
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.fillStyle = "#7A8B99";
+    ctx.fillRect(0.9, -0.09, 0.52, 0.08);
+    ctx.strokeRect(0.9, -0.09, 0.52, 0.08);
+    ctx.fillStyle = this.paint ?? run.vehicle.spec.color;
+    ctx.fillRect(-0.92, -0.12, 1.84, 0.24);
+    ctx.strokeRect(-0.92, -0.12, 1.84, 0.24);
+    ctx.fillRect(-0.92, 0.12, 0.1, 0.3);
+    ctx.strokeRect(-0.92, 0.12, 0.1, 0.3);
+    ctx.fillRect(0.82, 0.12, 0.1, 0.3);
+    ctx.strokeRect(0.82, 0.12, 0.1, 0.3);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(-0.92, -0.03, 1.84, 0.06);
+    ctx.fillStyle = "#E8283C";
+    ctx.fillRect(-0.95, -0.02, 0.06, 0.1);
+    ctx.restore();
+  }
+
   private drawVehicle(run: LevelRun, lw: number): void {
+    this.drawTrailer(run, lw);
     const ctx = this.ctx;
     const v = run.vehicle;
     const spec = v.spec;

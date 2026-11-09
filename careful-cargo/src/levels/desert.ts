@@ -26,9 +26,13 @@ export const desertLevels: LevelData[] = [
     terrain: [[0, 0], [22, 0], [30, 1.2], [38, 0], ...b8.terrain, [70, 0], [80, 1.4], [90, 0], [130, 0]],
     objects: [b8.object],
     cargo: [{ type: "crate", count: 3 }],
+    trailer: { cargo: [{ type: "crate", count: 2 }] },
     finishX: 110,
     checkpoints: [],
-    hints: [{ x: 30, text: "hint.bridge" }],
+    hints: [
+      { x: 0, text: "hint.trailer" },
+      { x: 30, text: "hint.bridge" },
+    ],
     killY: -4,
   },
   {

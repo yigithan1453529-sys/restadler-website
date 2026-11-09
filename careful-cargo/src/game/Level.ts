@@ -3,6 +3,7 @@ import { makePickups, PICKUP_VALUE, type Pickup } from "../levels/pickups";
 import type { LevelData } from "../levels/types";
 import { CargoManager, CargoItem } from "./Cargo";
 import { DriveInput, Vehicle, VEHICLES, type VehicleSpec } from "./Vehicle";
+import { Trailer } from "./Trailer";
 import { GameWorld, PHYSICS_STEP } from "./World";
 
 export type FailReason = "allLost" | "flipped" | "fell";
@@ -20,6 +21,7 @@ export class LevelRun {
   readonly gw: GameWorld;
   readonly vehicle: Vehicle;
   readonly cargo: CargoManager;
+  readonly trailer: Trailer | null;
   readonly killY: number;
   state: RunState = "running";
   failReason: FailReason | null = null;
@@ -58,7 +60,8 @@ export class LevelRun {
     const startX = resume ? resume.x : START_X;
     const y = heightAt(this.gw.terrain, startX) + 1.05;
     this.vehicle = new Vehicle(this.gw, { x: startX, y }, spec);
-    this.cargo = new CargoManager(this.gw, this.vehicle, level);
+    this.trailer = level.trailer ? new Trailer(this.gw, this.vehicle) : null;
+    this.cargo = new CargoManager(this.gw, this.vehicle, level, this.trailer ?? undefined);
     this.killY = level.killY ?? this.gw.minY - 6;
     this.pickups = makePickups(level, this.gw.terrain);
     if (resume) {

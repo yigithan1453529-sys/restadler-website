@@ -1,5 +1,6 @@
 import { Body, Box, Circle, Vec2Value } from "planck";
 import type { CargoType, LevelData } from "../levels/types";
+import type { Trailer } from "./Trailer";
 import type { Vehicle } from "./Vehicle";
 import type { FixtureTag, GameWorld } from "./World";
 
@@ -65,16 +66,31 @@ export class CargoManager {
   newlyBumped: CargoItem[] = [];
   private toDestroy: CargoItem[] = [];
 
+  private meltTime = 40;
+  /** What cargo is placed on while spawning: the vehicle, then the trailer. */
+  private carrier: { body: Body; bed: Vehicle["spec"]["bed"] };
+
   constructor(
     private gw: GameWorld,
     private vehicle: Vehicle,
     level: LevelData,
+    private trailer?: Trailer,
   ) {
-    for (const spec of level.cargo) {
+    this.meltTime = level.meltTime ?? 40;
+    this.carrier = { body: vehicle.chassis, bed: vehicle.spec.bed };
+    this.spawnAll(level.cargo);
+    if (trailer && level.trailer) {
+      this.carrier = { body: trailer.body, bed: trailer.bed };
+      this.spawnAll(level.trailer.cargo);
+    }
+  }
+
+  private spawnAll(specs: LevelData["cargo"]): void {
+    for (const spec of specs) {
       if (spec.type === "crate") this.spawnCrates(spec.count, spec.perRow);
       else if (spec.type === "egg") this.spawnEggs(spec.count);
       else if (spec.type === "cake") this.spawnCake(Math.min(spec.count, CARGO.cakeLayers.length));
-      else if (spec.type === "icecream") this.spawnScoops(spec.count, level.meltTime ?? 40);
+      else if (spec.type === "icecream") this.spawnScoops(spec.count, this.meltTime);
       else if (spec.type === "aquarium") this.spawnAquarium();
       else if (spec.type === "bowling") this.spawnBowling(spec.count);
       else if (spec.type === "gift") this.spawnGifts(Math.min(spec.count, CARGO.giftLayers.length));
@@ -162,7 +178,7 @@ export class CargoManager {
   }
 
   private get bed(): Vehicle["spec"]["bed"] {
-    return this.vehicle.spec.bed;
+    return this.carrier.bed;
   }
 
   private bedWidth(): number {
@@ -170,7 +186,7 @@ export class CargoManager {
   }
 
   private localToWorld(x: number, y: number): Vec2Value {
-    return this.vehicle.chassis.getWorldPoint({ x, y });
+    return this.carrier.body.getWorldPoint({ x, y });
   }
 
   private add(type: CargoType, body: Body, hw: number, hh: number, layer = 0): void {
@@ -321,11 +337,13 @@ export class CargoManager {
     }
     this.toDestroy.length = 0;
 
-    const bed = this.vehicle.bedCenter();
+    const beds = [this.vehicle.bedCenter()];
+    if (this.trailer) beds.push(this.trailer.bedCenter());
     for (const item of this.items) {
       if (item.lost || !item.body) continue;
       const p = item.body.getPosition();
-      if (Math.hypot(p.x - bed.x, p.y - bed.y) > CARGO.maxDistance) this.markLost(item, "away");
+      const d = Math.min(...beds.map((b) => Math.hypot(p.x - b.x, p.y - b.y)));
+      if (d > CARGO.maxDistance) this.markLost(item, "away");
     }
   }
 }

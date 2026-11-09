@@ -563,13 +563,14 @@ export class Vehicle {
     const wheelTag: FixtureTag = { kind: "wheel" };
 
     this.chassis = world.createBody({ type: "dynamic", position });
-    this.chassis.createFixture(new Polygon(spec.body), { density: spec.density, friction: 0.6, userData: carTag });
-    this.chassis.createFixture(new Polygon(spec.rearWall), { density: 1, friction: 0.6, userData: carTag });
-    this.chassis.createFixture(new Polygon(spec.cabin), { density: 0.8, friction: 0.6, userData: carTag });
+    const group = -2; // same group as a trailer: they never collide with each other
+    this.chassis.createFixture(new Polygon(spec.body), { density: spec.density, friction: 0.6, userData: carTag, filterGroupIndex: group });
+    this.chassis.createFixture(new Polygon(spec.rearWall), { density: 1, friction: 0.6, userData: carTag, filterGroupIndex: group });
+    this.chassis.createFixture(new Polygon(spec.cabin), { density: 0.8, friction: 0.6, userData: carTag, filterGroupIndex: group });
 
     const mkWheel = (w: { x: number; y: number; r: number }): Body => {
       const b = world.createBody({ type: "dynamic", position: { x: position.x + w.x, y: position.y + w.y } });
-      b.createFixture(new Circle(w.r), { density: 1, friction: 1.0, userData: wheelTag });
+      b.createFixture(new Circle(w.r), { density: 1, friction: 1.0, userData: wheelTag, filterGroupIndex: group });
       return b;
     };
     this.rearWheel = mkWheel(spec.rear);

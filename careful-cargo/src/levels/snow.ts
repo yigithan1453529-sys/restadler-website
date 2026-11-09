@@ -27,6 +27,7 @@ export const snowLevels: LevelData[] = [
     world: "snow",
     terrain: [[0, 0], [20, 0], [35, 1.5], [50, 0], [60, 0], ...bump(64, 0.6, 5), ...bump(74, 0.8, 5), [85, 0], [100, 2], [115, 0], [150, 0]],
     cargo: [{ type: "aquarium", count: 1 }],
+    trailer: { cargo: [{ type: "crate", count: 2 }] },
     finishX: 130,
     checkpoints: [],
     hints: [{ x: 0, text: "hint.aquarium" }],
