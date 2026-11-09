@@ -4,6 +4,13 @@ import { drawIsland, drawMap, islandButtons, islandOf, mapButtons, type MapHost 
 import { poki } from "../platform/poki";
 import { addCoins, addOwnedPaint, addOwnedVehicle, loadSave, saveLevelResult, skipLevelSave, saveMuted, savePaint, saveRecord, saveVehicle, saveUpgrade, spendCoins, upgradeLevel } from "../storage";
 import {
+  dailyButtons,
+  drawDaily,
+  drawHomeBadges,
+  drawMissions,
+  drawTrophies,
+  missionButtons,
+  trophyButtons,
   drawGarage,
   drawHome,
   drawRanking,
@@ -15,6 +22,7 @@ import {
   shopButtons,
   type MenuHost,
 } from "../ui/Menus";
+import { addStats, claimGift, claimMission, pendingGift, TROPHY_REWARD, type StatKey, type Trophy } from "../progress";
 import { bestFriendRecord, displayName, formatTime, friendRanking, inviteFriend, receiveChallenge, rerollName } from "../social";
 import { Button, drawButton, hitButton, sameButton } from "../ui/Button";
 import { drawHint, drawHud, drawPickedCoins, drawSpeedometer, drawTimer } from "../ui/Hud";
@@ -47,6 +55,9 @@ import { getVehicleSpec, MAX_UPGRADE, UPGRADE_PRICES, upgradedSpec, VEHICLES } f
  * garage   – choose vehicle and color
  * shop     – buy vehicles and colors with coins
  * ranking  – friends ranking and own records
+ * missions – three daily missions
+ * trophies – trophies (achievements)
+ * daily    – the daily gift popup over the home screen
  */
 export type GameState =
   | "ready"
@@ -59,7 +70,10 @@ export type GameState =
   | "home"
   | "garage"
   | "shop"
-  | "ranking";
+  | "ranking"
+  | "missions"
+  | "trophies"
+  | "daily";
 
 const FAIL_TEXT: Record<string, TextKey> = {
   allLost: "fail.allLost",
@@ -98,6 +112,7 @@ export class Game {
   private starsPopped = 0;
   private resultStars = 0;
   private coinsEarned = 0;
+  private statsAfterWin: Partial<Record<StatKey, number>> = {};
   private coinsDoubled = false;
   private adRunning = false;
   private failCount = new Map<number, number>();
@@ -139,6 +154,26 @@ export class Game {
         void inviteFriend().then((msg) => (this.toast = { text: msg, good: true, left: 2.5 }));
       },
       rerollName: () => rerollName(),
+      openMissions: () => this.setState("missions"),
+      openTrophies: () => {
+        this.setState("trophies");
+        this.trophyToasts(addStats({}));
+      },
+      claimMission: (id) => {
+        if (claimMission(id)) {
+          this.audio.coin(true);
+          this.particles.confettiBurst(VIEW_W);
+        }
+      },
+      claimGift: () => {
+        const coins = claimGift();
+        if (coins > 0) {
+          this.audio.success();
+          this.particles.confettiBurst(VIEW_W);
+          this.toast = { text: `+${coins}`, good: true, left: 2 };
+        }
+        this.setState("home");
+      },
       play: () => this.loadLevel(this.levelId),
       openLevels: () => this.openLevels(),
       openGarage: () => this.setState("garage"),
@@ -225,7 +260,7 @@ export class Game {
     // away (level 1, no menu); everybody else starts on the home screen.
     this.loadLevel(Math.min(save.unlocked, levels.length));
     const isNewPlayer = Object.keys(save.stars).length === 0 && save.coins === 0;
-    if (!isNewPlayer) this.setState("home");
+    if (!isNewPlayer) this.goHome();
     // Opened with a friend's challenge link?
     const friend = receiveChallenge();
     if (friend) {
@@ -235,14 +270,26 @@ export class Game {
   }
 
   private goHome(): void {
-    this.setState("home");
+    // The daily gift pops up over the home screen once a day.
+    this.setState(pendingGift() ? "daily" : "home");
     this.input.releaseAll();
+  }
+
+  /** Shows a message for every newly unlocked trophy (one after another). */
+  private trophyToasts(fresh: Trophy[]): void {
+    fresh.forEach((tr, i) => {
+      window.setTimeout(() => {
+        this.toast = { text: t("trophy.unlocked", { name: t(tr.name), n: TROPHY_REWARD }), good: true, left: 3 };
+        this.audio.coin(true);
+      }, 1800 + i * 3200);
+    });
   }
 
   /** Pays with coins and runs `give` on success; shows a short message either way. */
   private buy(price: number, give: () => void): void {
     if (spendCoins(price)) {
       give();
+      this.trophyToasts(addStats({ purchases: 1 }));
       this.audio.success();
       this.particles.confettiBurst(VIEW_W);
       this.toast = { text: t("shop.bought"), good: true, left: 1.6 };
@@ -253,7 +300,9 @@ export class Game {
   }
 
   private isMenuState(): boolean {
-    return ["paused", "won", "failed", "levels", "island", "home", "garage", "shop", "ranking"].includes(this.state);
+    return ["paused", "won", "failed", "levels", "island", "home", "garage", "shop", "ranking", "missions", "trophies", "daily"].includes(
+      this.state,
+    );
   }
 
   // ---------- state changes ----------
@@ -411,7 +460,7 @@ export class Game {
       else if (["ready", "playing", "paused", "won"].includes(this.state)) this.restart();
       return;
     }
-    if (code === "Escape" && (this.state === "garage" || this.state === "shop" || this.state === "ranking")) {
+    if (code === "Escape" && ["garage", "shop", "ranking", "missions", "trophies"].includes(this.state)) {
       this.goHome();
       return;
     }
@@ -424,7 +473,7 @@ export class Game {
     }
     if (code === "Enter" || code === "Space" || code === "NumpadEnter") {
       const primary = this.buttons.find((b) => b.primary);
-      if (primary && (this.isMenuState() || this.state === "ready") && this.state !== "shop" && this.state !== "ranking") {
+      if (primary && (this.isMenuState() || this.state === "ready") && !["shop", "ranking", "missions"].includes(this.state)) {
         this.audio.click();
         primary.action();
       }
@@ -555,8 +604,20 @@ export class Game {
       const islandFinale = isl.levels[isl.levels.length - 1].id === this.levelId;
       this.coinsEarned = run.stars * 10 + (firstClear ? 20 : 0) + (firstClear && islandFinale ? ISLAND_BONUS : 0) + run.pickedValue;
       if (firstClear && islandFinale) this.toast = { text: t("island.complete", { n: ISLAND_BONUS }), good: true, left: 4 };
+      const kept = run.cargo.items.filter((i) => !i.lost);
+      this.statsAfterWin = {
+        levelsWon: 1,
+        threeStars: run.stars === 3 ? 1 : 0,
+        cratesDelivered: kept.filter((i) => i.type === "crate").length,
+        eggsDelivered: kept.filter((i) => i.type === "egg").length,
+        cargoDelivered: kept.length,
+        coinsPicked: run.pickups.filter((p) => p.taken && p.kind === "coin").length,
+        starsPicked: run.pickups.some((p) => p.taken && p.kind === "star") ? 1 : 0,
+        finalesWon: firstClear && islandFinale ? 1 : 0,
+      };
       addCoins(this.coinsEarned);
       this.newRecord = saveRecord(this.levelId, run.stars, run.time);
+      this.trophyToasts(addStats({ ...this.statsAfterWin, recordsSet: this.newRecord ? 1 : 0 }));
       const friend = bestFriendRecord(this.levelId);
       this.rival = null;
       if (friend) {
@@ -677,6 +738,12 @@ export class Game {
       list.push(...shopButtons(this.host));
     } else if (s === "ranking") {
       list.push(...rankingButtons(this.host));
+    } else if (s === "missions") {
+      list.push(...missionButtons(this.host));
+    } else if (s === "trophies") {
+      list.push(...trophyButtons(this.host));
+    } else if (s === "daily") {
+      list.push(...dailyButtons(this.host));
     }
     return list;
   }
@@ -733,17 +800,23 @@ export class Game {
       drawFailScreen(ctx, t(FAIL_TEXT[run.failReason ?? "allLost"]), this.stateTime);
     } else if (s === "paused") {
       drawPauseScreen(ctx, t("pause.title"));
-    } else if (s === "home") {
+    } else if (s === "home" || s === "daily") {
       drawHome(ctx, this.host);
+      if (s === "daily") drawDaily(ctx, this.time);
     } else if (s === "garage") {
       drawGarage(ctx);
     } else if (s === "shop") {
       drawShop(ctx);
     } else if (s === "ranking") {
       drawRanking(ctx, this.host, friendRanking(), levels.length);
+    } else if (s === "missions") {
+      drawMissions(ctx);
+    } else if (s === "trophies") {
+      drawTrophies(ctx);
     }
 
     for (const b of this.buttons) drawButton(ctx, b, sameButton(b, this.hover), sameButton(b, this.pressed));
+    if (s === "home") drawHomeBadges(ctx);
     drawToast(ctx, this.toast);
     this.particles.drawConfetti(ctx);
   }

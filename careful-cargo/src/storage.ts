@@ -39,6 +39,18 @@ export interface SaveData {
   friends: Record<string, FriendData>; // keyed by the friend's name key
   v: number; // save format version
   upgrades: Record<string, Record<string, number>>; // per vehicle: upgrade kind → level
+  progress: ProgressData; // statistics, daily gift, missions, trophies (see progress.ts)
+}
+
+export interface ProgressData {
+  stats: Record<string, number>;
+  daily: { claimed: string; streak: number };
+  missions: { date: string; list: { id: string; base: number; claimed: boolean }[] };
+  trophies: string[];
+}
+
+function defaultProgress(): ProgressData {
+  return { stats: {}, daily: { claimed: "", streak: 0 }, missions: { date: "", list: [] }, trophies: [] };
 }
 
 export interface LevelRecord {
@@ -66,6 +78,7 @@ function defaults(): SaveData {
     friends: {},
     v: SAVE_VERSION,
     upgrades: {},
+    progress: defaultProgress(),
   };
 }
 
@@ -121,6 +134,21 @@ export function loadSave(): SaveData {
       }
       if (!data.owned.includes(data.vehicle)) data.vehicle = "van";
       const oldIds = parsed.v !== SAVE_VERSION;
+      const pr = parsed.progress as Partial<ProgressData> | undefined;
+      if (pr && typeof pr === "object") {
+        if (pr.stats && typeof pr.stats === "object")
+          for (const [k, v] of Object.entries(pr.stats)) if (typeof v === "number" && v >= 0) data.progress.stats[k] = v;
+        if (pr.daily && typeof pr.daily.claimed === "string")
+          data.progress.daily = { claimed: pr.daily.claimed, streak: Math.max(0, Number(pr.daily.streak) || 0) };
+        if (pr.missions && typeof pr.missions.date === "string" && Array.isArray(pr.missions.list))
+          data.progress.missions = {
+            date: pr.missions.date,
+            list: pr.missions.list
+              .filter((m) => m && typeof m.id === "string")
+              .map((m) => ({ id: m.id, base: Number(m.base) || 0, claimed: !!m.claimed })),
+          };
+        data.progress.trophies = strings(pr.trophies);
+      }
       if (parsed.upgrades && typeof parsed.upgrades === "object") {
         for (const [veh, ups] of Object.entries(parsed.upgrades)) {
           if (!ups || typeof ups !== "object") continue;
@@ -261,5 +289,9 @@ export function upgradeLevel(vehicle: string, kind: string): number {
 export function saveUpgrade(vehicle: string, kind: string, level: number): void {
   const data = loadSave();
   data.upgrades[vehicle] = { ...(data.upgrades[vehicle] ?? {}), [kind]: level };
+  write();
+}
+
+export function saveProgress(): void {
   write();
 }

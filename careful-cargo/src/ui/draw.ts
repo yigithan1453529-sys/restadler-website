@@ -2,7 +2,7 @@ import { COLORS, FONT } from "../game/Renderer";
 
 export { FONT };
 
-export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice" | "ad";
+export type IconName = "restart" | "pause" | "play" | "soundOn" | "soundOff" | "menu" | "lock" | "next" | "prev" | "close" | "home" | "garage" | "shop" | "trophy" | "share" | "dice" | "ad" | "check";
 
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   const rr = Math.min(r, w / 2, h / 2);
@@ -72,11 +72,11 @@ export function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, r:
 }
 
 /** Draws an icon centered at (x, y) with size s. */
-export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: number, y: number, s: number): void {
+export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: number, y: number, s: number, color: string = COLORS.outline): void {
   ctx.save();
   ctx.translate(x, y);
-  ctx.fillStyle = COLORS.outline;
-  ctx.strokeStyle = COLORS.outline;
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.lineWidth = s * 0.14;
@@ -235,6 +235,17 @@ export function drawIcon(ctx: CanvasRenderingContext2D, icon: IconName, x: numbe
         ctx.arc(px * h, py * h, h * 0.11, 0, Math.PI * 2);
         ctx.fill();
       }
+      break;
+    case "check":
+      roundRect(ctx, -h * 0.65, -h * 0.65, h * 1.3, h * 1.3, h * 0.25);
+      ctx.fill();
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = s * 0.12;
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.35, 0);
+      ctx.lineTo(-h * 0.08, h * 0.28);
+      ctx.lineTo(h * 0.38, -h * 0.3);
+      ctx.stroke();
       break;
     case "ad":
       // video badge: marks buttons that show an ad

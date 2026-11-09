@@ -17,6 +17,15 @@ import type { Button } from "./Button";
 import { drawCoin, drawCoinPill, drawIcon, drawStar, drawSurface, outlinedText, plainText, roundRect, SURFACES } from "./draw";
 import { drawDim } from "./Screens";
 import { formatTime, type RankRow } from "../social";
+import {
+  claimableMissions,
+  MISSION_REWARD,
+  missions,
+  pendingGift,
+  stat,
+  TROPHIES,
+  trophyUnlocked,
+} from "../progress";
 
 /** What the menu screens need from the game. */
 export interface MenuHost {
@@ -28,6 +37,10 @@ export interface MenuHost {
   openRanking(tab?: "friends" | "records"): void;
   invite(): void;
   rerollName(): void;
+  openMissions(): void;
+  openTrophies(): void;
+  claimMission(id: string): void;
+  claimGift(): void;
   play(): void;
   openLevels(): void;
   openGarage(): void;
@@ -136,7 +149,9 @@ export function homeButtons(host: MenuHost): Button[] {
     { x: 400, y: 440, w: 230, h: 92, label: t("btn.garage"), icon: "garage", action: () => host.openGarage() },
     { x: 650, y: 440, w: 230, h: 92, label: t("btn.shop"), icon: "shop", action: () => host.openShop() },
     { x: 900, y: 440, w: 230, h: 92, label: t("btn.ranking"), icon: "trophy", action: () => host.openRanking() },
-    { x: VIEW_W / 2 - 170, y: 568, w: 340, h: 76, label: t("btn.invite"), icon: "share", action: () => host.invite() },
+    { x: 230, y: 562, w: 260, h: 76, label: t("btn.missions"), icon: "check", action: () => host.openMissions() },
+    { x: 510, y: 562, w: 260, h: 76, label: t("btn.trophies"), icon: "trophy", action: () => host.openTrophies() },
+    { x: 790, y: 562, w: 260, h: 76, label: t("btn.invite"), icon: "share", action: () => host.invite() },
     { x: 20, y: 18, w: 68, h: 68, icon: host.muted ? "soundOff" : "soundOn", action: () => host.toggleMute() },
   ];
 }
@@ -146,6 +161,20 @@ export function drawHome(ctx: CanvasRenderingContext2D, host: MenuHost): void {
   drawLogo(ctx, VIEW_W / 2, 140 + Math.sin(host.time * 2) * 5);
   drawCoinPill(ctx, VIEW_W - 220, 22, loadSave().coins);
   outlinedText(ctx, t("hud.level", { n: host.levelId }), VIEW_W / 2, 400, 30, "#FFFFFF");
+}
+
+/** Red counter badge (drawn after the buttons). */
+export function drawHomeBadges(ctx: CanvasRenderingContext2D): void {
+  const n = claimableMissions();
+  if (n <= 0) return;
+  ctx.beginPath();
+  ctx.arc(478, 566, 16, 0, Math.PI * 2);
+  ctx.fillStyle = "#E84A5F";
+  ctx.fill();
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.stroke();
+  plainText(ctx, String(n), 478, 567, 18, "#FFFFFF");
 }
 
 // ---------------- Garage ----------------
@@ -475,4 +504,128 @@ export function drawToast(ctx: CanvasRenderingContext2D, toast: { text: string; 
   drawSurface(ctx, VIEW_W / 2 - w / 2, 14, w, 52, 26, toast.good ? "#6EE7C2" : "#FF9B9B", toast.good ? "#2FBF95" : "#F06262", toast.good ? "#1E8E6D" : "#B83B3B", 4);
   plainText(ctx, toast.text, VIEW_W / 2, 41, 24, "#FFFFFF");
   ctx.restore();
+}
+
+// ---------------- Missions ----------------
+
+export function missionButtons(host: MenuHost): Button[] {
+  const list: Button[] = [backButton(host)];
+  missions().forEach((m, i) => {
+    const done = m.progress >= m.target;
+    list.push({
+      x: 900,
+      y: 196 + i * 140 + 28,
+      w: 170,
+      h: 60,
+      label: m.claimed ? "✓" : t("btn.collect"),
+      primary: done && !m.claimed,
+      disabled: !done || m.claimed,
+      action: () => host.claimMission(m.id),
+    });
+  });
+  return list;
+}
+
+export function drawMissions(ctx: CanvasRenderingContext2D): void {
+  drawDim(ctx, 0.6);
+  outlinedText(ctx, t("missions.title"), VIEW_W / 2, 64, 52, "#FFFFFF");
+  drawCoinPill(ctx, 24, 24, loadSave().coins);
+  missions().forEach((m, i) => {
+    const y = 196 + i * 140;
+    drawSurface(ctx, 190, y, 900, 116, 28, m.claimed ? "#F4FFF9" : "#FFFFFF", m.claimed ? "#DDF5EA" : "#EEF3FA", "#B4C0D3");
+    plainText(ctx, t(m.text), 230, y + 38, 26, COLORS.outline, "left");
+    // progress bar
+    roundRect(ctx, 230, y + 66, 460, 24, 12);
+    ctx.fillStyle = "#E6EBF2";
+    ctx.fill();
+    roundRect(ctx, 230, y + 66, Math.max(24, (460 * m.progress) / m.target), 24, 12);
+    ctx.fillStyle = m.progress >= m.target ? "#3BCEAC" : "#FFB627";
+    ctx.fill();
+    roundRect(ctx, 230, y + 66, 460, 24, 12);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.stroke();
+    plainText(ctx, `${m.progress}/${m.target}`, 710, y + 79, 20, COLORS.outline, "left");
+    drawCoin(ctx, 815, y + 58, 14);
+    plainText(ctx, `${MISSION_REWARD}`, 835, y + 59, 22, COLORS.outline, "left");
+  });
+  plainText(ctx, t("missions.tomorrow"), VIEW_W / 2, 650, 22, "#FFFFFF");
+}
+
+// ---------------- Trophies ----------------
+
+export function trophyButtons(host: MenuHost): Button[] {
+  return [backButton(host)];
+}
+
+export function drawTrophies(ctx: CanvasRenderingContext2D): void {
+  drawDim(ctx, 0.6);
+  outlinedText(ctx, t("trophies.title"), VIEW_W / 2, 64, 52, "#FFFFFF");
+  drawCoinPill(ctx, 24, 24, loadSave().coins);
+  const cols = 4;
+  const w = 250;
+  const h = 140;
+  const x0 = (VIEW_W - (cols * w + (cols - 1) * 20)) / 2;
+  TROPHIES.forEach((tr, i) => {
+    const x = x0 + (i % cols) * (w + 20);
+    const y = 140 + Math.floor(i / cols) * (h + 16);
+    const got = trophyUnlocked(tr.id);
+    const look = got ? SURFACES.selected : SURFACES.disabled;
+    drawSurface(ctx, x, y, w, h, 24, look[0], look[1], look[2], 5);
+    drawIcon(ctx, "trophy", x + w / 2, y + 48, 54, got ? "#F5A623" : "#A9A9A9");
+    plainText(ctx, t(tr.name), x + w / 2, y + 96, 19, got ? COLORS.outline : "#666666");
+    const have = Math.min(tr.target, stat(tr.stat));
+    plainText(ctx, got ? "✓" : `${have}/${tr.target}`, x + w / 2, y + 122, 16, "#666666");
+  });
+}
+
+// ---------------- Daily gift (popup on the home screen) ----------------
+
+export function dailyButtons(host: MenuHost): Button[] {
+  return [{ x: VIEW_W / 2 - 140, y: 470, w: 280, h: 86, label: t("btn.collect"), icon: "shop", primary: true, action: () => host.claimGift() }];
+}
+
+export function drawDaily(ctx: CanvasRenderingContext2D, time: number): void {
+  const gift = pendingGift();
+  if (!gift) return;
+  drawDim(ctx, 0.55);
+  drawSurface(ctx, 340, 120, 600, 480, 36, "#FFFFFF", "#EEF3FA", "#B4C0D3", 8);
+  outlinedText(ctx, t("daily.title"), VIEW_W / 2, 175, 50, "#FFD23F");
+  // gift box with a wobble
+  ctx.save();
+  ctx.translate(VIEW_W / 2, 280);
+  ctx.rotate(Math.sin(time * 5) * 0.06);
+  ctx.fillStyle = "#E84A5F";
+  roundRect(ctx, -60, -40, 120, 90, 10);
+  ctx.fill();
+  ctx.lineWidth = 3.5;
+  ctx.strokeStyle = COLORS.outline;
+  ctx.stroke();
+  roundRect(ctx, -70, -62, 140, 30, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#FFD23F";
+  ctx.fillRect(-12, -62, 24, 112);
+  ctx.strokeRect(-12, -62, 24, 112);
+  ctx.beginPath();
+  ctx.ellipse(-20, -72, 20, 12, -0.4, 0, Math.PI * 2);
+  ctx.ellipse(20, -72, 20, 12, 0.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  // streak dots: day 1–7
+  for (let d = 1; d <= 7; d++) {
+    const x = VIEW_W / 2 + (d - 4) * 46;
+    ctx.beginPath();
+    ctx.arc(x, 375, 15, 0, Math.PI * 2);
+    ctx.fillStyle = d < gift.day ? "#3BCEAC" : d === gift.day ? "#FFD23F" : "#E6EBF2";
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = COLORS.outline;
+    ctx.stroke();
+    plainText(ctx, String(d), x, 376, 15);
+  }
+  drawCoin(ctx, VIEW_W / 2 - 50, 425, 20);
+  plainText(ctx, `+${gift.coins}   ${t("daily.day", { n: gift.day })}`, VIEW_W / 2 - 22, 426, 26, COLORS.outline, "left");
+  plainText(ctx, t("daily.hint"), VIEW_W / 2, 578, 18, "#666666");
 }
