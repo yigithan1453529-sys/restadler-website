@@ -51,12 +51,16 @@ src/
     paints.ts        Farben aus dem Shop
     Characters.ts    Kunden-Figuren am Ziel
     SkyTraffic.ts    Flugzeuge, Ballone, Zeppelin
+    Trailer.ts       Anhänger mit eigener Ladung
+    Music.ts         Hintergrundmusik pro Insel (WebAudio)
+  progress.ts        Statistik, Tagesgeschenk, Aufgaben, Pokale
   social.ts          Spielername, Rekorde, Freunde-Einladung per Link
   levels/
     index.ts         Level-Liste
     level01.ts ...   Level als Daten (Gelände-Punkte, Ladung, Ziel)
     meadow.ts ...    Level pro Insel (Wiese 7–10, Wüste, Schnee, Stadt); ids 1–40
     shapes.ts        Bausteine für Gelände (Welle, Grube, Brücke, Lift)
+    pickups.ts       Coins und Bonus-Stern entlang der Strecke
   ui/                HUD, Endbildschirm, Weltkarte (WorldMap.ts), Home/Garage/Shop (Menus.ts)
 docs/GDD.md          Spielkonzept
 ```
@@ -131,11 +135,13 @@ docs/GDD.md          Spielkonzept
 
 - [x] 40 Level: 4 Inseln à 10 Level mit Weltkarte; weitere Ladungen (Aquarium, Opa,
   Glace, Bowlingkugel)
-- [ ] Geschenkturm als Ladung
+- [x] Geschenkturm als Ladung
 - [x] 11 Fahrzeuge (u. a. Polizei, Feuerwehr, Krankenwagen, Lastwagen, 2 Supersportwagen),
   automatisches Getriebe mit Tacho, Deutsch als zweite Sprache
 - [x] Coins, Shop (Fahrzeuge, Farben), Garage, Home-Bildschirm
 - [x] Rekorde, Freunde-Rangliste per Einladungs-Link, neue Kunden-Figuren, Himmel mit
   Flugzeugen/Ballonen/Zeppelin, moderneres Design
 - [x] Statisches Vorschaubild für Poki (`promo/thumbnail-1024.png`)
-- [ ] Animiertes Vorschaubild (mp4, 1080 × 1080, 4–6 s) – erst für die Soft Release nötig
+- [x] Animiertes Vorschaubild (`promo/thumbnail-animated-1080.mp4`, 1080 × 1080, 50 fps, 5 s)
+- [x] Upgrades, Coins auf der Strecke, Nitro, Geister-Rennen, Tagesgeschenk, Aufgaben,
+  Pokale, Wetter, Fässer, Zugbrücke, Anhänger, Musik

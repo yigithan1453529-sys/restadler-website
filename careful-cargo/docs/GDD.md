@@ -257,12 +257,35 @@ Level steht im Ergebnis-Fenster «Du schlägst …» oder «… schaffte es in �
 Eine **weltweite** Rangliste gibt es nicht: Poki erlaubt keine eigenen Server und
 bietet keine Rangliste im SDK.
 
-## 15. Nicht im Prototyp
+## 15. Motivation und Abwechslung
+
+- **Upgrades** (Garage, pro Fahrzeug): Motor (+7 % Tempo, +10 % Kraft pro Stufe),
+  Federung (weichere Landungen), Bremsen (+15 %), Wände (+6 cm); je 3 Stufen für
+  80 / 160 / 300 Coins.
+- **Coins auf der Strecke:** Dreiergruppen alle 26 m (auch über Gruben), 2 Coins pro
+  Münze, dazu ein Bonus-Stern (10 Coins) in der Luft etwa in der Levelmitte.
+  Ausbezahlt beim Erreichen des Ziels.
+- **Nitro:** ↑ / W / Shift / Leertaste oder NITRO-Knopf über dem Gas; 1,6 s Schub
+  (+35 % Tempo, +60 % Kraft), lädt in 6 s nach.
+- **Geister-Rennen:** Die beste eigene Fahrt pro Level fährt als durchsichtiges
+  Fahrzeug mit.
+- **Tagesgeschenk:** einmal pro Tag auf dem Home-Bildschirm, 40 bis 100 Coins je nach
+  Serie (7 Tage).
+- **Tägliche Aufgaben:** 3 pro Tag aus 8 Arten (z. B. «Liefere 8 Eier heil»), je 40 Coins.
+- **Pokale:** 12 Stück nach Gesamtstatistik (z. B. 100 Kisten), je 50 Coins.
+- **Wetter:** Regen macht die Strasse rutschig (Level 8, 36), Wind schiebt die Ladung
+  nach hinten (Level 17).
+- **Bewegte Hindernisse:** rollende Fässer (Level 7), Zugbrücke mit Ampel (Level 31).
+- **Anhänger** mit eigener Ladung (Level 12, 22).
+- **Geschenkturm** als Ladung (Level 15).
+- **Musik:** eigene Melodie pro Insel, im Code erzeugt.
+
+## 16. Nicht im Prototyp
 
 Echtgeld-Käufe, Sammelobjekte, weltweite Bestenlisten, Online-Funktionen mit eigenem
 Server, Bilddateien und Musik.
 
-## 16. Test des Prototyps
+## 17. Test des Prototyps
 
 5–10 Testspieler, ohne Erklärung spielen lassen und beobachten:
 
