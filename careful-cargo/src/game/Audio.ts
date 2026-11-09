@@ -1,3 +1,5 @@
+import { Music } from "./Music";
+import type { WorldId } from "./themes";
 // Sound effects generated with WebAudio (no audio files).
 
 type Ctx = AudioContext;
@@ -11,6 +13,8 @@ export class AudioFx {
   private engineFilter: BiquadFilterNode | null = null;
   private noise: AudioBuffer | null = null;
   private suspendedByGame = false;
+  private music: Music | null = null;
+  private musicWorld: WorldId = "meadow";
   muted: boolean;
 
   constructor(muted: boolean) {
@@ -28,11 +32,20 @@ export class AudioFx {
         this.master.gain.value = this.muted ? 0 : 0.6;
         this.master.connect(this.ctx.destination);
         this.noise = this.makeNoise();
+        this.music = new Music(this.ctx, this.master);
+        this.music.setWorld(this.musicWorld);
+        this.music.start();
       }
       if (this.ctx.state === "suspended" && !this.suspendedByGame) void this.ctx.resume();
     } catch {
       this.ctx = null;
     }
+  }
+
+  /** Picks the background song for an island. */
+  setMusicWorld(world: WorldId): void {
+    this.musicWorld = world;
+    this.music?.setWorld(world);
   }
 
   setMuted(muted: boolean): void {

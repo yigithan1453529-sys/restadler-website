@@ -339,6 +339,7 @@ export class Game {
   /** Shared setup for a fresh attempt or a continue from a checkpoint. */
   private beginRun(run: LevelRun): void {
     this.run = run;
+    this.audio.setMusicWorld(run.level.world ?? "meadow");
     this.ghostRecording = [];
     this.ghost = run.resumed ? null : loadGhost(run.level.id);
     this.coinsEarned = 0;
