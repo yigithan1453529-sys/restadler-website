@@ -9,3 +9,8 @@ Konferenzraum (office.glb): aus der gelieferten Datei Format2.FBX umgewandelt,
   Die Original-Texturen waren nicht in der FBX-Datei enthalten.
 
 Musik, Radio-Stimmen, Geräusche und TV-Programm werden im Browser erzeugt.
+
+Arbeitsplatz-Ecke (desk.glb): aus der gelieferten office_desktop.zip (SceneFinal.obj) umgewandelt,
+  ohne Original-Texturen; Farben pro Material neu vergeben.
+Aktenschrank (drawer.glb): aus der gelieferten office_drawer.glb (Sketchfab-Export),
+  Texturen auf 1024 px verkleinert und als WebP gespeichert.

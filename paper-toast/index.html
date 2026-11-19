@@ -66,6 +66,26 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 #toast.show{animation:pop 1.25s ease-out forwards}
 @keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}25%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%)}}
 
+#turn{position:fixed;left:50%;top:calc(56px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:var(--paper);color:var(--ink);padding:5px 16px 7px;border-radius:999px;font-family:var(--hand);font-size:24px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.3);pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px)}
+#turn i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);display:block}
+#turn.pulse{animation:turnpop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes turnpop{from{transform:translateX(-50%) scale(.6);opacity:0}}
+.board{list-style:none;margin:0;padding:0;display:grid;gap:3px;min-width:150px;text-align:left}
+.board li{display:grid;grid-template-columns:12px 1fr auto;align-items:center;gap:7px;font-size:20px;line-height:1.05}
+.board li i{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink);display:block}
+.board li .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px}
+.board li b{font-variant-numeric:tabular-nums}
+.board li small{grid-column:2/4;font-size:14px;opacity:.7;margin-top:-3px}
+.board li.cur{font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.board li.out{opacity:.45;text-decoration:line-through}
+/* power meter: fixed on the right edge, away from the finger */
+#power{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:50%;transform:translate(14px,-50%);width:46px;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;transition:opacity .15s,transform .15s;pointer-events:none}
+#power.on{opacity:1;transform:translate(0,-50%)}
+#powerTrack{position:relative;width:26px;height:min(40vh,300px);background:rgba(253,253,251,.92);border:2px solid var(--ink);border-radius:15px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+#powerTrack::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to top,transparent 0 calc(10% - 1px),rgba(29,39,66,.25) calc(10% - 1px) 10%)}
+#powerFill{position:absolute;left:0;right:0;bottom:0;height:0;background:#3fb35a}
+#powerPct{font-family:var(--hand);font-size:24px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);font-variant-numeric:tabular-nums;white-space:nowrap}
+#powerLbl{font-family:var(--type);font-size:10px;letter-spacing:.2em;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8)}
 /* ---------- memo overlays ---------- */
 .overlay{position:fixed;inset:0;display:grid;place-items:center;background:var(--scrim);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-bottom,0px));overflow-y:auto;box-sizing:border-box}
 .memo{position:relative;width:min(520px,100%);box-sizing:border-box;background:var(--paper);color:var(--ink);padding:26px 28px 24px;transform:rotate(-.6deg);box-shadow:0 22px 50px -12px rgba(0,0,0,.6);background-image:repeating-linear-gradient(to bottom,transparent 0 27px,var(--rule) 27px 28px);background-position:0 120px;animation:slide .45s cubic-bezier(.2,.9,.3,1.2)}
@@ -88,10 +108,33 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 .stamp{position:absolute;right:20px;top:62px;font-family:var(--type);font-size:24px;letter-spacing:.12em;color:var(--stamp);border:3px solid var(--stamp);padding:4px 10px;transform:rotate(-12deg);opacity:.85;mix-blend-mode:multiply;animation:stamp .35s .25s both cubic-bezier(.3,1.6,.5,1)}
 .stamp.green{color:var(--ok);border-color:var(--ok)}
 @keyframes stamp{from{transform:rotate(-12deg) scale(2.2);opacity:0}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
+.chip{font-family:var(--hand);font-size:22px;font-weight:700;padding:3px 16px 5px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:999px;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--paper)}
+.chip:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
+.names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+.pname{display:flex;align-items:center;gap:8px;min-width:0}
+.pname i{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ink)}
+.pname input,.invite input{min-width:0;width:100%;font-family:var(--hand);font-size:22px;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);padding:2px 2px;outline:none}
+.pname input:focus,.invite input:focus{border-bottom-color:var(--stamp)}
+.pname.solo{display:grid;gap:2px;margin-top:10px;max-width:280px}
+.pname.solo span{font-family:var(--type);font-size:12px;letter-spacing:.12em;opacity:.7}
+.invite{display:flex;gap:10px;align-items:center;margin-top:12px}
+.invite input{font-family:var(--type);font-size:13px}
+.btn.small{font-size:20px;padding:3px 14px 5px;flex:none}
+.btn[disabled]{opacity:.45;cursor:default}
+.rank{list-style:none;padding:0;margin:12px 0 4px;display:grid;gap:4px}
+.rank li{display:grid;grid-template-columns:14px 1fr auto;align-items:center;gap:10px;font-family:var(--hand);font-size:23px;line-height:28px}
+.rank li i{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--ink);display:block}
+.rank li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank li.out{opacity:.5}
 .credit{font-size:11.5px;line-height:1.5;margin-top:18px;opacity:.6}
 .credit a{color:inherit}
 #loading{font-family:var(--type);font-size:13px;opacity:.7;margin-top:10px}
 @media (max-width:480px){
+  .names{grid-template-columns:1fr}
+  #turn{top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));font-size:21px}
+  #powerTrack{height:min(34vh,240px)}
   .memo{padding:22px 18px 20px}
   .note{padding:8px 11px 10px}
   .n-big{font-size:23px}.n-row{font-size:19px}.n-small{font-size:15px}
@@ -116,15 +159,18 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
     <div class="balls" id="hBalls"></div>
   </div>
   <div class="note" id="noteScore">
-    <div class="n-small">Punkte</div>
+    <div id="hSolo"><div class="n-small">Punkte</div>
     <div class="n-big" id="hScore">0</div>
-    <div class="n-small">Rekord <span id="hBest">0</span></div>
+    <div class="n-small">Rekord <span id="hBest">0</span></div></div>
+    <ol class="board" id="hBoard" hidden></ol>
   </div>
   <div id="wind" aria-live="polite">WIND
     <svg viewBox="0 0 34 14" aria-hidden="true"><path d="M2 7h26M22 2l7 5-7 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <b id="hWind">0.0</b>
   </div>
 </div>
+<div id="turn" hidden><i id="turnDot"></i><span id="turnName"></span> ist dran</div>
+<div id="power" role="meter" aria-label="Wurfkraft" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="powerTrack"><div id="powerFill"></div></div><div id="powerPct">0 %</div><div id="powerLbl">KRAFT</div></div>
 <div id="hint" hidden>↑ nach oben wischen &amp; loslassen</div>
 <div id="toast"><div class="t1"></div><div class="t2"></div></div>
 <button id="mute" aria-label="Ton aus" title="Ton an/aus">
@@ -318,7 +364,7 @@ const tvTex=new THREE.CanvasTexture(tvCanvas);tvTex.encoding=THREE.sRGBEncoding;
 const tvScreen=new THREE.Mesh(new THREE.PlaneGeometry(2.3,0.69),new THREE.MeshBasicMaterial({map:tvTex,toneMapped:false}));
 tvScreen.position.set(2.74,1.535,-3.045);tvScreen.rotation.y=-Math.PI/2;scene.add(tvScreen);
 const tvGlow=new THREE.PointLight(0x7fa8ff,0.35,3.2,2);tvGlow.position.set(2.2,1.5,-3.0);scene.add(tvGlow);
-const tvStats={title:'Willkommen',line2:'',line3:''};
+const tvStats={title:'Willkommen',line2:'',line3:''};let tvBoard=null;
 function updateTV(a,b,c){tvStats.title=a;tvStats.line2=b;tvStats.line3=c;}
 const fish=[];for(let i=0;i<9;i++)fish.push({x:Math.random()*TVW,y:rnd(40,TVH-50),s:rnd(.6,1.4),v:rnd(30,80)*(Math.random()<.5?-1:1),h:rnd(0,360)});
 const TICKER='+++ Kaffeemaschine im 2. Stock wieder in Betrieb +++ Papierkorb-Liga: Buchhaltung führt knapp vor IT +++ Morgen Teamsitzung um 9:15 – Gipfeli bringt die Lehre +++ Neuer Rekord im Papierkugel-Weitwurf gemeldet +++ Bitte Ventilatoren nach Feierabend ausschalten +++ ';
@@ -357,7 +403,7 @@ function drawTV(t){
   }else if(seg==='liga'){
     g.fillStyle='#0f3d24';g.fillRect(0,0,W,H);g.strokeStyle='rgba(255,255,255,.25)';g.lineWidth=3;g.strokeRect(20,20,W-40,H-40);g.beginPath();g.moveTo(W/2,20);g.lineTo(W/2,H-20);g.stroke();g.beginPath();g.arc(W/2,H/2,50,0,7);g.stroke();
     g.fillStyle='#ffe45c';g.font='700 30px Inter,Arial,sans-serif';g.fillText('PAPIERKORB-LIGA',48,66);
-    const rows=[['Du (live)',tvStats.line3.replace('Punkte ','')],['Buchhaltung','3’420'],['IT-Support','2’980'],['Marketing','1’750'],['Empfang','1’120']];
+    const rows=tvBoard?tvBoard.slice(0,5):[['Du (live)',tvStats.line3.replace('Punkte ','')],['Buchhaltung','3’420'],['IT-Support','2’980'],['Marketing','1’750'],['Empfang','1’120']];
     g.font='500 22px Inter,Arial,sans-serif';rows.forEach((r,i)=>{g.fillStyle=i===0?'#ffe45c':'#ffffff';g.fillText((i+1)+'. '+r[0],60,110+i*36);g.fillText(r[1]||'0',380,110+i*36);});
     // replay: ball arcing into a bin
     const p=(st%3)/3;const bx=560+p*360,by=240-Math.sin(p*Math.PI)*170;g.fillStyle='#222';g.fillRect(900,210,50,60);g.strokeStyle='#999';g.strokeRect(900,210,50,60);
@@ -410,6 +456,18 @@ function makeFan(side){
 }
 const fans=[makeFan(-1),makeFan(1)];
 fans[0].g.position.set(-2.2,0,-3);fans[1].g.position.set(2.2,0,-3);
+
+/* ---- extra furniture: workstation corner, water cooler, filing cabinet ---- */
+loadGLB('desk.glb').then(g=>{
+  g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=o.material.metalness>0.3?0.8:0.35;}});
+  const cub=g.scene.getObjectByName('cubicle'),cool=g.scene.getObjectByName('cooler');
+  if(cub){cub.rotation.y=-Math.PI/2;cub.position.set(-1.39,0,-1.21);scene.add(cub);}
+  if(cool){cool.position.set(-1.45,0,-6.46);scene.add(cool);}
+}).catch(e=>console.warn('Arbeitsplatz fehlt',e));
+loadGLB('drawer.glb').then(g=>{
+  g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+  g.scene.position.set(1.78,0.05,-7.47);scene.add(g.scene);
+}).catch(e=>console.warn('Aktenschrank fehlt',e));
 
 /* ---- support surfaces for the paper ball and the bin ---- */
 function surfaceAt(x,z,bottomY){
@@ -598,22 +656,25 @@ window.addEventListener('resize',resize);
 /* ================= game state ================= */
 const G=9.81, DRAG=0.012, PITCH=40*Math.PI/180;
 const HAND=new THREE.Vector3(0,1.27,-0.08);
-const game={level:0,score:0,levelStartScore:0,hits:0,throwsLeft:THROWS,results:[],streak:0,wind:0,state:'menu',t:0,
-  bin:{x:0,baseX:0,amp:0,omega:0,phase:0,y:0,surf:0,z:-3,s:1,H:0,Rt:0,Rb:0},targetHit:false};
-let ball=null;               // active ball
-const floorBalls=[], binBalls=[];
+const PCOL=[{bg:'#ffe45c',tint:0xfff6c2},{bg:'#9fd0ff',tint:0xc4e2ff},{bg:'#a8e6a1',tint:0xcaf3c4},{bg:'#ffb3c7',tint:0xffd3df}];
+const INVITE_BASE='https://claude.ai/artifact/W2ayCue2cvzyECQZVfyABD';
+function newPlayer(name,color){return {name,color,score:0,levelStartScore:0,hits:0,throwsLeft:THROWS,results:[],streak:0,targetHit:false,alive:true};}
+const game={mode:'solo',players:[newPlayer('Du',0)],cur:0,level:0,wind:0,state:'menu',t:0,
+  bin:{x:0,baseX:0,amp:0,omega:0,phase:0,y:0,surf:0,z:-3,s:1,H:0,Rt:0,Rb:0}};
+const P=()=>game.players[game.cur];
+let ball=null;
+const floorBalls=[], binBalls=[], ghosts=[];
 let trail=null, trailPts=[];
+const tintMats=PCOL.map(c=>new THREE.MeshStandardMaterial({map:paperTex,color:c.tint,roughness:.95,flatShading:true}));
+const ghostMats=PCOL.map(c=>new THREE.MeshStandardMaterial({map:paperTex,color:c.tint,roughness:.95,flatShading:true,transparent:true,opacity:.85}));
+const ballMatFor=i=>game.mode==='local'?tintMats[game.players[i].color]:ballMat;
 
-function maxBinX(d){const vh=Math.tan(THREE.MathUtils.degToRad(camera.fov/2));const hh=vh*camera.aspect;return Math.max(0.15,Math.min(1.6,(d+CAM.z)*hh*0.62));}
-function frameCamera(){
-  const d=game.bin.z;camera.position.copy(CAM);camera.lookAt(0,LOOKY,d);
-}
+function frameCamera(){camera.position.copy(CAM);camera.lookAt(0,LOOKY,game.bin.z);}
 
 function startLevel(i,keepScore){
   game.level=i;const L=levelDef(i);
-  if(!keepScore)game.score=game.levelStartScore;
-  game.levelStartScore=game.score;
-  game.hits=0;game.throwsLeft=THROWS;game.results=[];game.streak=0;game.targetHit=false;
+  game.players.forEach(p=>{if(!keepScore)p.score=p.levelStartScore;p.levelStartScore=p.score;p.hits=0;p.throwsLeft=p.alive?THROWS:0;p.results=[];p.streak=0;p.targetHit=false;});
+  game.cur=Math.max(0,game.players.findIndex(p=>p.alive));
   const b=game.bin;b.z=-L.d;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;
   frameCamera();
   bar.visible=!!L.bar;
@@ -622,13 +683,13 @@ function startLevel(i,keepScore){
   b.omega=0.7+i*0.05;b.phase=rnd(0,6.28);b.y=b.surf+(b.amp>0?0.075:0);
   robot.visible=b.amp>0;
   binG.scale.set(1,1,1);binHolder.scale.setScalar(L.s);binHolder.position.y=b.y-b.surf;
-  // clean up old balls
   binBalls.forEach(m=>m.parent&&m.parent.remove(m));binBalls.length=0;
   floorBalls.forEach(m=>scene.remove(m));floorBalls.length=0;
+  ghosts.forEach(g=>scene.remove(g.mesh));ghosts.length=0;
   if(trail){scene.remove(trail);trail=null;}
-  fans.forEach(f=>{f.g.position.z=Math.max(-6,b.z*0.6);});
+  fans.forEach(f=>{f.g.position.z=Math.min(-2.7,Math.max(-6,b.z*0.6));});
   updateBin(0);
-  newWind();spawnBall();updateHUD();
+  newWind();spawnBall();updateHUD();showTurn();
   $('hint').hidden=!(i===0);
   game.state='aim';
 }
@@ -639,7 +700,8 @@ function newWind(){
   const svg=document.querySelector('#wind svg');svg.style.transform=`scaleX(${w<0?-1:1})`;svg.style.opacity=w===0?0.25:1;
 }
 function spawnBall(){
-  const m=newBallMesh();ball={mesh:m,p:HAND.clone(),v:new THREE.Vector3(),spin:new THREE.Vector3(),state:'hand',t:0,rim:false,inside:false,scored:false,scoredT:0,floorHit:false,lastRim:0};
+  const m=newBallMesh();m.material=ballMatFor(game.cur);
+  ball={mesh:m,p:HAND.clone(),v:new THREE.Vector3(),spin:new THREE.Vector3(),state:'hand',t:0,rim:false,inside:false,scored:false,scoredT:0,floorHit:false,lastRim:0};
   m.position.copy(ball.p);
 }
 function updateBin(t){
@@ -649,7 +711,6 @@ function updateBin(t){
 }
 
 /* ================= physics ================= */
-const tmp=new THREE.Vector3();
 function stepBall(b,dt,binDX){
   const B=game.bin;
   b.v.y-=G*dt;
@@ -657,11 +718,9 @@ function stepBall(b,dt,binDX){
   if(!b.inside)b.v.x+=game.wind*dt;
   if(b.inside)b.p.x+=binDX;
   b.p.addScaledVector(b.v,dt);
-  // bin-relative coords
   const rx=b.p.x-B.x, rz=b.p.z-B.z, ry=b.p.y-B.y;
   let d=Math.hypot(rx,rz);const nx=d>1e-6?rx/d:1, nz=d>1e-6?rz/d:0;
   if(ry>=B.H)b.inside=d<B.Rt;
-  // rim (torus)
   const RIM=0.008;
   const cx=nx*B.Rt, cz=nz*B.Rt;
   let dx=rx-cx, dy=ry-B.H, dz=rz-cz;const dist=Math.hypot(dx,dy,dz);
@@ -673,7 +732,6 @@ function stepBall(b,dt,binDX){
       if(-vn>0.4&&b.t-b.lastRim>0.12){sfx.rim(-vn);b.lastRim=b.t;}
       b.rim=true;b.spin.set(rnd(-20,20),rnd(-20,20),rnd(-20,20));}
   }
-  // walls (cone)
   const ry2=b.p.y-B.y;
   if(ry2<B.H&&ry2>-BALL_R){
     const w=B.Rb+(B.Rt-B.Rb)*Math.min(1,Math.max(0,ry2/B.H));
@@ -685,13 +743,8 @@ function stepBall(b,dt,binDX){
       if(vn<0){b.v.x-=1.35*vn*nx;b.v.z-=1.35*vn*nz;if(-vn>0.6&&b.t-b.lastRim>0.15){sfx.thud(-vn*0.6);b.lastRim=b.t;}b.rim=true;}
     }
   }
-  // inside bottom
-  if(b.inside&&b.p.y<B.y+BALL_R+0.004){
-    b.p.y=B.y+BALL_R+0.004;if(b.v.y<0)b.v.y*=-0.22;b.v.x*=0.92;b.v.z*=0.92;
-  }
-  // scoring
+  if(b.inside&&b.p.y<B.y+BALL_R+0.004){b.p.y=B.y+BALL_R+0.004;if(b.v.y<0)b.v.y*=-0.22;b.v.x*=0.92;b.v.z*=0.92;}
   if(b.inside&&!b.scored&&b.p.y-B.y<B.H*0.62){b.scored=true;b.scoredT=b.t;onScore(b);}
-  // floor
   const sup=b.inside?0:surfaceAt(b.p.x,b.p.z,b.p.y-BALL_R);b.support=sup;
   if(!b.inside&&b.p.y<sup+BALL_R){
     b.p.y=sup+BALL_R;
@@ -699,18 +752,30 @@ function stepBall(b,dt,binDX){
     if(b.v.y<0){b.v.y*=-0.3;b.floorHit=true;}
     b.v.x*=0.94;b.v.z*=0.94;b.spin.multiplyScalar(0.96);
   }
-  // room walls
   if(b.p.x<-ROOM.x+BALL_R){b.p.x=-ROOM.x+BALL_R;b.v.x*=-0.4;}
   if(b.p.x>ROOM.x-BALL_R){b.p.x=ROOM.x-BALL_R;b.v.x*=-0.4;}
   if(b.p.z<ROOM.zBack+BALL_R){b.p.z=ROOM.zBack+BALL_R;b.v.z*=-0.4;}
   if(b.p.y>ROOM.h-BALL_R){b.p.y=ROOM.h-BALL_R;b.v.y*=-0.3;}
+}
+// a colleague's throw replayed in your room (online): flight, wind and bounces, no scoring
+function spawnGhost(colorIdx,th){
+  const m=new THREE.Mesh(ballGeos[Math.floor(Math.random()*ballGeos.length)],ghostMats[colorIdx%4]);m.castShadow=true;scene.add(m);
+  const side=(colorIdx%2?1:-1)*0.28;
+  const g={mesh:m,p:new THREE.Vector3(HAND.x+side,HAND.y,HAND.z),v:new THREE.Vector3(Math.sin(th.yaw)*Math.cos(PITCH)*th.sp,Math.sin(PITCH)*th.sp,-Math.cos(th.yaw)*Math.cos(PITCH)*th.sp),w:th.w,t:0};
+  ghosts.push(g);if(ghosts.length>8){scene.remove(ghosts[0].mesh);ghosts.shift();}
+}
+function stepGhost(g,dt){
+  g.v.y-=G*dt;const sp=g.v.length();g.v.addScaledVector(g.v,-DRAG*sp*dt);g.v.x+=g.w*dt;g.p.addScaledVector(g.v,dt);
+  const sup=surfaceAt(g.p.x,g.p.z,g.p.y-BALL_R);if(g.p.y<sup+BALL_R){g.p.y=sup+BALL_R;if(g.v.y<0)g.v.y*=-0.3;g.v.x*=0.94;g.v.z*=0.94;}
+  if(Math.abs(g.p.x)>ROOM.x-BALL_R){g.p.x=Math.sign(g.p.x)*(ROOM.x-BALL_R);g.v.x*=-0.4;}
+  if(g.p.z<ROOM.zBack+BALL_R){g.p.z=ROOM.zBack+BALL_R;g.v.z*=-0.4;}
 }
 
 /* ================= throwing ================= */
 let drag=null;
 function refLen(){return Math.min(window.innerHeight*0.62,560);}
 canvas.addEventListener('pointerdown',e=>{
-  if(game.state!=='aim'||ball.state!=='hand')return;
+  if(game.state!=='aim'||!ball||ball.state!=='hand')return;
   ac();drag={x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,id:e.pointerId};
   try{canvas.setPointerCapture(e.pointerId);}catch(_){}
   sfx.crumple();
@@ -719,11 +784,9 @@ canvas.addEventListener('pointermove',e=>{if(drag&&e.pointerId===drag.id){drag.x
 function endDrag(e){
   if(!drag||e.pointerId!==drag.id)return;
   const dx=drag.x-drag.x0, dy=drag.y-drag.y0;drag=null;
-  if(dy>-25||game.state!=='aim'||ball.state!=='hand')return;
+  if(dy>-25||game.state!=='aim'||!ball||ball.state!=='hand')return;
   const s=Math.min(1.1,-dy/refLen());
-  const speed=2.6+8.4*s;
-  const yaw=Math.atan2(dx,-dy)*0.55;
-  throwBall(speed,yaw);
+  throwBall(2.6+8.4*s,Math.atan2(dx,-dy)*0.55);
 }
 canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.id)drag=null;});
 
@@ -731,115 +794,284 @@ function throwBall(speed,yaw){
   ball.state='fly';ball.t=0;
   ball.v.set(Math.sin(yaw)*Math.cos(PITCH)*speed,Math.sin(PITCH)*speed,-Math.cos(yaw)*Math.cos(PITCH)*speed);
   ball.spin.set(rnd(-12,-4),rnd(-4,4),rnd(-4,4));
-  game.throwsLeft--;game.state='flying';sfx.whoosh();
+  P().throwsLeft--;game.state='flying';sfx.whoosh();
   $('hint').hidden=true;
   if(trail){scene.remove(trail);trail=null;}trailPts=[ball.p.clone()];
+  if(game.mode==='online')net.throwSeq++,netPresence({th:{seq:net.throwSeq,sp:+speed.toFixed(3),yaw:+yaw.toFixed(4),w:game.wind,lv:game.level}});
   updateHUD();
 }
 
 function onScore(b){
-  game.hits++;game.streak++;
-  const swish=!b.rim;
-  const L=game.level;
-  const mult=Math.min(3,1+0.5*(game.streak-1));
+  const p=P();p.hits++;p.streak++;
+  const swish=!b.rim,L=game.level;
+  const mult=Math.min(3,1+0.5*(p.streak-1));
   const pts=Math.round((100+(swish?50:0))*(1+L*0.2)*mult/10)*10;
-  game.score+=pts;
-  game.results.push(1);
+  p.score+=pts;p.results.push(1);
   sfx.paper();if(swish)setTimeout(sfx.swish,80);
   const word=swish?'Swish!':['Treffer!','Drin!','Sauber!','Volltreffer!'][Math.floor(Math.random()*4)];
-  let sub='+'+pts;if(game.streak>1)sub+=`  ·  Serie ×${mult.toFixed(1).replace('.0','')}`;
-  if(game.hits===levelDef(L).need&&!game.targetHit){game.targetHit=true;sub+='\nZiel erreicht – Rest ist Bonus';}
+  let sub='+'+pts;if(p.streak>1)sub+=`  ·  Serie ×${mult.toFixed(1).replace('.0','')}`;
+  if(p.hits===levelDef(L).need&&!p.targetHit){p.targetHit=true;sub+='\nZiel erreicht – Rest ist Bonus';}
   toast(word,sub);
-  if(game.score>best){best=game.score;store.set('best',best);}
+  if(game.mode!=='local'&&p.score>best){best=p.score;store.set('best',best);}
   updateHUD();
 }
 function onMiss(){
-  game.streak=0;game.results.push(0);
+  const p=P();p.streak=0;p.results.push(0);
   toast(ball.rim?'Knapp!':['Daneben','Vorbei','Oops'][Math.floor(Math.random()*3)],ball.rim?'Am Rand abgeprallt':'');
   updateHUD();
 }
 function finishThrow(scored){
-  // store trail of this throw
   if(trailPts.length>2){
     const g=new THREE.BufferGeometry().setFromPoints(trailPts);
     trail=new THREE.Line(g,new THREE.LineDashedMaterial({color:0xffffff,dashSize:0.06,gapSize:0.07,transparent:true,opacity:0.45}));trail.computeLineDistances();scene.add(trail);
   }
-  if(scored){
-    const B=game.bin;const m=ball.mesh;binG.worldToLocal(m.position);binG.add(m);binBalls.push(m);
-  }else{
-    floorBalls.push(ball.mesh);if(floorBalls.length>14)scene.remove(floorBalls.shift());
-  }
+  if(scored){const m=ball.mesh;binG.worldToLocal(m.position);binG.add(m);binBalls.push(m);}
+  else{floorBalls.push(ball.mesh);if(floorBalls.length>20)scene.remove(floorBalls.shift());}
   ball=null;game.state='between';
   const L=levelDef(game.level);
   setTimeout(()=>{
-    if(game.hits+game.throwsLeft<L.need){levelFailed();return;}
-    if(game.throwsLeft<=0){levelDone();return;}
-    newWind();spawnBall();game.state='aim';
+    if(game.state!=='between')return;
+    if(game.mode!=='local'){
+      const p=P();
+      if(p.hits+p.throwsLeft<L.need){levelFailed();return;}
+      if(p.throwsLeft<=0){levelDone();return;}
+    }else{
+      const n=game.players.length;let next=-1;
+      for(let k=1;k<=n;k++){const j=(game.cur+k)%n,q=game.players[j];if(q.alive&&q.throwsLeft>0){next=j;break;}}
+      if(next<0){localLevelEnd();return;}
+      game.cur=next;showTurn();
+    }
+    newWind();spawnBall();updateHUD();game.state='aim';
   },650);
 }
 
 /* ================= HUD ================= */
+const fmt=n=>n.toLocaleString('de-CH');
 function updateHUD(){
-  const L=levelDef(game.level);
-  $('hLevel').textContent=game.level+1;$('hTitle').textContent=L.t;$('hHits').textContent=game.hits;$('hNeed').textContent=L.need;
-  $('hScore').textContent=game.score.toLocaleString('de-CH');$('hBest').textContent=best.toLocaleString('de-CH');
-  updateTV(`Stufe ${game.level+1}: ${L.t}`,`${L.d.toFixed(1)} m · Treffer ${game.hits} / ${L.need} · Würfe ${game.throwsLeft}`,`Punkte ${game.score.toLocaleString('de-CH')}`);
-  const bl=$('hBalls');let h='';for(let i=0;i<THROWS;i++){const r=game.results[i];h+=`<i class="${r===1?'hit':r===0?'miss':''}"></i>`;}bl.innerHTML=h;
+  const L=levelDef(game.level),p=P();
+  $('hLevel').textContent=game.level+1;$('hTitle').textContent=L.t;$('hHits').textContent=p.hits;$('hNeed').textContent=L.need;
+  $('noteLevel').style.background=game.mode==='local'?PCOL[p.color].bg:'';
+  const bl=$('hBalls');let h='';for(let i=0;i<THROWS;i++){const r=p.results[i];h+=`<i class="${r===1?'hit':r===0?'miss':''}"></i>`;}bl.innerHTML=h;
+  // scoreboard
+  const rows=boardRows();
+  const solo=rows.length<2;
+  $('hSolo').hidden=!solo;$('hBoard').hidden=solo;
+  if(solo){$('hScore').textContent=fmt(p.score);$('hBest').textContent=fmt(best);}
+  else{const ul=$('hBoard');ul.textContent='';rows.forEach(r=>{const li=document.createElement('li');if(r.cur)li.className='cur';if(r.out)li.classList.add('out');
+      const dot=document.createElement('i');dot.style.background=PCOL[r.color%4].bg;const nm=document.createElement('span');nm.className='nm';nm.textContent=r.name+(r.me?' (du)':'');
+      const sc=document.createElement('b');sc.textContent=fmt(r.score);li.append(dot,nm,sc);
+      if(r.lv!=null){const lv=document.createElement('small');lv.textContent='St. '+(r.lv+1);li.append(lv);}ul.append(li);});}
+  tvBoard=rows.length>1?rows.map(r=>[r.name,fmt(r.score)]):null;
+  updateTV(`Stufe ${game.level+1}: ${L.t}`,`${L.d.toFixed(1)} m · Treffer ${p.hits} / ${L.need} · Würfe ${p.throwsLeft}`,`Punkte ${fmt(p.score)}`);
+  if(game.mode==='online')netPresence({lv:game.level,sc:p.score,h:p.hits,t:p.throwsLeft,st:game.state==='menu'?'menu':'play'});
 }
-let toastTimer=0;
+function boardRows(){
+  if(game.mode==='local')return game.players.map((q,i)=>({name:q.name,color:q.color,score:q.score,cur:i===game.cur,out:!q.alive})).sort((a,b)=>b.score-a.score);
+  if(game.mode==='online'){
+    return netPlayers().map(x=>({name:x.name,color:x.color,score:x.me?P().score:x.score,lv:x.me?game.level:x.lv,me:x.me,cur:x.me})).sort((a,b)=>b.score-a.score);
+  }
+  return [];
+}
+function showTurn(){
+  const t=$('turn');
+  if(game.mode!=='local'){t.hidden=true;return;}
+  const p=P();$('turnDot').style.background=PCOL[p.color].bg;$('turnName').textContent=p.name;t.hidden=false;
+  t.classList.remove('pulse');void t.offsetWidth;t.classList.add('pulse');
+}
 function toast(a,b){const t=$('toast');t.querySelector('.t1').textContent=a;t.querySelector('.t2').innerHTML=(b||'').replace(/\n/g,'<br>');t.classList.remove('show');void t.offsetWidth;t.classList.add('show');}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ================= memos ================= */
 function stars(n){return '<span class="stars">'+[0,1,2].map(i=>i<n?'★':'<span class="off">★</span>').join('')+'</span>';}
-function memo({to,subject,big,body,stamp,stampGreen,actions,credit}){
+function memo({to,subject,big,body,stamp,stampGreen,actions,credit,after}){
   const m=$('menu');
   const today=new Date().toLocaleDateString('de-CH');
-  m.innerHTML=`<div class="memo" role="dialog" aria-modal="true" aria-label="${subject}">
+  m.innerHTML=`<div class="memo" role="dialog" aria-modal="true" aria-label="${esc(subject)}">
     <h1>INTERNES MEMO</h1>
     <div class="meta"><span>An:</span><span>${to}</span><span>Von:</span><span>Personalabteilung</span><span>Datum:</span><span>${today}</span><span>Betreff:</span><span>${subject}</span></div>
     ${stamp?`<div class="stamp${stampGreen?' green':''}">${stamp}</div>`:''}
     <div class="big">${big}</div>${body}
-    <div class="actions">${actions.map((a,i)=>`<button class="btn${a.ghost?' ghost':''}" id="act${i}">${a.label}</button>`).join('')}</div>
+    <div class="actions">${actions.map((a,i)=>`<button class="btn${a.ghost?' ghost':''}" id="act${i}"${a.disabled?' disabled':''}>${a.label}</button>`).join('')}</div>
     ${credit?`<div class="credit">Papierkorb-Modell: „Trash Can“ von <a href="https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627" target="_blank" rel="noopener">rickmaolly</a>, Lizenz <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.<div id="loading"></div></div>`:''}
   </div>`;
-  m.hidden=false;$('hud').hidden=true;
+  m.hidden=false;$('hud').hidden=true;$('turn').hidden=true;
   actions.forEach((a,i)=>$('act'+i).addEventListener('click',()=>{ac();radioStart();a.go();}));
-  setTimeout(()=>{const b=$('act0');if(b)b.focus({preventScroll:true});},50);
+  setTimeout(()=>{const b=$('act0');if(b&&!m.querySelector('input'))b.focus({preventScroll:true});},50);
   if(stamp)setTimeout(sfx.stamp,300);
+  if(after)after(m);
 }
-function hideMemo(){$('menu').hidden=true;$('hud').hidden=false;}
+function hideMemo(){$('menu').hidden=true;$('hud').hidden=false;showTurn();}
 function nextInfo(i){const L=levelDef(i);const bits=[`${L.d.toFixed(1)} m Distanz`,`Kübel ${Math.round(L.s/1.6*100)} %`];
-  bits.push(L.w>0?`Wind bis ${L.w.toFixed(1)}`:'kein Wind');if(L.m>0)bits.push('Kübel fährt auf Saugroboter');bits.push(`${L.need} von ${THROWS} Treffern nötig`);
+  bits.push(L.w>0?`Wind bis ${L.w.toFixed(1)}`:'kein Wind');if(L.m>0)bits.push('Kübel fährt auf Saugroboter');if(L.bar)bits.push('Kübel auf dem Stehtisch');bits.push(`${L.need} von ${THROWS} Treffern nötig`);
   return '<div class="facts">'+bits.map(b=>`<span>· ${b}</span>`).join('')+'</div>';}
 
+function startSolo(level){game.mode='solo';netLeave();game.players=[newPlayer('Du',0)];hideMemo();startLevel(level,true);}
 function showStart(){
-  game.state='menu';
-  const acts=[{label:'Erster Arbeitstag →',go:()=>{hideMemo();game.score=0;game.levelStartScore=0;startLevel(0,true);}}];
-  if(bestLevel>0)acts.push({label:`Weiter bei Stufe ${bestLevel+1}`,ghost:true,go:()=>{hideMemo();game.score=0;game.levelStartScore=0;startLevel(bestLevel,true);}});
+  game.state='menu';netLeave();game.mode='solo';
+  const acts=[{label:'Allein spielen →',go:()=>startSolo(0)},
+    {label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},
+    {label:'Freunde einladen',ghost:true,go:showOnlineSetup}];
+  if(bestLevel>0)acts.splice(1,0,{label:`Weiter bei Stufe ${bestLevel+1}`,ghost:true,go:()=>startSolo(bestLevel)});
   memo({to:'Alle Mitarbeitenden',subject:'Papierkorb-Offensive',big:'Paper Toast',
     body:`<p>Ab sofort gilt: Wer den Papierkorb trifft, wird befördert. Pro Stufe hast du ${THROWS} Würfe. Je höher du kommst, desto weiter weg steht der Kübel, desto kleiner wird er – und der Ventilator hilft auch nicht.</p>
       <p class="hand">↑ Nach oben wischen = werfen. Länger wischen = weiter. Schräg wischen = zielen.</p>
-      ${best>0?`<p>Dein Rekord: <b>${best.toLocaleString('de-CH')}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
+      ${best>0?`<p>Dein Rekord: <b>${fmt(best)}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
     actions:acts,credit:true});
 }
 function levelDone(){
-  const L=levelDef(game.level),need=L.need,h=game.hits;
+  const p=P(),L=levelDef(game.level),need=L.need,h=p.hits;
   const st=h>=need+4||h===THROWS?3:h>=need+2?2:1;
-  const bonus=st*100*(game.level+1);game.score+=bonus;
-  if(game.score>best){best=game.score;store.set('best',best);}
-  const next=game.level+1;if(next>bestLevel){bestLevel=next;store.set('bestLevel',bestLevel);}
-  sfx.win();
+  const bonus=st*100*(game.level+1);p.score+=bonus;
+  if(p.score>best){best=p.score;store.set('best',best);}
+  const next=game.level+1;if(game.mode==='solo'&&next>bestLevel){bestLevel=next;store.set('bestLevel',bestLevel);}
+  sfx.win();game.state='menu';updateHUD();
   memo({to:'Dich',subject:'Beförderung',stamp:'BEFÖRDERT',stampGreen:true,big:levelDef(next).t,
-    body:`<p>${h} von ${THROWS} Treffern ${stars(st)} &nbsp;Bonus +${bonus}</p><p>Stand: <b>${game.score.toLocaleString('de-CH')}</b> Punkte. Deine neue Position:</p>${nextInfo(next)}`,
+    body:`<p>${h} von ${THROWS} Treffern ${stars(st)} &nbsp;Bonus +${bonus}</p><p>Stand: <b>${fmt(p.score)}</b> Punkte. Deine neue Position:</p>${nextInfo(next)}`,
     actions:[{label:'Neuen Job antreten →',go:()=>{hideMemo();startLevel(next,true);}}]});
 }
 function levelFailed(){
-  const L=levelDef(game.level);
-  sfx.fail();
+  const p=P(),L=levelDef(game.level);
+  sfx.fail();game.state='menu';updateHUD();
   memo({to:'Dich',subject:'Leistungsbeurteilung',stamp:'ABGELEHNT',big:'Nochmal!',
-    body:`<p>${game.hits} von ${L.need} nötigen Treffern in der Stufe „${L.t}“. Die Personalabteilung gibt dir eine zweite Chance.</p>${nextInfo(game.level)}`,
-    actions:[{label:'Nochmal versuchen',go:()=>{hideMemo();startLevel(game.level,false);}},{label:'Zum Start',ghost:true,go:()=>{showStart();}}]});
+    body:`<p>${p.hits} von ${L.need} nötigen Treffern in der Stufe „${L.t}“. Die Personalabteilung gibt dir eine zweite Chance.</p>${nextInfo(game.level)}`,
+    actions:[{label:'Nochmal versuchen',go:()=>{hideMemo();startLevel(game.level,false);}},{label:'Zum Start',ghost:true,go:showStart}]});
 }
+
+/* ---- local multiplayer: 2–4 players take turns on one device ---- */
+let localNames=store.get('names',['Spieler 1','Spieler 2','Spieler 3','Spieler 4']);
+function showLocalSetup(){
+  let n=store.get('localCount',2);
+  memo({to:'Euer Team',subject:'Mehrspieler am Gerät',big:'Wer spielt mit?',
+    body:`<p>Ihr werft abwechselnd, jede Person mit eigener Papierfarbe. Wer am Ende einer Stufe zu wenig Treffer hat, scheidet aus. Wer zuletzt übrig bleibt – oder die meisten Punkte hat – gewinnt.</p>
+      <div class="chips" role="group" aria-label="Anzahl Spieler">${[2,3,4].map(k=>`<button class="chip" data-n="${k}" id="cnt${k}">${k} Spieler</button>`).join('')}</div>
+      <div class="names">${[0,1,2,3].map(i=>`<label class="pname" id="row${i}"><i style="background:${PCOL[i].bg}"></i><input id="pn${i}" maxlength="14" autocomplete="off" value="${esc(localNames[i]||('Spieler '+(i+1)))}" aria-label="Name Spieler ${i+1}"></label>`).join('')}</div>`,
+    actions:[{label:'Los geht’s →',go:()=>{
+        const names=[];for(let i=0;i<4;i++)names.push(($('pn'+i).value||'').trim().slice(0,14)||('Spieler '+(i+1)));
+        localNames=names;store.set('names',names);store.set('localCount',n);
+        game.mode='local';game.players=names.slice(0,n).map((nm,i)=>newPlayer(nm,i));hideMemo();startLevel(0,true);}},
+      {label:'Zurück',ghost:true,go:showStart}],
+    after:()=>{const sel=k=>{n=k;[2,3,4].forEach(j=>$('cnt'+j).classList.toggle('on',j===k));[0,1,2,3].forEach(i=>$('row'+i).hidden=i>=k);};
+      [2,3,4].forEach(k=>$('cnt'+k).addEventListener('click',()=>sel(k)));sel(n);}});
+}
+function localLevelEnd(){
+  const L=levelDef(game.level),next=game.level+1;
+  const lines=[];let passed=0;
+  game.players.forEach(p=>{if(!p.alive)return;const ok=p.hits>=L.need;
+    if(ok){passed++;const st=p.hits>=L.need+4||p.hits===THROWS?3:p.hits>=L.need+2?2:1;const bonus=st*100*(game.level+1);p.score+=bonus;lines.push([p,`${p.hits}/${THROWS} ${stars(st)} +${bonus}`,true]);}
+    else{p.alive=false;lines.push([p,`${p.hits}/${THROWS} – freigestellt`,false]);}});
+  game.state='menu';updateHUD();
+  const ranking=game.players.slice().sort((a,b)=>b.score-a.score);
+  const list='<ol class="rank">'+ranking.map(p=>`<li${p.alive?'':' class="out"'}><i style="background:${PCOL[p.color].bg}"></i><span>${esc(p.name)}</span><b>${fmt(p.score)}</b></li>`).join('')+'</ol>';
+  const res='<div class="facts">'+lines.map(([p,t,ok])=>`<span>${ok?'✓':'✗'} ${esc(p.name)}: ${t}</span>`).join('')+'</div>';
+  if(passed===0){
+    sfx.fail();const w=ranking[0];
+    memo({to:'Euer Team',subject:'Endabrechnung',stamp:'FEIERABEND',big:`${esc(w.name)} gewinnt`,
+      body:`<p>In der Stufe „${L.t}“ hat niemand mehr genug getroffen. Endstand:</p>${res}${list}`,
+      actions:[{label:'Revanche',go:()=>{game.players.forEach(p=>{p.alive=true;p.score=0;p.levelStartScore=0;});hideMemo();startLevel(0,true);}},{label:'Zum Start',ghost:true,go:showStart}]});
+    return;
+  }
+  sfx.win();
+  const alone=passed===1&&game.players.length>1;
+  memo({to:'Euer Team',subject:'Beförderungsrunde',stamp:'BEFÖRDERT',stampGreen:true,big:levelDef(next).t,
+    body:`<p>Ergebnis der Stufe „${L.t}“:</p>${res}${alone?`<p>Nur noch ${esc(game.players.find(p=>p.alive).name)} ist im Rennen und spielt allein weiter.</p>`:''}${list}${nextInfo(next)}`,
+    actions:[{label:'Nächste Stufe →',go:()=>{hideMemo();startLevel(next,true);}},{label:'Spiel beenden',ghost:true,go:showStart}]});
+}
+
+/* ---- online: friends play on their own devices in a shared room (claude.ai "room") ---- */
+const net={api:undefined,room:null,code:null,name:store.get('nick',''),throwSeq:0,seen:{},joinedAt:0,goSeen:0,started:false,unsub:null,lobbyTimer:0,last:{}};
+function roomApi(){
+  if(net.api!==undefined)return Promise.resolve(net.api);
+  const c=window.claude;if(!c||typeof c.use!=='function'){net.api=null;return Promise.resolve(null);}
+  return c.use('room').then(r=>{net.api=r||null;return net.api;},()=>{net.api=null;return null;});
+}
+function netPlayers(){
+  if(!net.room)return [{name:net.name||'Du',color:0,score:P().score,lv:game.level,me:true}];
+  const list=net.room.peers().filter(p=>p.kind==='viewer'&&p.presence&&p.presence.rc===net.code);
+  const sorted=list.slice().sort((a,b)=>a.peer<b.peer?-1:1).slice(0,4);
+  return sorted.map((p,i)=>({peer:p.peer,me:!!p.sameTab,name:String(p.presence.n||'Gast').slice(0,14),color:i,score:+p.presence.sc||0,lv:typeof p.presence.lv==='number'?p.presence.lv:0,st:p.presence.st,go:+p.presence.go||0}));
+}
+function netPresence(patch){if(!net.room)return;const full=Object.assign({rc:net.code},patch),out={};let ch=false;
+  for(const k in full){const v=JSON.stringify(full[k]);if(net.last[k]!==v){net.last[k]=v;out[k]=full[k];ch=true;}}
+  if(ch)net.room.presence(out).catch(()=>{});}
+function netLeave(){
+  if(net.unsub){net.unsub();net.unsub=null;}
+  if(net.room&&net.room!==net.api&&net.room.leave)net.room.leave().catch(()=>{});
+  else if(net.room)net.room.presence({rc:null,n:null,sc:null,lv:null,h:null,t:null,st:null,th:null,go:null}).catch(()=>{});
+  net.room=null;net.code=null;net.last={};net.started=false;clearInterval(net.lobbyTimer);
+  if(/^#pt-/.test(location.hash))try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+}
+const CODE_CHARS='abcdefghjkmnpqrstuvwxyz23456789';
+function newCode(){let s='';for(let i=0;i<4;i++)s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return s;}
+function showOnlineSetup(code){
+  roomApi().then(api=>{
+    if(!api){
+      memo({to:'Dich',subject:'Freunde einladen',big:'Online nicht verfügbar',
+        body:`<p>Das Online-Spiel funktioniert nur, wenn ihr dieses Spiel auf claude.ai geöffnet habt und dort angemeldet seid. Personen, die nur über einen öffentlichen Link kommen, können sich nicht verbinden.</p><p>Ihr könnt aber am selben Gerät gegeneinander spielen.</p>`,
+        actions:[{label:'Mehrspieler am Gerät',go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
+      return;
+    }
+    const joining=!!code;
+    memo({to:'Dich',subject:joining?'Einladung':'Freunde einladen',big:joining?`Raum ${code.toUpperCase()}`:'Online spielen',
+      body:`<p>${joining?'Du wurdest zu einem Spiel eingeladen. ':''}Jede Person spielt auf dem eigenen Gerät. Ihr seht die Punkte der anderen live und ihre Papierkugeln fliegen in eurem Raum mit. Bis zu 4 Spieler pro Raum.</p>
+        <label class="pname solo"><span>Dein Name</span><input id="nick" maxlength="14" autocomplete="off" value="${esc(net.name)}" placeholder="z. B. Lena"></label>`,
+      actions:[{label:joining?'Beitreten →':'Raum erstellen →',go:()=>{const v=($('nick').value||'').trim().slice(0,14);net.name=v||'Gast';store.set('nick',net.name);enterRoom(code||newCode());}},
+        {label:'Zurück',ghost:true,go:showStart}],
+      after:()=>{const i=$('nick');if(i)i.focus({preventScroll:true});}});
+  });
+}
+async function enterRoom(code){
+  const api=await roomApi();if(!api)return showOnlineSetup();
+  let r=null;
+  try{r=await api.join('pt-'+code);}catch(e){r=api;}   // named rooms unavailable: share the lobby, filtered by code
+  net.room=r;net.code=code;net.last={};net.joinedAt=Date.now();net.goSeen=0;net.started=false;net.seen={};
+  try{location.hash='pt-'+code;}catch(e){}
+  netPresence({n:net.name,sc:0,lv:0,h:0,t:THROWS,st:'lobby',th:null,go:null});
+  net.unsub=r.onPeers(onNetPeers,()=>{});
+  showLobby();
+  setTimeout(()=>{if(net.code===code&&netPlayers().length>=4&&!netPlayers().some(p=>p.me)){netLeave();memo({to:'Dich',subject:'Raum voll',big:'Leider voll',body:'<p>In diesem Raum spielen schon 4 Personen.</p>',actions:[{label:'Eigenen Raum erstellen',go:()=>showOnlineSetup()},{label:'Zum Start',ghost:true,go:showStart}]});}},2500);
+}
+function inviteLink(){return INVITE_BASE+'#pt-'+net.code;}
+function showLobby(){
+  game.state='menu';
+  memo({to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
+    body:`<p>Schick diesen Link an bis zu 3 Freunde. Sie brauchen Zugriff auf dieses Spiel auf claude.ai.</p>
+      <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
+      <p class="hand" id="copyMsg" aria-live="polite"></p>
+      <ol class="rank" id="lobbyList"></ol>`,
+    actions:[{label:'Spiel starten →',go:()=>{netPresence({go:Date.now()});beginOnline();}},{label:'Raum verlassen',ghost:true,go:showStart}],
+    after:()=>{
+      $('copyLink').addEventListener('click',()=>{const inp=$('inviteLink');const done=t=>{$('copyMsg').textContent=t;};
+        try{navigator.clipboard.writeText(inp.value).then(()=>done('Link kopiert – jetzt teilen!'),()=>{inp.select();done('Link markiert – mit Strg+C / Teilen kopieren.');});}catch(e){inp.select();done('Link markiert – mit Strg+C / Teilen kopieren.');}});
+      renderLobby();}});
+  clearInterval(net.lobbyTimer);net.lobbyTimer=setInterval(renderLobby,1000);
+}
+function renderLobby(){
+  const ul=$('lobbyList');if(!ul){clearInterval(net.lobbyTimer);return;}
+  ul.textContent='';const ps=netPlayers();
+  ps.forEach(p=>{const li=document.createElement('li');const i=document.createElement('i');i.style.background=PCOL[p.color].bg;const s=document.createElement('span');s.textContent=p.name+(p.me?' (du)':'');
+    const b=document.createElement('b');b.textContent=p.st==='play'?'spielt':'wartet';li.append(i,s,b);ul.append(li);});
+  if(ps.length<2){const li=document.createElement('li');li.className='out';li.textContent='Warte auf Mitspieler …';ul.append(li);}
+}
+function beginOnline(){
+  if(net.started)return;net.started=true;clearInterval(net.lobbyTimer);
+  game.mode='online';game.players=[newPlayer(net.name,0)];hideMemo();startLevel(0,true);
+}
+function onNetPeers(ch){
+  const me=netPlayers().find(p=>p.me);
+  // somebody pressed start after I joined: start too
+  if(!net.started&&$('lobbyList')){const go=netPlayers().filter(p=>!p.me&&p.go>net.joinedAt-60000).length;if(go)beginOnline();}
+  // replay colleagues' throws on the same level
+  const list=net.room?net.room.peers():[];const order=netPlayers();
+  list.forEach(p=>{if(p.sameTab||!p.presence||p.presence.rc!==net.code)return;const th=p.presence.th;if(!th||typeof th.seq!=='number'){if(net.seen[p.peer]===undefined)net.seen[p.peer]=0;return;}
+    const prev=net.seen[p.peer];net.seen[p.peer]=th.seq;
+    if(prev===undefined||prev===th.seq)return;
+    if(game.mode==='online'&&game.state!=='menu'&&th.lv===game.level&&isFinite(th.sp)&&isFinite(th.yaw)&&Math.abs(th.sp)<14&&Math.abs(th.yaw)<1.2){
+      const o=order.find(x=>x.peer===p.peer);spawnGhost(o?o.color:1,{sp:+th.sp,yaw:+th.yaw,w:Math.max(-5,Math.min(5,+th.w||0))});}
+  });
+  if(game.mode==='online'&&$('menu').hidden)updateHUDBoardOnly();
+  if(ch.joined.some(p=>!p.sameTab)&&game.mode==='online'&&game.state!=='menu')toast('Neu im Raum','');
+}
+function updateHUDBoardOnly(){const s=game.state;updateHUD();}
 
 /* ================= mute ================= */
 function renderMute(){$('muteWave').toggleAttribute('hidden',muted);$('muteX').toggleAttribute('hidden',!muted);$('mute').setAttribute('aria-label',muted?'Ton an':'Ton aus');}
@@ -850,14 +1082,12 @@ renderRadio();
 renderMute();
 
 /* ================= main loop ================= */
-let last=performance.now(),acc=0;const STEP=1/480;
+let last=performance.now();const STEP=1/480;
 function frame(now){
   requestAnimationFrame(frame);
   let dt=Math.min(0.05,(now-last)/1000);last=now;game.t+=dt;
   const t=game.t;
-  // bin motion
   const oldX=game.bin.x;updateBin(t);const binDX=game.bin.x-oldX;
-  // ball
   if(ball){
     if(ball.state==='hand'){
       const pull=drag?Math.min(1,Math.max(0,-(drag.y-drag.y0)/refLen())):0;
@@ -876,52 +1106,52 @@ function frame(now){
       }
     }
   }
-  // fans + wind streaks
+  for(let i=ghosts.length-1;i>=0;i--){const g=ghosts[i];g.t+=dt;const n=Math.max(1,Math.round(dt/(1/240)));for(let k=0;k<n;k++)stepGhost(g,dt/n);g.mesh.position.copy(g.p);g.mesh.rotation.x+=dt*6;
+    if(g.t>3.2){g.mesh.material=g.mesh.material;scene.remove(g.mesh);ghosts.splice(i,1);}}
   const w=game.wind;
   fans.forEach(f=>{const active=(w>0&&f.side<0)||(w<0&&f.side>0);const target=active?Math.abs(w)*14:0;f.spin+=(target-f.spin)*Math.min(1,dt*2);f.blades.rotation.z+=f.spin*dt;
     f.head.rotation.y=Math.sin(t*0.6+f.side)*0.08;});
   streakMat.opacity+=((Math.min(0.35,Math.abs(w)*0.12))-streakMat.opacity)*Math.min(1,dt*3);
   if(streakMat.opacity>0.005){for(let i=0;i<STREAKS;i++){const s=streakData[i];s.x+=w*s.s*dt*0.9;
-      if(s.x>3.2){s.x=-3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-9.5,game.bin.z-1),-0.5);}if(s.x<-3.2){s.x=3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-9.5,game.bin.z-1),-0.5);}
+      if(s.x>3.2){s.x=-3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-7.5,game.bin.z-1),-0.5);}if(s.x<-3.2){s.x=3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-7.5,game.bin.z-1),-0.5);}
       const dir=Math.sign(w)||1;streakPos.set([s.x,s.y,s.z,s.x-dir*s.l,s.y,s.z],i*6);}
     streakGeo.attributes.position.needsUpdate=true;}
   streaks.visible=streakMat.opacity>0.005;
-  // menu idle camera drift
   if(game.state==='menu'){camera.position.set(CAM.x+Math.sin(t*0.25)*0.25,CAM.y+0.05,CAM.z);camera.lookAt(0,LOOKY,game.bin.z);}
   else{camera.position.copy(CAM);camera.lookAt(0,LOOKY,game.bin.z);}
   drawTV(t);
   renderer.render(scene,camera);
   drawAim();
 }
+// swipe line under the finger; the power meter lives fixed on the right edge
 function drawAim(){
   const w=window.innerWidth,h=window.innerHeight;actx.clearRect(0,0,w,h);
-  if(!drag)return;
-  const dx=drag.x-drag.x0,dy=drag.y-drag.y0;if(dy>-8)return;
-  const s=Math.min(1.1,-dy/refLen());
-  const col=s<0.45?'#7fd18b':s<0.75?'#ffd34d':'#ff7a59';
+  const pw=$('power');
+  if(!drag){if(pw.classList.contains('on'))pw.classList.remove('on');return;}
+  const dx=drag.x-drag.x0,dy=drag.y-drag.y0;
+  const s=Math.max(0,Math.min(1.1,-dy/refLen()));const pct=Math.round(s/1.1*100);
+  const col=s<0.45?'#3fb35a':s<0.75?'#f2b705':'#ef5b35';
+  if(!pw.classList.contains('on'))pw.classList.add('on');
+  $('powerFill').style.height=pct+'%';$('powerFill').style.background=col;$('powerPct').textContent=pct+' %';
+  pw.setAttribute('aria-valuenow',pct);
+  if(dy>-8)return;
   actx.lineCap='round';actx.setLineDash([2,10]);actx.lineWidth=5;actx.strokeStyle='rgba(255,255,255,.85)';
   actx.beginPath();actx.moveTo(drag.x0,drag.y0);actx.lineTo(drag.x,drag.y);actx.stroke();actx.setLineDash([]);
   actx.fillStyle=col;actx.beginPath();actx.arc(drag.x,drag.y,9,0,7);actx.fill();
   actx.strokeStyle='rgba(0,0,0,.35)';actx.lineWidth=2;actx.stroke();
-  // power gauge
-  const gx=Math.min(w-40,drag.x0+46),gy=drag.y0,gh=110;
-  actx.fillStyle='rgba(253,253,251,.85)';actx.fillRect(gx,gy-gh,10,gh);
-  actx.fillStyle=col;actx.fillRect(gx,gy-gh*Math.min(1,s/1.1),10,gh*Math.min(1,s/1.1));
-  actx.strokeStyle='#1d2742';actx.lineWidth=1.5;actx.strokeRect(gx,gy-gh,10,gh);
-  actx.font='700 22px Caveat, cursive';actx.fillStyle='#fff';actx.shadowColor='rgba(0,0,0,.6)';actx.shadowBlur=6;
-  actx.fillText(Math.round(s/1.1*100)+' %',gx+16,gy-gh*Math.min(1,s/1.1)+8);actx.shadowBlur=0;
 }
 
 /* ================= boot ================= */
 game.bin.z=-3;resize();
-showStart();
+const inviteCode=(location.hash.match(/^#pt-([a-z0-9]{4})$/)||[])[1];
+if(inviteCode)showOnlineSetup(inviteCode);else showStart();
 const ld=$('loading');if(ld)ld.textContent='Papierkorb wird geliefert …';
 loadBin(()=>{
   const L=levelDef(0),b=game.bin;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;binHolder.scale.setScalar(L.s);updateBin(0);
   const l=$('loading');if(l)l.textContent='';
 });
 requestAnimationFrame(frame);
-window.__paperToast={game,throwBall:(s,y)=>throwBall(s,y),get ball(){return ball;},BIN0:()=>BIN0,startLevel};
+window.__paperToast={game,throwBall:(s,y)=>throwBall(s,y),get ball(){return ball;},BIN0:()=>BIN0,startLevel,spawnGhost};
 })();
 </script>
 </body>
