@@ -1,0 +1,11 @@
+Paper Toast – Quellen
+
+Papierkorb: "Trash Can" von rickmaolly (Sketchfab), CC BY 4.0
+  https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627
+  Texturen auf 1024 px verkleinert und als WebP gespeichert.
+
+Konferenzraum (office.glb): aus der gelieferten Datei Format2.FBX umgewandelt,
+  vereinfacht (ca. 12 % der Dreiecke) und nach Material zusammengefasst.
+  Die Original-Texturen waren nicht in der FBX-Datei enthalten.
+
+Musik, Radio-Stimmen, Geräusche und TV-Programm werden im Browser erzeugt.
