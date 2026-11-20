@@ -183,9 +183,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 .start h1{font-family:var(--hand);font-weight:700;font-size:clamp(64px,19vw,92px);line-height:.9;margin:6px 0 2px;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.45)}
 .start h1 span{color:var(--sticky)}
 .start .sub{font-size:15px;opacity:.85;margin:0 0 16px}
-.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
-.chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;font-size:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.chip b{font-variant-numeric:tabular-nums;color:#fff;font:700 15px var(--sans)}
+.start:not(.panel) .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.start:not(.panel) .chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;font-size:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.start .chip b{font-variant-numeric:tabular-nums;color:#fff;font:700 15px var(--sans)}
+.panel .chips{justify-content:flex-start;margin:12px 0}
+.panel button.chip{font:600 14px var(--sans);border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:8px 14px}
+.panel button.chip.on{background:linear-gradient(180deg,#ffe866,#f5c400);color:#1d2742;border-color:transparent}
 .play{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;border-radius:18px;padding:18px 20px;font:700 22px var(--sans);color:#1d2742;background:linear-gradient(180deg,#ffe866,#f5c400);box-shadow:0 10px 28px -8px rgba(245,196,0,.7),inset 0 -3px 0 rgba(0,0,0,.12);cursor:pointer;transition:transform .12s}
 .play:active{transform:scale(.98)}
 .play svg{width:22px;height:22px}
@@ -202,6 +205,50 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 .start details summary{cursor:pointer;text-align:center;list-style:none}
 .start details a{color:inherit}
 .start #loading{font-family:var(--sans);text-align:center}
+
+/* ---------- modern panels (friends, rooms, stars) ---------- */
+.panel{text-align:left;background:rgba(18,22,34,.72);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:22px 20px 18px;box-shadow:0 24px 60px -18px rgba(0,0,0,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);width:min(500px,100%)}
+.panel .kicker{text-align:left}
+.panel h2{font-family:var(--hand);font-weight:700;font-size:clamp(40px,11vw,54px);line-height:1;margin:4px 0 10px;color:#fff}
+.panel .pbody p{font-size:15px;line-height:1.5;margin:0 0 10px;color:rgba(255,255,255,.88)}
+.panel .pbody b{color:#fff}
+.panel .hand{font-family:var(--sans);font-size:14px;color:var(--sticky)}
+.pacts{display:grid;gap:10px;margin-top:16px}
+.pacts .play{font-size:19px;padding:15px 16px;border-radius:16px}
+.pacts .cont{margin-top:0}
+.pacts button:disabled{opacity:.45;cursor:default}
+.panel .wallet{font-family:var(--sans);font-size:15px;gap:8px;margin:0 0 12px}
+.panel .wallet span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px}
+.panel .wallet b{font-size:15px;color:#fff}
+.panel .sect{font-family:var(--sans);font-size:12px;letter-spacing:.2em;border-bottom:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);margin:16px 0 8px}
+.panel .ladder button{font-family:var(--sans);font-size:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:14px;box-shadow:none;min-height:68px}
+.panel .ladder button b{font-size:20px;color:var(--sticky)}
+.panel .ladder button.next{background:linear-gradient(180deg,#ffe866,#f5c400);color:#1d2742;border-color:transparent}
+.panel .ladder button.next b{color:#1d2742}
+.panel .ladder button.done{background:rgba(63,179,90,.18);color:#9fe0ae;border-color:rgba(63,179,90,.4)}
+.panel .ladder button.done b{color:#9fe0ae}
+.panel .tasks li{border-bottom:1px solid rgba(255,255,255,.1)}
+.panel .tasks .tt{font-size:14px;color:#fff}
+.panel .tasks .tt small{opacity:.6}
+.panel .tasks .bar{background:rgba(255,255,255,.12)}
+.panel .tasks .bar i{background:#3fb35a}
+.panel .tasks .rw{font-family:var(--sans);font-size:14px;color:rgba(255,255,255,.8)}
+.panel .tasks .rw.ok{color:#9fe0ae}
+.panel .btn,.panel .btn.small{font-family:var(--sans);font-size:14px;font-weight:700;border:0;border-radius:999px;padding:7px 14px;background:linear-gradient(180deg,#ffe866,#f5c400);color:#1d2742;box-shadow:none}
+.panel .btn:disabled{opacity:.4}
+.panel .shop li{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);border-radius:16px;padding:12px 14px}
+.panel .shop .pk{font-family:var(--sans);font-size:20px;color:#fff!important}
+.panel .shop .pr{color:rgba(255,255,255,.75)}
+.panel .pname span,.panel .pname.solo span{font-family:var(--sans);font-size:12px;letter-spacing:.08em;color:rgba(255,255,255,.7);opacity:1}
+.panel .pname input,.panel .invite input{font-family:var(--sans);font-size:17px;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 12px}
+.panel .pname input:focus,.panel .invite input:focus{border-color:var(--sticky)}
+.panel .pname.solo{max-width:none;margin-top:12px}
+.panel .pname i{border-color:#fff}
+.panel .invite input{font-size:13px}
+.panel .rank li{font-family:var(--sans);font-size:16px;color:#fff;background:rgba(255,255,255,.07);border-radius:12px;padding:8px 12px}
+.panel .rank li i{border-color:#fff}
+.panel .rank li b{font-weight:600;color:rgba(255,255,255,.75)}
+.panel .facts{font-family:var(--sans);color:rgba(255,255,255,.75)}
 </style>
 </head>
 <body>
@@ -1114,7 +1161,20 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 /* ================= memos ================= */
 function stars(n){return '<span class="stars">'+[0,1,2].map(i=>i<n?'★':'<span class="off">★</span>').join('')+'</span>';}
 const CREDIT_HTML=`Papierkorb-Modell: „Trash Can“ von <a href="https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627" target="_blank" rel="noopener">rickmaolly</a>, Lizenz <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Ebenfalls CC BY 4.0: „Office Props Pack“ von <a href="https://sketchfab.com/3d-models/office-props-pack-260ff7a37a674505903708a0dc513e7e" target="_blank" rel="noopener">seenoise</a>, „Office Drawer“ von <a href="https://sketchfab.com/3d-models/office-drawer-48dae122a1694609886c84ae17a15d01" target="_blank" rel="noopener">Mkky</a>, „Vintage Ventilator“ von <a href="https://sketchfab.com/3d-models/vintage-ventilator-e17c65e0c8604407900a93104b965ce3" target="_blank" rel="noopener">Özlem Çandır</a>, „Ceiling Ventilator – Dirt (Animated)“ von <a href="https://sketchfab.com/3d-models/ceiling-ventilator-dirt-animated-140fda1faf9040a8986e00bbf6f86b80" target="_blank" rel="noopener">Berk Gedik</a>, „Tv Small“ von <a href="https://sketchfab.com/3d-models/tv-small-d28392d2dfc747a39bad7266387359c9" target="_blank" rel="noopener">Cyber_Monkey</a>.`;
-function memo({to,subject,big,body,stamp,stampGreen,actions,credit,after}){
+function memo(opts){if(opts.modern)return panel(opts);return paperMemo(opts);}
+// modern dark panel in the style of the start screen (used for friends, rooms, stars); same action ids as the memo
+function panel({subject,big,body,actions,after}){
+  const m=$('menu');m.className='overlay home';
+  m.innerHTML=`<div class="start panel" role="dialog" aria-modal="true" aria-label="${esc(subject)}">
+    <div class="kicker">${subject}</div><h2>${big}</h2><div class="pbody">${body}</div>
+    <div class="pacts">${actions.map((a,i)=>`<button class="${a.ghost?'cont':'play'}" id="act${i}"${a.disabled?' disabled':''}>${a.label}</button>`).join('')}</div>
+  </div>`;
+  m.hidden=false;$('hud').hidden=true;$('turn').hidden=true;$('gameBtns').hidden=true;
+  actions.forEach((a,i)=>$('act'+i).addEventListener('click',()=>{ac();radioStart();a.go();}));
+  setTimeout(()=>{const b=$('act0');if(b&&!m.querySelector('input'))b.focus({preventScroll:true});},50);
+  if(after)after(m);
+}
+function paperMemo({to,subject,big,body,stamp,stampGreen,actions,credit,after}){
   const m=$('menu');m.className='overlay';
   const today=new Date().toLocaleDateString('de-CH');
   m.innerHTML=`<div class="memo" role="dialog" aria-modal="true" aria-label="${esc(subject)}">
@@ -1234,7 +1294,7 @@ function showAd(done){
 
 /* ---- rewards memo: daily ladder + tasks ---- */
 function showRewards(back){
-  memo({to:'Dich',subject:'Belohnungen',big:'Sterne sammeln',
+  memo({modern:true,to:'Dich',subject:'Belohnungen',big:'Sterne sammeln',
     body:`${walletLine()}<div id="rewardsBody"></div>`,
     actions:[{label:'Zum Kiosk',go:()=>showShop(back)},{label:'Zurück',ghost:true,go:back||showStart}],
     after:renderRewards});
@@ -1262,7 +1322,7 @@ function renderRewards(){
 
 /* ---- kiosk: trade game points for stars ---- */
 function showShop(back){
-  memo({to:'Dich',subject:'Büro-Kiosk',big:'Kiosk',
+  memo({modern:true,to:'Dich',subject:'Büro-Kiosk',big:'Kiosk',
     body:`${walletLine()}<p>Tausche deine gesammelten Spielpunkte gegen Sterne. Punkte bekommst du beim Spielen allein und online.</p><ul class="shop" id="shopList"></ul><p class="hand" id="shopMsg" aria-live="polite"></p>`,
     actions:[{label:'Belohnungen',go:()=>showRewards(back)},{label:'Zurück',ghost:true,go:back||showStart}],
     after:renderShop});
@@ -1275,7 +1335,7 @@ function renderShop(){
     W.pts-=o.p;sfx.paper();addStars(o.n,'gekauft');$('shopMsg').textContent=`Gekauft: ${o.n} ⭐`;}));
 }
 function needStarMemo(back){
-  memo({to:'Dich',subject:'Online-Spiel',big:'Kein Stern mehr',
+  memo({modern:true,to:'Dich',subject:'Online-Spiel',big:'Kein Stern mehr',
     body:`${walletLine()}<p>Ein Online-Spiel kostet 1 ⭐. Hol dir Sterne mit dem Tages-Bonus und den Aufgaben – oder tausche Punkte im Kiosk.</p>`,
     actions:[{label:'Belohnungen',go:()=>showRewards(back)},{label:'Kiosk',ghost:true,go:()=>showShop(back)},{label:'Zurück',ghost:true,go:showStart}]});
 }
@@ -1311,12 +1371,12 @@ function showStart(){
   setTimeout(()=>{const b=$('stPlay');if(b)b.focus({preventScroll:true});},50);
 }
 function showRooms(){
-  memo({to:'Dich',subject:'Raumreservation',big:'Wo spielst du?',
+  memo({modern:true,to:'Dich',subject:'Raumreservation',big:'Wo spielst du?',
     body:`<p>Wähle deinen Raum. Die Stufen und Regeln sind überall gleich.</p><ul class="shop">${Object.entries(ROOMS).map(([k,r])=>`<li><div><div class="pk" style="color:var(--ink)">${r.name}${k===roomId?' ✓':''}</div><div class="pr">${r.desc}</div></div></li>`).join('')}</ul>`,
     actions:[...Object.entries(ROOMS).map(([k,r])=>({label:(k===roomId?'✓ ':'')+r.name,ghost:k!==roomId,go:()=>{setRoom(k);frameCamera();showStart();}})),{label:'Zurück',ghost:true,go:showStart}]});
 }
 function showFriends(){
-  memo({to:'Dich',subject:'Mit Freunden spielen',big:'Mit Freunden',
+  memo({modern:true,to:'Dich',subject:'Mit Freunden spielen',big:'Mit Freunden',
     body:`<p><b>Am selben Gerät:</b> 2–4 Personen werfen abwechselnd. Gratis.</p>
       <p><b>Online:</b> Jede Person auf dem eigenen Gerät, mit Raum-Code. Kostet 1 ⭐ pro Spiel. In der Lobby könnt ihr euch Sterne schenken.</p>
       ${walletLine()}`,
@@ -1346,7 +1406,7 @@ function levelFailed(){
 let localNames=store.get('names',['Spieler 1','Spieler 2','Spieler 3','Spieler 4']);
 function showLocalSetup(){
   let n=store.get('localCount',2);
-  memo({to:'Euer Team',subject:'Mehrspieler am Gerät',big:'Wer spielt mit?',
+  memo({modern:true,to:'Euer Team',subject:'Mehrspieler am Gerät',big:'Wer spielt mit?',
     body:`<p>Ihr werft abwechselnd, jede Person mit eigener Papierfarbe. Wer am Ende einer Stufe zu wenig Treffer hat, scheidet aus. Wer zuletzt übrig bleibt – oder die meisten Punkte hat – gewinnt.</p>
       <div class="chips" role="group" aria-label="Anzahl Spieler">${[2,3,4].map(k=>`<button class="chip" data-n="${k}" id="cnt${k}">${k} Spieler</button>`).join('')}</div>
       <div class="names">${[0,1,2,3].map(i=>`<label class="pname" id="row${i}"><i style="background:${PCOL[i].bg}"></i><input id="pn${i}" maxlength="14" autocomplete="off" value="${esc(localNames[i]||('Spieler '+(i+1)))}" aria-label="Name Spieler ${i+1}"></label>`).join('')}</div>`,
@@ -1447,13 +1507,13 @@ function netLeave(){
 const CODE_CHARS='abcdefghjkmnpqrstuvwxyz23456789';
 function newCode(){let s='';for(let i=0;i<4;i++)s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return s;}
 function showOnlineSetup(code){
-  memo({to:'Dich',subject:code?'Einladung':'Freunde einladen',big:'Verbinde …',body:'<p>Einen Moment, der Online-Raum wird geöffnet.</p>',
+  memo({modern:true,to:'Dich',subject:code?'Einladung':'Freunde einladen',big:'Verbinde …',body:'<p>Einen Moment, der Online-Raum wird geöffnet.</p>',
     actions:[{label:'Zurück',ghost:true,go:()=>{net.wait=0;showStart();}}]});
   const tok=net.wait=(net.wait||0)+1;
   roomApi().then(api=>{
     if(net.wait!==tok)return;   // player went back meanwhile
     if(!api){
-      memo({to:'Dich',subject:'Freunde einladen',big:'Keine Verbindung',
+      memo({modern:true,to:'Dich',subject:'Freunde einladen',big:'Keine Verbindung',
         body:USE_FB?`<p>Der Online-Server ist gerade nicht erreichbar. Prüfe deine Internetverbindung und versuche es nochmals.</p><p>Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`
           :`<p>Der Online-Raum ist gerade nicht erreichbar. Hier auf claude.ai läuft das Online-Spiel nur für angemeldete Personen mit Zugriff.</p><p>Tipp: Spielt auf der eigenen Spiel-Webseite – dort braucht niemand ein Konto. Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`,
         actions:[{label:'Nochmals versuchen',go:()=>showOnlineSetup(code)},{label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
@@ -1462,7 +1522,7 @@ function showOnlineSetup(code){
     if(W.stars<1)return needStarMemo(()=>showOnlineSetup(code));
     const joining=!!code;
     const saveName=()=>{const v=($('nick').value||'').trim().slice(0,14);net.name=v||'Gast';store.set('nick',net.name);};
-    memo({to:'Dich',subject:joining?'Einladung':'Freunde einladen',big:joining?`Raum ${code.toUpperCase()}`:'Online spielen',
+    memo({modern:true,to:'Dich',subject:joining?'Einladung':'Freunde einladen',big:joining?`Raum ${code.toUpperCase()}`:'Online spielen',
       body:`<p>${joining?'Du wurdest zu einem Spiel eingeladen. ':''}Ein Online-Spiel kostet 1 ⭐ (du hast ${W.stars}). Jede Person spielt auf dem eigenen Gerät. Ihr seht die Punkte der anderen live und ihre Papierkugeln fliegen in eurem Raum mit. Bis zu 4 Spieler pro Raum.</p>
         <label class="pname solo"><span>Dein Name</span><input id="nick" maxlength="14" autocomplete="off" value="${esc(net.name)}" placeholder="z. B. Lena"></label>
         ${joining?'':`<label class="pname solo"><span>Raum-Code von Freunden (falls du einen hast)</span><input id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="z. B. K7QM"></label><p class="hand" id="codeMsg" aria-live="polite"></p>`}`,
@@ -1489,7 +1549,7 @@ async function enterRoom(code){
 function inviteLink(){return (USE_FB?location.origin+location.pathname:INVITE_BASE)+'#pt-'+net.code;}
 function showLobby(){
   game.state='menu';
-  memo({to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
+  memo({modern:true,to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
     body:`<p>Schick diesen Link an bis zu 3 Freunde.${USE_FB?'':' Wer bei claude.ai angemeldet ist, kann mitspielen.'} Klappt der Link nicht: Spiel öffnen, „Mit Freunden“ → „Online“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
       <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
       <p class="hand" id="copyMsg" aria-live="polite"></p>
