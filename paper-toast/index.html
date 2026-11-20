@@ -156,6 +156,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 .ladder button.done{background:#e3f1e8;color:#5b7;box-shadow:none;cursor:default}
 .ladder button.done b{color:#5b7}
 .ladder button.next{background:var(--sticky)}
+.rank li:has(.gift){grid-template-columns:14px 1fr auto auto}
+.rank .gift{margin-left:0;font-size:17px;padding:1px 10px 3px}
 .ladder button:disabled:not(.done){opacity:.45;cursor:default;box-shadow:none}
 .tasks{list-style:none;margin:0;padding:0}
 .tasks li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--rule)}
@@ -227,16 +229,17 @@ const $=id=>document.getElementById(id);
 // d = distance (m), s = bin scale, w = max wind (m/s²), m = moving amplitude (m), need = hits of 10
 // bar:true = bin stands on the standing table behind the conference table, otherwise on the table itself
 const LEVELS=[
-  {t:'Praktikum',        d:3.6, s:1.60, w:0,   m:0,    need:3},
-  {t:'Lehre',            d:4.0, s:1.50, w:0.6, m:0,    need:4},
-  {t:'Sachbearbeitung',  d:4.5, s:1.40, w:1.0, m:0,    need:4},
-  {t:'Teamleitung',      d:5.0, s:1.30, w:1.4, m:0,    need:5},
-  {t:'Abteilungsleitung',d:5.4, s:1.20, w:1.2, m:0.35, need:4},
-  {t:'Bereichsleitung',  d:5.9, s:1.15, w:2.0, m:0,    need:5},
-  {t:'Direktion',        d:7.15,s:1.10, w:1.8, m:0,    need:4, bar:true},
-  {t:'Vizepräsidium',    d:6.1, s:1.00, w:2.4, m:0.5,  need:4},
-  {t:'CEO',              d:7.15,s:0.95, w:2.6, m:0,    need:5, bar:true},
-  {t:'Verwaltungsrat',   d:7.15,s:0.88, w:3.0, m:0,    need:5, bar:true},
+  // gentle start: the bin moves back slowly; the far standing table only comes in the top levels
+  {t:'Praktikum',        d:3.2, s:1.60, w:0,   m:0,    need:3},
+  {t:'Lehre',            d:3.5, s:1.55, w:0.4, m:0,    need:3},
+  {t:'Sachbearbeitung',  d:3.8, s:1.50, w:0.7, m:0,    need:4},
+  {t:'Teamleitung',      d:4.1, s:1.45, w:1.0, m:0,    need:4},
+  {t:'Abteilungsleitung',d:4.4, s:1.35, w:0.9, m:0.3,  need:4},
+  {t:'Bereichsleitung',  d:4.9, s:1.25, w:1.4, m:0,    need:4},
+  {t:'Direktion',        d:5.4, s:1.15, w:1.6, m:0,    need:4},
+  {t:'Vizepräsidium',    d:5.9, s:1.05, w:1.9, m:0.45, need:4},
+  {t:'CEO',              d:7.15,s:1.00, w:1.8, m:0,    need:4, bar:true},
+  {t:'Verwaltungsrat',   d:7.15,s:0.92, w:2.4, m:0,    need:5, bar:true},
 ];
 function levelDef(i){
   if(i<LEVELS.length) return LEVELS[i];
@@ -722,7 +725,7 @@ function startLevel(i,keepScore){
   const b=game.bin;b.z=-L.d;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;
   frameCamera();
   bar.visible=!!L.bar;
-  if(L.bar){BAR.x=i<7?0:rnd(-0.7,0.7);BAR.z=-L.d;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
+  if(L.bar){BAR.x=i<9?0:rnd(-0.7,0.7);BAR.z=-L.d;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
   else{b.surf=TABLE.y;const lim=TABLE.hx-b.Rt-0.06;b.amp=L.m>0?Math.min(L.m,TABLE.hx-0.24):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.12+i*0.07));}
   b.omega=0.7+i*0.05;b.phase=rnd(0,6.28);b.y=b.surf+(b.amp>0?0.075:0);
   robot.visible=b.amp>0;
@@ -1087,18 +1090,24 @@ function needStarMemo(back){
 }
 function showStart(){
   game.state='menu';netLeave();game.mode='solo';
+  const open=openTasks();
   const acts=[{label:'Allein spielen →',go:()=>startSolo(0)},
-    {label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},
-    {label:'Freunde einladen (1 ⭐)',ghost:true,go:()=>showOnlineSetup()},
-    {label:'⭐ Belohnungen'+(openTasks()?` (${openTasks()})`:''),ghost:true,go:()=>showRewards()},
-    {label:'Kiosk',ghost:true,go:()=>showShop()}];
-  if(bestLevel>0)acts.splice(1,0,{label:`Weiter bei Stufe ${bestLevel+1}`,ghost:true,go:()=>startSolo(bestLevel)});
+    {label:'Mit Freunden',ghost:true,go:showFriends},
+    {label:'⭐ Sterne & Aufgaben'+(open?` (${open} neu)`:''),ghost:true,go:()=>showRewards()}];
+  if(bestLevel>0)acts.splice(1,0,{label:`Weiter bei „${levelDef(bestLevel).t}“`,ghost:true,go:()=>startSolo(bestLevel)});
   memo({to:'Alle Mitarbeitenden',subject:'Papierkorb-Offensive',big:'Paper Toast',
-    body:`<p>Ab sofort gilt: Wer den Papierkorb trifft, wird befördert. Pro Stufe hast du ${THROWS} Würfe. Je höher du kommst, desto weiter weg steht der Kübel, desto kleiner wird er – und der Ventilator hilft auch nicht.</p>
+    body:`<p>Triff den Papierkorb und werde befördert. Pro Stufe hast du ${THROWS} Würfe.</p>
+      <p class="hand">☝ Nach oben wischen = werfen. Länger wischen = weiter.</p>
       ${walletLine()}
-      <p class="hand">↑ Nach oben wischen = werfen. Länger wischen = weiter. Schräg wischen = zielen.</p>
-      ${best>0?`<p>Dein Rekord: <b>${fmt(best)}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
+      ${best>0?`<p>Rekord: <b>${fmt(best)}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
     actions:acts,credit:true});
+}
+function showFriends(){
+  memo({to:'Dich',subject:'Mit Freunden spielen',big:'Mit Freunden',
+    body:`<p><b>Am selben Gerät:</b> 2–4 Personen werfen abwechselnd. Gratis.</p>
+      <p><b>Online:</b> Jede Person auf dem eigenen Gerät, mit Raum-Code. Kostet 1 ⭐ pro Spiel. In der Lobby könnt ihr euch Sterne schenken.</p>
+      ${walletLine()}`,
+    actions:[{label:'Am selben Gerät',go:showLocalSetup},{label:'Online (1 ⭐)',go:()=>showOnlineSetup()},{label:'Zurück',ghost:true,go:showStart}]});
 }
 function levelDone(){
   const p=P(),L=levelDef(game.level),need=L.need,h=p.hits;
@@ -1217,7 +1226,7 @@ async function enterRoom(code){
   const api=await roomApi();if(!api)return showOnlineSetup();
   let r=null;
   try{r=await api.join('pt-'+code);}catch(e){r=api;}   // named rooms unavailable: share the lobby, filtered by code
-  net.room=r;net.code=code;net.last={};net.joinedAt=Date.now();net.goSeen=0;net.started=false;net.seen={};
+  net.room=r;net.code=code;net.last={};net.gifts={};net.got={};net.joinedAt=Date.now();net.goSeen=0;net.started=false;net.seen={};
   try{location.hash='pt-'+code;}catch(e){}
   netPresence({n:net.name,sc:0,lv:0,h:0,t:THROWS,st:'lobby',th:null,go:null});
   net.unsub=r.onPeers(onNetPeers,()=>{});
@@ -1231,7 +1240,7 @@ function showLobby(){
     body:`<p>Schick diesen Link an bis zu 3 Freunde. Wer bei claude.ai angemeldet ist, kann mitspielen. Klappt der Link nicht: Spiel öffnen, „Freunde einladen“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
       <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
       <p class="hand" id="copyMsg" aria-live="polite"></p>
-      <ol class="rank" id="lobbyList"></ol>`,
+      <ol class="rank" id="lobbyList"></ol><p class="hand" id="giftInfo" aria-live="polite"></p>`,
     actions:[{label:'Spiel starten →',go:()=>{netPresence({go:Date.now()});beginOnline();}},{label:'Raum verlassen',ghost:true,go:showStart}],
     after:()=>{
       $('copyLink').addEventListener('click',()=>{const inp=$('inviteLink');const done=t=>{$('copyMsg').textContent=t;};
@@ -1243,7 +1252,12 @@ function renderLobby(){
   const ul=$('lobbyList');if(!ul){clearInterval(net.lobbyTimer);return;}
   ul.textContent='';const ps=netPlayers();
   ps.forEach(p=>{const li=document.createElement('li');const i=document.createElement('i');i.style.background=PCOL[p.color].bg;const s=document.createElement('span');s.textContent=p.name+(p.me?' (du)':'');
-    const b=document.createElement('b');b.textContent=p.st==='play'?'spielt':'wartet';li.append(i,s,b);ul.append(li);});
+    const b=document.createElement('b');b.textContent=p.st==='play'?'spielt':'wartet';li.append(i,s,b);
+    if(!p.me&&p.peer){const g=document.createElement('button');g.className='btn small gift';g.type='button';
+      g.textContent='⭐ schenken';g.disabled=W.stars<1;g.setAttribute('aria-label',`${p.name} einen Stern schenken`);
+      g.addEventListener('click',()=>giftStar(p));li.append(g);}
+    ul.append(li);});
+  const gs=$('giftInfo');if(gs)gs.textContent=`Du hast ${W.stars} ⭐.`;
   if(ps.length<2){const li=document.createElement('li');li.className='out';li.textContent='Warte auf Mitspieler …';ul.append(li);}
 }
 function beginOnline(){
@@ -1251,7 +1265,28 @@ function beginOnline(){
   W.stars=Math.max(0,W.stars-1);saveWallet();track('online');
   game.mode='online';game.players=[newPlayer(net.name,0)];hideMemo();startLevel(0,true);
 }
+
+/* ---- gifting stars to friends in the same online room (presence carries the running total sent to each peer) ---- */
+const GIFT_MAX=20;   // per sender and room visit
+function giftStar(p){
+  if(W.stars<1)return;net.gifts=net.gifts||{};
+  const sent=net.gifts[p.peer]||0;if(sent>=GIFT_MAX){$('giftInfo').textContent='Genug geschenkt für heute in diesem Raum.';return;}
+  net.gifts[p.peer]=sent+1;W.stars--;saveWallet();
+  netPresence({gf:Object.assign({},net.gifts)});
+  sfx.paper();$('giftInfo').textContent=`1 ⭐ an ${p.name} geschenkt. Du hast noch ${W.stars} ⭐.`;
+  renderLobby();
+}
+function receiveGifts(){
+  if(!net.room)return;const me=netPlayers().find(x=>x.me);if(!me||!me.peer)return;
+  net.got=net.got||{};
+  net.room.peers().forEach(p=>{if(p.sameTab||!p.presence||p.presence.rc!==net.code)return;
+    const gf=p.presence.gf;const tot=gf&&typeof gf==='object'?Math.min(GIFT_MAX,Math.max(0,Math.floor(+gf[me.peer]||0))):0;
+    const prev=net.got[p.peer]||0;
+    if(tot>prev){net.got[p.peer]=tot;const n=tot-prev;const from=String(p.presence.n||'Gast').slice(0,14);
+      addStars(n,'von '+from);toast(`Geschenk von ${from}`,`+${n} ⭐`);}});
+}
 function onNetPeers(ch){
+  receiveGifts();
   const me=netPlayers().find(p=>p.me);
   // somebody pressed start after I joined: start too
   if(!net.started&&$('lobbyList')){const go=netPlayers().filter(p=>!p.me&&p.go>net.joinedAt-60000).length;if(go)beginOnline();}

@@ -7,9 +7,9 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - **Steuerung:** mit Finger oder Maus nach oben wischen. Die Länge des Wischens bestimmt die Kraft, die Richtung bestimmt das Ziel. Eine Kraftanzeige (grün → gelb → rot, mit Prozent) sitzt fest am **rechten Bildschirmrand**, nicht unter dem Finger. Unter dem Finger erscheint nur eine gestrichelte Wischlinie.
 - **Ablauf:** Pro Stufe gibt es 10 Würfe, und man braucht 3–5 Treffer, um befördert zu werden.
 - **Die Stufen sind eine Büro-Karriere:** Praktikum → Lehre → Sachbearbeitung → Teamleitung → Abteilungsleitung → Bereichsleitung → Direktion → Vizepräsidium → CEO → Verwaltungsrat, danach endlos „Legende I, II …“.
-- **So wird es schwerer:** grössere Distanz (3,6–7,15 m), kleinerer Kübel, Wind von Standventilatoren (Stärke und Richtung oben in der Anzeige). In Stufe 5 und 8 fährt der Kübel auf einem Saugroboter über den Tisch.
-  - Stufen 1–6 und 8: Der Kübel steht auf dem Konferenztisch.
-  - Stufen 7, 9 und 10: Der Kübel steht auf einem Stehtisch hinter dem Tischende.
+- **So wird es schwerer:** grössere Distanz (3,2–7,15 m), kleinerer Kübel, Wind von Standventilatoren (Stärke und Richtung oben in der Anzeige). In Stufe 5 und 8 fährt der Kübel auf einem Saugroboter über den Tisch.
+  - Stufen 1–8: Der Kübel steht auf dem Konferenztisch (Distanz wächst sanft: 3,2 / 3,5 / 3,8 / 4,1 / 4,4 / 4,9 / 5,4 / 5,9 m).
+  - Stufen 9 und 10 (und jede zweite Legende-Stufe): Der Kübel steht auf einem Stehtisch hinter dem Tischende (7,15 m).
 - **Punkte:** Ein Treffer gibt 100 Punkte, ein „Swish“ ohne Randberührung +50. Mehrere Treffer hintereinander geben einen Serien-Multiplikator bis ×3. Am Ende jeder Stufe gibt es 1–3 Sterne mit Bonus. Rekord und höchste Stufe werden im Browser gespeichert (localStorage).
 - **Physik:** Schwerkraft, Luftwiderstand, Wind, Abprallen am Kübelrand, an der Kübelwand, am Tisch und am Boden. Nach jedem Wurf bleibt die Flugbahn als gestrichelte Linie stehen.
 
@@ -38,6 +38,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - Tages-Bonus (Leiter, jeden Tag neu): Stufe 1 = +1 ⭐ gratis, Stufen 2–5 = +2/+3/+4/+5 ⭐, jeweils nach einem Werbevideo; immer nur die nächste Stufe ist offen.
 - Werbung ist ein Platzhalter (grauer Kasten „Hier läuft später ein Werbevideo“, 15 s, nicht überspringbar, Radio stumm). Echte Werbung (z. B. Poki-SDK) geht erst ausserhalb von claude.ai.
 - Aufgaben: täglich (10 Treffer, 1 Swish, 30 Würfe: je 1 ⭐), wöchentlich (60 Treffer, Teamleitung erreichen, 3 Online-Spiele: je 3 ⭐), monatlich (250 Treffer 8 ⭐, 20 Swishes 6 ⭐, 15× ★★★ 8 ⭐). Erledigte Aufgaben muss man unter „Belohnungen“ abholen.
+- Sterne schenken: In der Online-Lobby hat jeder Mitspieler einen Knopf „⭐ schenken“ (1 Stern pro Tipp, höchstens 20 pro Person und Raumbesuch). Übertragen wird über die room-Presence (Feld gf = Summe pro Empfänger).
+- Startbildschirm: Allein spielen, Weiter bei …, Mit Freunden (Auswahl: am selben Gerät / online), ⭐ Sterne & Aufgaben (von dort zum Kiosk).
 - Kiosk: Spielpunkte (aus Solo- und Online-Spielen) gegen Sterne tauschen: 1 ⭐ = 1'000, 5 ⭐ = 4'500, 12 ⭐ = 10'000 Punkte. Kein Echtgeld (auf claude.ai nicht möglich).
 - Speicherung: im Browser (localStorage „papertoast.wallet“). Der Code kann das claude.ai-Konto (db-Fähigkeit, data/users/<id>/wallet) nutzen, aber db lässt sich bei einem öffentlich geteilten Artifact nicht einschalten.
 - Wichtige Funktionen: W (Wallet), track(), earnPoints(), showRewards(), showShop(), showAd(), needStarMemo(), initWallet().
