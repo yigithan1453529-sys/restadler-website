@@ -21,7 +21,7 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - **TV „BÜRO·TV“:** wechselt alle 12 s zwischen News mit Laufband (zeigt den Spielstand), Wetter (Appenzell, St. Gallen, Zürich), „Papierkorb-Liga“ (Rangliste der Spieler) und Aquarium.
 - **Ton:** Alles wird live im Browser erzeugt (WebAudio), es gibt keine Audiodateien.
   - Radio „Büro Eins“: Popmusik, die wie ein kleiner Lautsprecher klingt, mit Jingle.
-  - Gemurmel von drei Kollegen und ab und zu ein echter Satz über die Sprachausgabe des Geräts.
+  - Nur Gemurmel von sieben Kollegen ohne verständliche Worte, dazu ein leiser Büro-Grundton. Keine Sprachausgabe (keine echten Sätze, keine Radio-Ansagen).
   - Ein Knopf für Radio an/aus, ein Knopf für Ton an/aus.
 
 ## Mehrspieler
@@ -34,9 +34,9 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
    - Technik: die `room`-Fähigkeit von claude.ai-Artifacts (`claude.use("room")`, `join()`, nur `presence`, keine Events). Das Spiel ist mit Link freigegeben: Jede Person, die bei claude.ai angemeldet ist und den Link hat, kann mitspielen. Wer nicht angemeldet ist, sieht den Hinweis „bei claude.ai anmelden“ und kann am selben Gerät spielen.
 
 ## Räume (Spieler wählt im Startbildschirm „Raum: …“, gespeichert in localStorage „papertoast.room“)
-- Konferenzraum Säntis (R1): der ursprüngliche Raum (office.glb, Arbeitsplatz-Ecke, Aktenschrank, BÜRO·TV, Röhren-TV, Deckenventilator).
-- Sitzungszimmer Ebenalp (R2): heller Raum, selbst gebaut im Code: heller Eichenboden, salbeigrüne Rückwand, Fensterfront mit gemalter Alpstein-Aussicht links, Whiteboard „Q4-Ziele“ rechts, Bild an der Rückwand, lineare Pendelleuchte, 6 Lederstühle, Wasserspender. Tisch: walnut_table.glb (aus den gelieferten meetingtable.obj + Walnut.jpg; 3,46 × 1,26 m, Platte 0,80 m, Tisch z −2,40 bis −5,86).
-- Im Ebenalp-Raum stehen Stufen mit mehr als 5,55 m Distanz auf dem Stehtisch hinter dem Tisch (mind. 0,45 m hinter dem Tischende).
+- London (R1): der ursprüngliche Konferenzraum, hinter den Lamellen Londoner Skyline (Big Ben, London Eye, St Paul’s, Shard, Tower Bridge, Themse) und ein grosses London-Bild an der Rückwand (office.glb, Arbeitsplatz-Ecke, Aktenschrank, BÜRO·TV, Röhren-TV, Deckenventilator).
+- Bern (R2): heller Raum, selbst gebaut im Code: heller Eichenboden, salbeigrüne Rückwand, Fensterfront links mit Blick auf Bern (Altstadt, Münster, Bundeshaus mit Schweizer Fahne, Aare, Berner Alpen), Bild an der Rückwand, Whiteboard „Q4-Ziele“ rechts, Bild an der Rückwand, lineare Pendelleuchte, 6 Lederstühle, Wasserspender. Tisch: walnut_table.glb (aus den gelieferten meetingtable.obj + Walnut.jpg; 3,46 × 1,26 m, Platte 0,80 m, Tisch z −2,40 bis −5,86).
+- Im Raum Bern stehen Stufen mit mehr als 5,55 m Distanz auf dem Stehtisch hinter dem Tisch (mind. 0,45 m hinter dem Tischende).
 - Code: ROOMS, setRoom(), showRooms(), Gruppen R1/R2; TABLE wird beim Raumwechsel umgestellt. Ventilatoren und Stehtisch sind in beiden Räumen.
 
 ## Sterne ⭐, Belohnungen, Kiosk

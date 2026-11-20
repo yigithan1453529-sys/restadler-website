@@ -310,7 +310,7 @@ function tex(w,h,draw,rep){
   return t;
 }
 const rnd=(a,b)=>a+Math.random()*(b-a);
-// two selectable rooms: R1 = Konferenzraum Säntis (original), R2 = Sitzungszimmer Ebenalp (walnut table)
+// two selectable rooms: R1 = London (original conference room), R2 = Bern (walnut table)
 const R1=new THREE.Group();R1.name='saentis';scene.add(R1);
 const R2=new THREE.Group();R2.name='ebenalp';R2.visible=false;scene.add(R2);
 
@@ -353,10 +353,39 @@ const floor=new THREE.Mesh(new THREE.PlaneGeometry(ROOM.x*2+0.4,RL),new THREE.Me
 floor.rotation.x=-Math.PI/2;floor.position.set(0.1,0,RZ);floor.receiveShadow=true;R1.add(floor);
 const shellMat=new THREE.MeshStandardMaterial({color:0xd9d6d1,roughness:.95,side:THREE.BackSide});
 const shell=new THREE.Mesh(new THREE.BoxGeometry(ROOM.x*2+0.5,3.05,RL+0.2),shellMat);shell.position.set(0.1,1.52,RZ);shell.receiveShadow=true;R1.add(shell);
+
+// London skyline glowing behind the blinds of Raum 1
+const londonTex=tex(2048,512,(g,w,h)=>{
+  const sky=g.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#c9d3de');sky.addColorStop(1,'#f4f1ea');g.fillStyle=sky;g.fillRect(0,0,w,h);
+  g.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<9;i++){const x=rnd(0,w),y=rnd(20,150);for(let k=0;k<5;k++){g.beginPath();g.ellipse(x+k*34,y+Math.sin(k)*6,rnd(40,70),rnd(12,22),0,0,7);g.fill();}}
+  const base=h*0.86,far='#a9b0ba',mid='#8b929c',near='#727983';
+  g.fillStyle=far;for(let x=0;x<w;x+=rnd(30,70)){const bh=rnd(40,120);g.fillRect(x,base-bh,rnd(26,60),bh);}
+  // The Shard
+  g.fillStyle=mid;g.beginPath();g.moveTo(w*0.70,base);g.lineTo(w*0.735,base-330);g.lineTo(w*0.77,base);g.fill();
+  // St Paul's dome
+  g.beginPath();g.ellipse(w*0.55,base-120,50,48,0,Math.PI,0);g.fill();g.fillRect(w*0.55-60,base-120,120,120);g.fillRect(w*0.55-5,base-200,10,40);
+  // London Eye
+  g.strokeStyle=mid;g.lineWidth=5;g.beginPath();g.arc(w*0.36,base-150,135,0,7);g.stroke();g.lineWidth=2;for(let a=0;a<6.28;a+=0.39){g.beginPath();g.moveTo(w*0.36,base-150);g.lineTo(w*0.36+Math.cos(a)*135,base-150+Math.sin(a)*135);g.stroke();}
+  g.lineWidth=7;g.beginPath();g.moveTo(w*0.36-60,base);g.lineTo(w*0.36,base-150);g.lineTo(w*0.36+60,base);g.stroke();
+  // Parliament + Big Ben
+  g.fillStyle=near;g.fillRect(w*0.08,base-90,w*0.16,90);for(let x=w*0.08;x<w*0.24;x+=22){g.beginPath();g.moveTo(x,base-90);g.lineTo(x+6,base-112);g.lineTo(x+12,base-90);g.fill();}
+  const bx=w*0.25;g.fillRect(bx,base-260,46,260);g.beginPath();g.moveTo(bx-4,base-260);g.lineTo(bx+23,base-330);g.lineTo(bx+50,base-260);g.fill();
+  g.fillStyle='#f3efe2';g.beginPath();g.arc(bx+23,base-225,15,0,7);g.fill();g.strokeStyle=near;g.lineWidth=2;g.beginPath();g.moveTo(bx+23,base-225);g.lineTo(bx+23,base-236);g.moveTo(bx+23,base-225);g.lineTo(bx+31,base-225);g.stroke();
+  // Tower Bridge
+  g.fillStyle=near;[0.86,0.94].forEach(f=>{g.fillRect(w*f-22,base-200,44,200);g.beginPath();g.moveTo(w*f-26,base-200);g.lineTo(w*f,base-245);g.lineTo(w*f+26,base-200);g.fill();});
+  g.fillRect(w*0.86,base-175,w*0.08,10);g.fillRect(w*0.84,base-40,w*0.13,12);
+  // Thames
+  g.fillStyle='#9aa7b3';g.fillRect(0,base,w,h-base);g.fillStyle='rgba(255,255,255,.35)';for(let i=0;i<60;i++)g.fillRect(rnd(0,w),rnd(base+4,h),rnd(10,40),2);
+});
 // daylight glowing behind the vertical blinds (left wall and far wall)
-const dayMat=new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false});
+const dayMat=new THREE.MeshBasicMaterial({map:londonTex,toneMapped:false});
 const dayL=new THREE.Mesh(new THREE.PlaneGeometry(RL,2.4),dayMat);dayL.position.set(-ROOM.x-0.12,1.45,RZ);dayL.rotation.y=Math.PI/2;R1.add(dayL);
 const dayB=new THREE.Mesh(new THREE.PlaneGeometry(ROOM.x*2,2.4),dayMat);dayB.position.set(0,1.45,ROOM.zBack-0.12);R1.add(dayB);
+// big framed London print hanging in front of the far blinds, so the city is clearly visible
+{const lp=new THREE.Group();lp.position.set(-0.95,1.75,ROOM.zBack+0.18);R1.add(lp);
+ box(1.5,0.62,0.03,new THREE.MeshStandardMaterial({color:0x111113,roughness:.4,metalness:.3}),0,0,0,lp);
+ const pm=new THREE.Mesh(new THREE.PlaneGeometry(1.42,0.54),new THREE.MeshBasicMaterial({map:londonTex}));pm.position.z=0.017;lp.add(pm);
+ [-0.5,0.5].forEach(x=>cyl(0.003,0.003,0.9,black,x,0.75,0,lp,4));}
 
 /* ---- generic GLB loader: .glb next to the page, or its base64 .txt twin ---- */
 function fetchGLB(name){
@@ -391,7 +420,7 @@ loadGLB('office.glb').then(g=>{
 }).catch(e=>console.warn('Raum konnte nicht geladen werden',e));
 
 
-/* ================= Raum 2: Sitzungszimmer Ebenalp (walnut table from walnut_table.glb, procedural room) ================= */
+/* ================= Raum 2: Bern (walnut table from walnut_table.glb, procedural room) ================= */
 const oakTex=tex(1024,1024,(g,w,h)=>{
   const cols=8,cw=w/cols;
   for(let c=0;c<cols;c++){let y=-rnd(0,h*0.9);
@@ -402,17 +431,27 @@ const oakTex=tex(1024,1024,(g,w,h)=>{
       g.restore();g.fillStyle='rgba(90,60,30,.45)';g.fillRect(c*cw,y,cw,2);y+=ph;}
     g.fillStyle='rgba(90,60,30,.4)';g.fillRect(c*cw,0,2,h);}
 },[2,3]);
-const viewTex=tex(2048,512,(g,w,h)=>{   // window view: Alpstein ridge, meadows, a chalet
-  const sky=g.createLinearGradient(0,0,0,h*0.7);sky.addColorStop(0,'#6fa8de');sky.addColorStop(1,'#d6ebfa');g.fillStyle=sky;g.fillRect(0,0,w,h);
-  g.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<7;i++){const x=rnd(0,w),y=rnd(30,140);for(let k=0;k<6;k++){g.beginPath();g.ellipse(x+k*28,y+Math.sin(k)*8,rnd(30,55),rnd(12,20),0,0,7);g.fill();}}
-  const ridge=(base,amp,col,snow)=>{g.fillStyle=col;g.beginPath();g.moveTo(0,h);let pts=[];for(let x=0;x<=w;x+=16){const y=base-amp*(0.55*Math.abs(Math.sin(x*0.0031+1.3))+0.35*Math.abs(Math.sin(x*0.011+0.4))+0.1*Math.sin(x*0.05));pts.push([x,y]);g.lineTo(x,y);}g.lineTo(w,h);g.fill();
-    if(snow){g.fillStyle='rgba(255,255,255,.9)';pts.forEach(([x,y],i)=>{if(y<base-amp*0.62&&i%1===0){g.beginPath();g.moveTo(x-10,y+18);g.lineTo(x,y);g.lineTo(x+12,y+20);g.fill();}});}};
-  ridge(h*0.52,h*0.36,'#8a93a3',true);ridge(h*0.62,h*0.2,'#6f7d6a',false);
-  const mg=g.createLinearGradient(0,h*0.6,0,h);mg.addColorStop(0,'#7fb05a');mg.addColorStop(1,'#4f8a3a');g.fillStyle=mg;g.beginPath();g.moveTo(0,h);
-  for(let x=0;x<=w;x+=20)g.lineTo(x,h*0.7+Math.sin(x*0.004)*22+Math.sin(x*0.013)*8);g.lineTo(w,h);g.fill();
-  for(let i=0;i<40;i++){const x=rnd(0,w),y=rnd(h*0.68,h*0.8);g.fillStyle='#2f5a2a';g.beginPath();g.moveTo(x,y-26);g.lineTo(x-9,y);g.lineTo(x+9,y);g.fill();}
-  const cx=w*0.62,cy=h*0.8;g.fillStyle='#f3efe6';g.fillRect(cx,cy-30,60,30);g.fillStyle='#8a3d22';g.beginPath();g.moveTo(cx-8,cy-28);g.lineTo(cx+30,cy-52);g.lineTo(cx+68,cy-28);g.fill();
-  g.fillStyle='#3a6ea8';g.fillRect(cx+10,cy-22,10,10);g.fillRect(cx+40,cy-22,10,10);
+const viewTex=tex(2048,512,(g,w,h)=>{   // window view of Bern: Alps, old town roofs, Münster, Bundeshaus, Aare
+  const sky=g.createLinearGradient(0,0,0,h*0.6);sky.addColorStop(0,'#6fa8de');sky.addColorStop(1,'#dcecf8');g.fillStyle=sky;g.fillRect(0,0,w,h);
+  g.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<6;i++){const x=rnd(0,w),y=rnd(20,110);for(let k=0;k<5;k++){g.beginPath();g.ellipse(x+k*28,y+Math.sin(k)*8,rnd(30,55),rnd(10,18),0,0,7);g.fill();}}
+  // Bernese Alps (Eiger, Mönch, Jungfrau) far away
+  const pk=[[0,250],[180,200],[330,120],[420,160],[560,95],[700,150],[820,110],[980,170],[1150,135],[1300,190],[1480,150],[1650,205],[1850,170],[2048,220]];
+  g.fillStyle='#b9c3d2';g.beginPath();g.moveTo(0,h*0.62);pk.forEach(([x,y])=>g.lineTo(x,y));g.lineTo(w,h*0.62);g.fill();
+  g.fillStyle='#ffffff';pk.forEach(([x,y],i)=>{if(y<180){g.beginPath();g.moveTo(x-40,y+40);g.lineTo(x,y);g.lineTo(x+46,y+44);g.lineTo(x+10,y+30);g.fill();}});
+  g.fillStyle='#7e9a6a';g.beginPath();g.moveTo(0,h*0.62);for(let x=0;x<=w;x+=20)g.lineTo(x,h*0.56+Math.sin(x*0.004)*14);g.lineTo(w,h*0.66);g.lineTo(0,h*0.66);g.fill();
+  // old town: sandstone houses with brown roofs
+  const top=h*0.66;g.fillStyle='#d8cba8';g.fillRect(0,top,w,h-top);
+  for(let x=-20;x<w;x+=rnd(48,80)){const bw=rnd(46,78),bh=rnd(40,70);g.fillStyle=`hsl(${rnd(36,44)},${rnd(25,35)}%,${rnd(68,78)}%)`;g.fillRect(x,top+60-bh,bw,bh+200);
+    g.fillStyle=`hsl(${rnd(10,18)},${rnd(45,60)}%,${rnd(30,40)}%)`;g.beginPath();g.moveTo(x-6,top+60-bh);g.lineTo(x+bw/2,top+60-bh-rnd(26,40));g.lineTo(x+bw+6,top+60-bh);g.fill();
+    g.fillStyle='rgba(60,50,40,.35)';for(let k=0;k<3;k++)g.fillRect(x+8+k*(bw-16)/3,top+70-bh+12,7,10);}
+  // Münster spire
+  const mx=w*0.3;g.fillStyle='#a99d84';g.fillRect(mx,top-150,60,220);g.beginPath();g.moveTo(mx-4,top-150);g.lineTo(mx+30,top-270);g.lineTo(mx+64,top-150);g.fill();
+  // Bundeshaus with green dome
+  const bx=w*0.62;g.fillStyle='#cdbf9c';g.fillRect(bx-160,top-40,320,110);g.fillStyle='#5f8f77';g.beginPath();g.ellipse(bx,top-40,62,70,0,Math.PI,0);g.fill();
+  g.fillStyle='#cdbf9c';g.fillRect(bx-70,top-44,140,8);g.fillStyle='#5f8f77';g.fillRect(bx-4,top-140,8,36);
+  g.fillStyle='#c8102e';g.fillRect(bx+14,top-150,26,18);g.fillStyle='#fff';g.fillRect(bx+24,top-147,6,12);g.fillRect(bx+21,top-144,12,6);
+  // Aare river
+  g.fillStyle='#4fa3a0';g.beginPath();g.moveTo(0,h);g.bezierCurveTo(w*0.3,h*0.9,w*0.6,h*0.98,w,h*0.88);g.lineTo(w,h);g.fill();
 });
 const boardTex=tex(1024,560,(g,w,h)=>{
   g.fillStyle='#fbfbf8';g.fillRect(0,0,w,h);g.font='700 64px Caveat,"Segoe Print",cursive';g.fillStyle='#1d4fa8';g.fillText('Q4-Ziele',40,90);
@@ -469,10 +508,10 @@ const boardTex=tex(1024,560,(g,w,h)=>{
 })();
 /* ---- room registry & switching ---- */
 const ROOMS={
-  saentis:{name:'Konferenzraum Säntis',desc:'Dunkler Holzboden, Lamellenvorhänge, langer Konferenztisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
-  ebenalp:{name:'Sitzungszimmer Ebenalp',desc:'Heller Raum mit Fensterfront aufs Alpstein, Nussbaum-Tisch und Whiteboard.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
-let roomId=store.get('room','saentis');if(!ROOMS[roomId])roomId='saentis';
-function setRoom(id){if(!ROOMS[id])id='saentis';roomId=id;store.set('room',id);
+  london:{name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
+  bern:{name:'Bern',desc:'Heller Sitzungsraum mit Blick auf Bundeshaus, Münster und Alpen, Nussbaum-Tisch und Whiteboard.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
+let roomId=({saentis:'london',ebenalp:'bern'})[store.get('room','london')]||store.get('room','london');if(!ROOMS[roomId])roomId='london';
+function setRoom(id){if(!ROOMS[id])id='london';roomId=id;store.set('room',id);
   Object.entries(ROOMS).forEach(([k,r])=>r.group.visible=k===id);Object.assign(TABLE,ROOMS[id].table);}
 setRoom(roomId);
 /* ---- standing bar table (used on the far levels behind the conference table) ---- */
@@ -631,7 +670,10 @@ function radioInit(){
   const st=a.createBufferSource();st.buffer=noiseBuf;st.loop=true;const stf=a.createBiquadFilter();stf.type='bandpass';stf.frequency.value=2500;stf.Q.value=0.6;
   const stg=a.createGain();stg.gain.value=0.012;st.connect(stf).connect(stg).connect(radio.out);st.start();
   // colleagues: muffled, from the other side of the room
-  radio.talk=a.createGain();radio.talk.gain.value=1;const tl=a.createBiquadFilter();tl.type='lowpass';tl.frequency.value=2200;radio.talk.connect(tl);tl.connect(radio.out);
+  radio.talk=a.createGain();radio.talk.gain.value=1;const tl=a.createBiquadFilter();tl.type='lowpass';tl.frequency.value=1300;radio.talk.connect(tl);tl.connect(radio.out);
+  // soft crowd bed under the murmur (filtered noise), so it sounds like a busy floor rather than single voices
+  try{const bed=a.createBufferSource();bed.buffer=noiseBuf;bed.loop=true;const bf=a.createBiquadFilter();bf.type='bandpass';bf.frequency.value=480;bf.Q.value=0.8;
+    const bg=a.createGain();bg.gain.value=0.012;bed.connect(bf);bf.connect(bg);bg.connect(radio.talk);bed.start();}catch(e){}
   radio.song=SONGS[0];radio.next=a.currentTime+0.1;radio.songStart=a.currentTime;radio.step=0;
   radio.timer=setInterval(radioTick,60);
   voicesInit();
@@ -675,12 +717,12 @@ function radioTick(){
   }
 }
 
-/* --- murmur: three colleagues, formant-synthesised and muffled (no words, just the sound of chat) --- */
+/* --- murmur: a handful of colleagues, formant-synthesised and muffled (no words, just the sound of an office) --- */
 const VOWELS=[[730,1090],[530,1840],[270,2290],[570,840],[300,870],[660,1720]];
-const talkers=[{f0:118,pan:-0.7,busyUntil:0},{f0:205,pan:-0.2,busyUntil:0},{f0:150,pan:0.8,busyUntil:0}];
+const talkers=[{f0:112,pan:-0.8},{f0:205,pan:-0.45},{f0:150,pan:0.75},{f0:128,pan:0.3},{f0:190,pan:-0.1},{f0:98,pan:0.55},{f0:220,pan:0.9}].map(t=>Object.assign(t,{busyUntil:0}));
 function voicesInit(){setInterval(()=>{
   const a=AC;if(!a||!radio.on||muted)return;const now=a.currentTime;
-  talkers.forEach(tk=>{if(now<tk.busyUntil)return;if(Math.random()<0.35)speakPhrase(tk,now+Math.random()*0.5);else tk.busyUntil=now+rnd(1,3);});
+  talkers.forEach(tk=>{if(now<tk.busyUntil)return;if(Math.random()<0.45)speakPhrase(tk,now+Math.random()*0.5);else tk.busyUntil=now+rnd(0.8,2.5);});
 },700);}
 function speakPhrase(tk,t0){
   const a=AC;const syl=Math.floor(rnd(4,13));let t=t0;
@@ -694,24 +736,12 @@ function speakPhrase(tk,t0){
   for(let i=0;i<syl;i++){const d=rnd(0.11,0.24);const v=VOWELS[Math.floor(Math.random()*VOWELS.length)];
     f1.frequency.setTargetAtTime(v[0],t,0.03);f2.frequency.setTargetAtTime(v[1],t,0.03);
     src.frequency.setTargetAtTime(base*(1+0.18*Math.sin(i*1.3)+(i===syl-1?-0.15:0)),t,0.05);
-    g.gain.setTargetAtTime(rnd(0.05,0.09),t,0.02);g.gain.setTargetAtTime(0.004,t+d*0.75,0.03);t+=d;}
+    g.gain.setTargetAtTime(rnd(0.035,0.06),t,0.02);g.gain.setTargetAtTime(0.004,t+d*0.75,0.03);t+=d;}
   src.start(t0);src.stop(t+0.3);tk.busyUntil=t+rnd(0.6,2.5);
 }
 
-/* --- now and then a real sentence, quietly, through the browser's speech voice --- */
-const PHRASES=['Hat jemand den Bericht für die Sitzung gesehen?','Wer hat den Kaffee leer gemacht?','Ich bin kurz in der Pause.','Das Meeting wurde auf drei Uhr verschoben.',
-  'Kannst du mir die Präsentation schicken?','Schon wieder daneben!','Der Drucker spinnt schon wieder.','Gehen wir nachher zusammen Mittagessen?','Ich ruf dich gleich zurück.','Super Wurf!'];
-const RADIO_LINES=['Radio Büro Eins, mit den besten Hits für den Arbeitstag.','Das war ein Klassiker. Weiter geht es mit guter Laune.','Radio Büro Eins. Das Wetter: sonnig, am Nachmittag leichter Föhn.'];
-let deVoices=[];
-function loadVoices(){try{deVoices=speechSynthesis.getVoices().filter(v=>/^de/i.test(v.lang));}catch(e){}}
-if(window.speechSynthesis){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}}
-function say(text,opts){
-  if(!window.speechSynthesis||!radio.on||muted)return;
-  try{if(speechSynthesis.speaking)return;const u=new SpeechSynthesisUtterance(text);u.lang='de-DE';if(deVoices.length)u.voice=deVoices[Math.floor(Math.random()*deVoices.length)];
-    u.volume=opts.volume;u.rate=opts.rate;u.pitch=opts.pitch;speechSynthesis.speak(u);}catch(e){}
-}
-function sayRadio(){say(RADIO_LINES[Math.floor(Math.random()*RADIO_LINES.length)],{volume:0.18,rate:1.08,pitch:0.9});}
-setInterval(()=>{if(!radio.started||!radio.on||muted)return;if(Math.random()<0.5)say(PHRASES[Math.floor(Math.random()*PHRASES.length)],{volume:0.12,rate:rnd(.95,1.15),pitch:rnd(.7,1.4)});},rnd(16000,24000));
+/* no real sentences: only the murmur of colleagues (speech synthesis removed on purpose) */
+function sayRadio(){}
 function radioStart(){if(radio.started)return;radio.started=true;radioInit();radioApply();}
 
 /* ================= the paper ball ================= */
