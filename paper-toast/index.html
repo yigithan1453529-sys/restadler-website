@@ -174,6 +174,34 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 #ad .btn{margin-top:14px}
 #taskNote{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) rotate(-1deg);background:var(--sticky);color:var(--ink);font-family:var(--hand);font-size:22px;padding:6px 16px 8px;box-shadow:0 8px 16px -6px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .3s;z-index:20;white-space:nowrap}
 #taskNote.show{opacity:1}
+
+/* ---------- modern start screen ---------- */
+.overlay.home{background:radial-gradient(120% 90% at 50% 0%,rgba(20,26,44,.35),rgba(10,12,22,.82));backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.start{width:min(460px,100%);box-sizing:border-box;color:#f6f4ee;font-family:var(--sans);animation:rise .5s cubic-bezier(.2,.9,.3,1.1);text-align:center}
+@keyframes rise{from{transform:translateY(30px);opacity:0}}
+.start .kicker{font-size:12px;letter-spacing:.32em;text-transform:uppercase;opacity:.75}
+.start h1{font-family:var(--hand);font-weight:700;font-size:clamp(64px,19vw,92px);line-height:.9;margin:6px 0 2px;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.45)}
+.start h1 span{color:var(--sticky)}
+.start .sub{font-size:15px;opacity:.85;margin:0 0 16px}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;font-size:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.chip b{font-variant-numeric:tabular-nums;color:#fff;font:700 15px var(--sans)}
+.play{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;border-radius:18px;padding:18px 20px;font:700 22px var(--sans);color:#1d2742;background:linear-gradient(180deg,#ffe866,#f5c400);box-shadow:0 10px 28px -8px rgba(245,196,0,.7),inset 0 -3px 0 rgba(0,0,0,.12);cursor:pointer;transition:transform .12s}
+.play:active{transform:scale(.98)}
+.play svg{width:22px;height:22px}
+.cont{margin-top:10px;width:100%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;border-radius:14px;padding:12px;font:600 15px var(--sans);cursor:pointer}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);color:#fff;border-radius:16px;padding:14px 6px 12px;font:600 13px var(--sans);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background .15s}
+.tile:hover{background:rgba(255,255,255,.18)}
+.tile svg{width:26px;height:26px}
+.tile small{font-weight:400;opacity:.75;font-size:11.5px}
+.tile .badge{position:absolute;top:6px;right:8px;background:var(--stamp);color:#fff;border-radius:999px;font-size:11px;min-width:18px;padding:1px 5px}
+.play:focus-visible,.cont:focus-visible,.tile:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.start .howto{margin-top:16px;font-size:13px;opacity:.8}
+.start details{margin-top:14px;font-size:11.5px;opacity:.65;text-align:left}
+.start details summary{cursor:pointer;text-align:center;list-style:none}
+.start details a{color:inherit}
+.start #loading{font-family:var(--sans);text-align:center}
 </style>
 </head>
 <body>
@@ -232,23 +260,24 @@ const $=id=>document.getElementById(id);
 // d = distance (m), s = bin scale, w = max wind (m/s²), m = moving amplitude (m), need = hits of 10
 // bar:true = bin stands on the standing table behind the conference table, otherwise on the table itself
 const LEVELS=[
-  // gentle start: the bin moves back slowly; the far standing table only comes in the top levels
-  {t:'Praktikum',        d:3.2, s:1.60, w:0,   m:0,    need:3},
-  {t:'Lehre',            d:3.5, s:1.55, w:0.4, m:0,    need:3},
-  {t:'Sachbearbeitung',  d:3.8, s:1.50, w:0.7, m:0,    need:4},
-  {t:'Teamleitung',      d:4.1, s:1.45, w:1.0, m:0,    need:4},
-  {t:'Abteilungsleitung',d:4.4, s:1.35, w:0.9, m:0.3,  need:4},
-  {t:'Bereichsleitung',  d:4.9, s:1.25, w:1.4, m:0,    need:4},
-  {t:'Direktion',        d:5.4, s:1.15, w:1.6, m:0,    need:4},
-  {t:'Vizepräsidium',    d:5.9, s:1.05, w:1.9, m:0.45, need:4},
-  {t:'CEO',              d:7.15,s:1.00, w:1.8, m:0,    need:4, bar:true},
-  {t:'Verwaltungsrat',   d:7.15,s:0.92, w:2.4, m:0,    need:5, bar:true},
+  // distance grows slowly; the far standing table only comes at the very top (Verwaltungsrat).
+  // trade-off: where the bin stands far away, the fans blow less – where it is close, they blow harder.
+  {t:'Praktikum',        d:3.0, s:1.60, w:0,   m:0,   need:3},
+  {t:'Lehre',            d:3.2, s:1.55, w:0.6, m:0,   need:3},
+  {t:'Sachbearbeitung',  d:3.4, s:1.50, w:1.0, m:0,   need:3},
+  {t:'Teamleitung',      d:3.6, s:1.45, w:1.3, m:0,   need:4},
+  {t:'Abteilungsleitung',d:3.8, s:1.40, w:1.2, m:0.3, need:4},
+  {t:'Bereichsleitung',  d:4.1, s:1.30, w:1.4, m:0,   need:4},
+  {t:'Direktion',        d:4.4, s:1.20, w:1.3, m:0,   need:4},
+  {t:'Vizepräsidium',    d:4.8, s:1.12, w:1.1, m:0.4, need:4},
+  {t:'CEO',              d:5.3, s:1.05, w:0.9, m:0,   need:4},
+  {t:'Verwaltungsrat',   d:7.15,s:0.95, w:0.6, m:0,   need:5, bar:true},
 ];
 function levelDef(i){
   if(i<LEVELS.length) return LEVELS[i];
   const k=i-LEVELS.length+1;
   return {t:'Legende '+['I','II','III','IV','V','VI','VII','VIII','IX','X'][Math.min(k-1,9)]+(k>10?'+':''),
-    d:k%2?6.1:7.15, s:Math.max(0.72,0.88-k*0.03), w:Math.min(4,3+k*0.15), m:(k%2?0.55:0), need:5, bar:!(k%2)};
+    d:k%2?5.5:7.15, s:Math.max(0.72,0.92-k*0.02), w:k%2?Math.min(2.4,1.4+k*0.1):Math.min(1.4,0.6+k*0.08), m:(k%2?0.45:0), need:5, bar:!(k%2)};
 }
 const THROWS=10;
 
@@ -1084,8 +1113,9 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 
 /* ================= memos ================= */
 function stars(n){return '<span class="stars">'+[0,1,2].map(i=>i<n?'★':'<span class="off">★</span>').join('')+'</span>';}
+const CREDIT_HTML=`Papierkorb-Modell: „Trash Can“ von <a href="https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627" target="_blank" rel="noopener">rickmaolly</a>, Lizenz <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Ebenfalls CC BY 4.0: „Office Props Pack“ von <a href="https://sketchfab.com/3d-models/office-props-pack-260ff7a37a674505903708a0dc513e7e" target="_blank" rel="noopener">seenoise</a>, „Office Drawer“ von <a href="https://sketchfab.com/3d-models/office-drawer-48dae122a1694609886c84ae17a15d01" target="_blank" rel="noopener">Mkky</a>, „Vintage Ventilator“ von <a href="https://sketchfab.com/3d-models/vintage-ventilator-e17c65e0c8604407900a93104b965ce3" target="_blank" rel="noopener">Özlem Çandır</a>, „Ceiling Ventilator – Dirt (Animated)“ von <a href="https://sketchfab.com/3d-models/ceiling-ventilator-dirt-animated-140fda1faf9040a8986e00bbf6f86b80" target="_blank" rel="noopener">Berk Gedik</a>, „Tv Small“ von <a href="https://sketchfab.com/3d-models/tv-small-d28392d2dfc747a39bad7266387359c9" target="_blank" rel="noopener">Cyber_Monkey</a>.`;
 function memo({to,subject,big,body,stamp,stampGreen,actions,credit,after}){
-  const m=$('menu');
+  const m=$('menu');m.className='overlay';
   const today=new Date().toLocaleDateString('de-CH');
   m.innerHTML=`<div class="memo" role="dialog" aria-modal="true" aria-label="${esc(subject)}">
     <h1>INTERNES MEMO</h1>
@@ -1093,7 +1123,7 @@ function memo({to,subject,big,body,stamp,stampGreen,actions,credit,after}){
     ${stamp?`<div class="stamp${stampGreen?' green':''}">${stamp}</div>`:''}
     <div class="big">${big}</div>${body}
     <div class="actions">${actions.map((a,i)=>`<button class="btn${a.ghost?' ghost':''}" id="act${i}"${a.disabled?' disabled':''}>${a.label}</button>`).join('')}</div>
-    ${credit?`<div class="credit">Papierkorb-Modell: „Trash Can“ von <a href="https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627" target="_blank" rel="noopener">rickmaolly</a>, Lizenz <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Ebenfalls CC BY 4.0: „Office Props Pack“ von <a href="https://sketchfab.com/3d-models/office-props-pack-260ff7a37a674505903708a0dc513e7e" target="_blank" rel="noopener">seenoise</a>, „Office Drawer“ von <a href="https://sketchfab.com/3d-models/office-drawer-48dae122a1694609886c84ae17a15d01" target="_blank" rel="noopener">Mkky</a>, „Vintage Ventilator“ von <a href="https://sketchfab.com/3d-models/vintage-ventilator-e17c65e0c8604407900a93104b965ce3" target="_blank" rel="noopener">Özlem Çandır</a>, „Ceiling Ventilator – Dirt (Animated)“ von <a href="https://sketchfab.com/3d-models/ceiling-ventilator-dirt-animated-140fda1faf9040a8986e00bbf6f86b80" target="_blank" rel="noopener">Berk Gedik</a>, „Tv Small“ von <a href="https://sketchfab.com/3d-models/tv-small-d28392d2dfc747a39bad7266387359c9" target="_blank" rel="noopener">Cyber_Monkey</a>.<div id="loading"></div></div>`:''}
+    ${credit?`<div class="credit">${CREDIT_HTML}<div id="loading"></div></div>`:''}
   </div>`;
   m.hidden=false;$('hud').hidden=true;$('turn').hidden=true;$('gameBtns').hidden=true;
   actions.forEach((a,i)=>$('act'+i).addEventListener('click',()=>{ac();radioStart();a.go();}));
@@ -1251,18 +1281,34 @@ function needStarMemo(back){
 }
 function showStart(){
   game.paused=false;game.state='menu';netLeave();game.mode='solo';
-  const open=openTasks();
-  const acts=[{label:'Allein spielen →',go:()=>startSolo(0)},
-    {label:'Raum: '+ROOMS[roomId].name,ghost:true,go:showRooms},
-    {label:'Mit Freunden',ghost:true,go:showFriends},
-    {label:'⭐ Sterne & Aufgaben'+(open?` (${open} neu)`:''),ghost:true,go:()=>showRewards()}];
-  if(bestLevel>0)acts.splice(1,0,{label:`Weiter bei „${levelDef(bestLevel).t}“`,ghost:true,go:()=>startSolo(bestLevel)});
-  memo({to:'Alle Mitarbeitenden',subject:'Papierkorb-Offensive',big:'Paper Toast',
-    body:`<p>Triff den Papierkorb und werde befördert. Pro Stufe hast du ${THROWS} Würfe.</p>
-      <p class="hand">☝ Nach oben wischen = werfen. Länger wischen = weiter.</p>
-      ${walletLine()}
-      ${best>0?`<p>Rekord: <b>${fmt(best)}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
-    actions:acts,credit:true});
+  const open=openTasks();const m=$('menu');
+  const credit=CREDIT_HTML;
+  m.className='overlay home';
+  m.innerHTML=`<div class="start" role="dialog" aria-modal="true" aria-label="Paper Toast Startmenü">
+    <div class="kicker">Das Büro-Wurfspiel</div>
+    <h1>Paper <span>Toast</span></h1>
+    <p class="sub">Triff den Papierkorb – und mach Karriere bis in den Verwaltungsrat.</p>
+    <div class="chips">
+      <span class="chip">⭐ <b id="wStars">${W.stars}</b></span>
+      <span class="chip">🪙 <b id="wPts">${fmt(W.pts)}</b> Punkte</span>
+      ${best>0?`<span class="chip">🏆 <b>${fmt(best)}</b></span>`:''}
+    </div>
+    <button class="play" id="stPlay"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>Spielen</button>
+    ${bestLevel>0?`<button class="cont" id="stCont">Weiter bei „${esc(levelDef(bestLevel).t)}“</button>`:''}
+    <div class="tiles">
+      <button class="tile" id="stFriends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M16 14.6c2.6-.2 4.8 1.3 5.5 4.4"/></svg>Mit Freunden<small>Gerät · Online</small></button>
+      <button class="tile" id="stRoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M8 21v-7h8v7"/></svg>Raum<small>${esc(ROOMS[roomId].name)}</small></button>
+      <button class="tile" id="stStars">${open?`<span class="badge">${open}</span>`:''}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>Sterne<small>Aufgaben · Kiosk</small></button>
+    </div>
+    <div class="howto">☝ Nach oben wischen = werfen · länger wischen = weiter</div>
+    <details><summary>Quellen &amp; Lizenzen</summary>${credit}</details>
+    <div id="loading"></div>
+  </div>`;
+  m.hidden=false;$('hud').hidden=true;$('turn').hidden=true;$('gameBtns').hidden=true;
+  const on=(id,f)=>{const b=$(id);if(b)b.addEventListener('click',()=>{ac();radioStart();m.className='overlay';f();});};
+  on('stPlay',()=>startSolo(0));on('stCont',()=>startSolo(bestLevel));
+  on('stFriends',showFriends);on('stRoom',showRooms);on('stStars',()=>showRewards());
+  setTimeout(()=>{const b=$('stPlay');if(b)b.focus({preventScroll:true});},50);
 }
 function showRooms(){
   memo({to:'Dich',subject:'Raumreservation',big:'Wo spielst du?',

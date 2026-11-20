@@ -8,8 +8,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - **Ablauf:** Pro Stufe gibt es 10 Würfe, und man braucht 3–5 Treffer, um befördert zu werden.
 - **Die Stufen sind eine Büro-Karriere:** Praktikum → Lehre → Sachbearbeitung → Teamleitung → Abteilungsleitung → Bereichsleitung → Direktion → Vizepräsidium → CEO → Verwaltungsrat, danach endlos „Legende I, II …“.
 - **So wird es schwerer:** grössere Distanz (3,2–7,15 m), kleinerer Kübel, Wind von Standventilatoren (Stärke und Richtung oben in der Anzeige). In Stufe 5 und 8 fährt der Kübel auf einem Saugroboter über den Tisch.
-  - Stufen 1–8: Der Kübel steht auf dem Konferenztisch (Distanz wächst sanft: 3,2 / 3,5 / 3,8 / 4,1 / 4,4 / 4,9 / 5,4 / 5,9 m).
-  - Stufen 9 und 10 (und jede zweite Legende-Stufe): Der Kübel steht auf einem Stehtisch hinter dem Tischende (7,15 m).
+  - Stufen 1–9: Der Kübel steht auf dem Tisch, Distanz wächst sanft: 3,0 / 3,2 / 3,4 / 3,6 / 3,8 / 4,1 / 4,4 / 4,8 / 5,3 m. Ausgleich: weiter weg = weniger Wind (Wind max. 1,4 in Stufe 6, danach wieder weniger).
+  - Nur Stufe 10 (Verwaltungsrat, Wind 0,6) und jede zweite Legende-Stufe: Kübel auf dem Stehtisch (7,15 m). Legenden: abwechselnd 5,5 m mit mehr Wind und 7,15 m mit wenig Wind.
 - **Punkte:** Ein Treffer gibt 100 Punkte, ein „Swish“ ohne Randberührung +50. Mehrere Treffer hintereinander geben einen Serien-Multiplikator bis ×3. Am Ende jeder Stufe gibt es 1–3 Sterne mit Bonus. Rekord und höchste Stufe werden im Browser gespeichert (localStorage).
 - **Physik:** Schwerkraft, Luftwiderstand, Wind, Abprallen am Kübelrand, an der Kübelwand, am Tisch und am Boden. Nach jedem Wurf bleibt die Flugbahn als gestrichelte Linie stehen.
 
@@ -103,3 +103,6 @@ Code und Modelle liegen im GitHub-Repository `yigithan1453529-sys/restadler-webs
 - Handys starten mit Pixel-Faktor 1,5 und Schattenkarte 1024, Computer mit 2 und 2048; Kantenglättung nur bei Bildschirmen mit Pixel-Faktor < 2.
 - adaptQuality(): misst alle 2 s die Bildrate; unter 40 fps eine Stufe runter (Schärfe 1,25 → 1 ohne Schatten → 0,75), bei viel Reserve einmal eine Stufe hoch.
 - Räume laden ihre Modelle erst bei Bedarf (loadLondon/loadBern), der andere Raum wird nach 9 s still nachgeladen. BÜRO·TV und Deckenventilator-Animation laufen nur im sichtbaren Raum.
+
+## Startmenü (modern)
+- Eigener Startbildschirm (showStart, Klasse .start) statt Memo: dunkler Verlauf über der 3D-Szene, Titel „Paper Toast“, Chips (Sterne, Punkte, Rekord), grosser gelber „Spielen“-Knopf, „Weiter bei …“, drei Kacheln (Mit Freunden, Raum, Sterne mit Zähler), Quellen & Lizenzen aufklappbar (Pflicht-Namensnennung). Die übrigen Menüs bleiben im Memo-Stil.
