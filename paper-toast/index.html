@@ -144,6 +144,38 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
   .stamp{font-size:18px;top:56px;right:12px}
 }
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* ---------- stars, rewards, tasks, kiosk, ad placeholder ---------- */
+.wallet{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--hand);font-size:24px;margin:2px 0 6px}
+.wallet b{font-size:28px}
+.wallet .st{color:#c98a00}
+.sect{font-family:var(--type);font-size:12.5px;letter-spacing:.2em;margin:14px 0 4px;border-bottom:1.5px solid var(--ink);padding-bottom:3px}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:6px 0 2px}
+.ladder button{font-family:var(--hand);font-size:19px;line-height:1.05;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 2px;cursor:pointer;min-height:64px;box-shadow:2px 2px 0 var(--ink)}
+.ladder button b{display:block;font-size:24px;color:#c98a00}
+.ladder button.done{background:#e3f1e8;color:#5b7;box-shadow:none;cursor:default}
+.ladder button.done b{color:#5b7}
+.ladder button.next{background:var(--sticky)}
+.ladder button:disabled:not(.done){opacity:.45;cursor:default;box-shadow:none}
+.tasks{list-style:none;margin:0;padding:0}
+.tasks li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--rule)}
+.tasks .tt{font-size:15px;line-height:20px}
+.tasks .bar{grid-column:1;height:6px;background:#e4e4e4;border-radius:3px;overflow:hidden}
+.tasks .bar i{display:block;height:100%;background:var(--ok)}
+.tasks .rw{grid-row:1/3;grid-column:2;font-family:var(--hand);font-size:20px}
+.tasks .rw.ok{color:var(--ok)}
+.shop{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+.shop li{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;border:2px solid var(--ink);padding:8px 10px;background:#fff}
+.shop .pk{font-family:var(--hand);font-size:26px;font-weight:700;color:#c98a00}
+.shop .pr{font-size:14px}
+#ad{position:fixed;inset:0;z-index:50;background:#111;color:#eee;display:grid;place-items:center;font-family:var(--sans);padding:20px;box-sizing:border-box}
+#ad .box{width:min(560px,100%);aspect-ratio:16/9;background:repeating-linear-gradient(45deg,#2a2a2a 0 18px,#333 18px 36px);border:2px dashed #777;display:grid;place-items:center;text-align:center;padding:16px;box-sizing:border-box}
+#ad .box b{display:block;font-size:13px;letter-spacing:.25em;color:#aaa;margin-bottom:8px}
+#ad .box span{font-size:20px}
+#ad .cd{margin-top:14px;font-size:15px;color:#bbb;text-align:center}
+#ad .btn{margin-top:14px}
+#taskNote{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) rotate(-1deg);background:var(--sticky);color:var(--ink);font-family:var(--hand);font-size:22px;padding:6px 16px 8px;box-shadow:0 8px 16px -6px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .3s;z-index:20;white-space:nowrap}
+#taskNote.show{opacity:1}
 </style>
 </head>
 <body>
@@ -173,6 +205,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 <div id="power" role="meter" aria-label="Wurfkraft" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="powerTrack"><div id="powerFill"></div></div><div id="powerPct">0 %</div><div id="powerLbl">KRAFT</div></div>
 <div id="hint" hidden>↑ nach oben wischen &amp; loslassen</div>
 <div id="toast"><div class="t1"></div><div class="t2"></div></div>
+<div id="taskNote" aria-live="polite"></div>
+<div id="ad" hidden role="dialog" aria-modal="true" aria-label="Werbung"><div><div class="box"><div><b>WERBUNG</b><span>Hier läuft später ein Werbevideo.</span></div></div><div class="cd" id="adCd"></div><div style="text-align:center"><button class="btn" id="adDone" hidden>Belohnung abholen →</button></div></div></div>
 <button id="mute" aria-label="Ton aus" title="Ton an/aus">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="muteWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path id="muteX" d="M17 9l5 6M22 9l-5 6" hidden/></svg>
 </button>
@@ -512,7 +546,7 @@ function radioInit(){
   voicesInit();
 }
 function radioApply(){
-  const a=AC;if(!a||!radio.out)return;const v=(radio.on&&!muted)?0.11:0;
+  const a=AC;if(!a||!radio.out)return;const v=(radio.on&&!muted&&!adOn)?0.11:0;
   radio.out.gain.setTargetAtTime(v,a.currentTime,0.25);
   if(!(radio.on&&!muted)&&window.speechSynthesis){try{speechSynthesis.cancel();}catch(e){}}
 }
@@ -804,7 +838,7 @@ function throwBall(speed,yaw){
   ball.state='fly';ball.t=0;
   ball.v.set(Math.sin(yaw)*Math.cos(PITCH)*speed,Math.sin(PITCH)*speed,-Math.cos(yaw)*Math.cos(PITCH)*speed);
   ball.spin.set(rnd(-12,-4),rnd(-4,4),rnd(-4,4));
-  P().throwsLeft--;game.state='flying';sfx.whoosh();
+  P().throwsLeft--;game.state='flying';sfx.whoosh();track('throws');
   $('hint').hidden=true;
   if(trail){scene.remove(trail);trail=null;}trailPts=[ball.p.clone()];
   if(game.mode==='online')net.throwSeq++,netPresence({th:{seq:net.throwSeq,sp:+speed.toFixed(3),yaw:+yaw.toFixed(4),w:game.wind,lv:game.level}});
@@ -817,6 +851,7 @@ function onScore(b){
   const mult=Math.min(3,1+0.5*(p.streak-1));
   const pts=Math.round((100+(swish?50:0))*(1+L*0.2)*mult/10)*10;
   p.score+=pts;p.results.push(1);
+  earnPoints(pts);track('hits');if(swish)track('swish');
   sfx.paper();if(swish)setTimeout(sfx.swish,80);
   const word=swish?'Swish!':['Treffer!','Drin!','Sauber!','Volltreffer!'][Math.floor(Math.random()*4)];
   let sub='+'+pts;if(p.streak>1)sub+=`  ·  Serie ×${mult.toFixed(1).replace('.0','')}`;
@@ -916,14 +951,151 @@ function nextInfo(i){const L=levelDef(i);const bits=[`${L.d.toFixed(1)} m Distan
   return '<div class="facts">'+bits.map(b=>`<span>· ${b}</span>`).join('')+'</div>';}
 
 function startSolo(level){game.mode='solo';netLeave();game.players=[newPlayer('Du',0)];hideMemo();startLevel(level,true);}
+
+/* ================= stars ⭐: wallet, daily ladder, tasks, kiosk =================
+   Stars pay for online games (1 per game). Earned via the daily ladder (step 1 free, steps 2–5 after an ad),
+   daily/weekly/monthly tasks, or bought in the kiosk with game points.
+   Saved in the claude.ai account (db, private per person) when possible, otherwise in this browser. */
+const W={stars:3,pts:0,ladder:{day:'',step:0},tasks:{}};
+const wallet={ref:null,mode:'local',saving:false,again:false};
+const LADDER=[1,2,3,4,5];
+const AD_SECONDS=15;
+const SHOP=[{n:1,p:1000},{n:5,p:4500},{n:12,p:10000}];
+const TASKS={
+  d:[{id:'hits',t:'Triff 10 Mal',n:10,r:1},{id:'swish',t:'Schaffe 1 Swish',n:1,r:1},{id:'throws',t:'Wirf 30 Mal',n:30,r:1}],
+  w:[{id:'hits',t:'Triff 60 Mal',n:60,r:3},{id:'level',t:'Erreiche die Teamleitung',n:1,r:3},{id:'online',t:'Spiel 3 Online-Spiele',n:3,r:3}],
+  m:[{id:'hits',t:'Triff 250 Mal',n:250,r:8},{id:'swish',t:'Schaffe 20 Swishes',n:20,r:6},{id:'three',t:'Hol 15 Mal ★★★ in einer Stufe',n:15,r:8}]};
+const PNAME={d:'TÄGLICH',w:'WÖCHENTLICH',m:'MONATLICH'};
+const pad2=n=>String(n).padStart(2,'0');
+function dayKey(d=new Date()){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+function monthKey(d=new Date()){return d.getFullYear()+'-'+pad2(d.getMonth()+1);}
+function weekKey(d=new Date()){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const wd=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-wd);
+  const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return t.getUTCFullYear()+'-W'+Math.ceil(((t-y0)/864e5+1)/7);}
+const PERIOD={d:dayKey,w:weekKey,m:monthKey};
+function taskState(p){const k=PERIOD[p]();let s=W.tasks[p];if(!s||s.k!==k)s=W.tasks[p]={k,c:{},got:{}};return s;}
+function ladderState(){if(W.ladder.day!==dayKey())W.ladder={day:dayKey(),step:0};return W.ladder;}
+function cleanWallet(o){
+  const n=(v,d)=>Number.isFinite(+v)?Math.max(0,Math.floor(+v)):d;
+  W.stars=n(o.stars,W.stars);W.pts=n(o.pts,W.pts);
+  if(o.ladder&&typeof o.ladder==='object')W.ladder={day:String(o.ladder.day||''),step:Math.min(LADDER.length,n(o.ladder.step,0))};
+  if(o.tasks&&typeof o.tasks==='object'){W.tasks={};['d','w','m'].forEach(p=>{const t=o.tasks[p];if(t&&typeof t==='object')W.tasks[p]={k:String(t.k||''),c:Object.assign({},t.c||{}),got:Object.assign({},t.got||{})};});}
+}
+function walletData(){return JSON.parse(JSON.stringify({stars:W.stars,pts:W.pts,ladder:W.ladder,tasks:W.tasks,v:1}));}
+async function saveWallet(){
+  store.set('wallet',walletData());
+  if(wallet.mode!=='db'||!wallet.ref)return;
+  if(wallet.saving){wallet.again=true;return;}       // one write at a time per document
+  wallet.saving=true;
+  try{await wallet.ref.set(walletData());}
+  catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,800+Math.random()*800));try{await wallet.ref.set(walletData());}catch(e2){}}
+    else if(e&&(e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted'))wallet.mode='local';}
+  wallet.saving=false;
+  if(wallet.again){wallet.again=false;saveWallet();}
+}
+let saveTimer=0;function saveSoon(){clearTimeout(saveTimer);saveTimer=setTimeout(saveWallet,1500);}
+async function initWallet(){
+  const local=store.get('wallet',null);if(local)cleanWallet(local);
+  try{
+    const c=window.claude;if(!c||typeof c.use!=='function')return;
+    const [db,user]=await Promise.all([c.use('db'),c.use('user')]);
+    if(!db||!user)return;
+    const id=await user.id();if(!id)return;
+    const ref=db.collection('data/users/'+id).doc('wallet');
+    const snap=await Promise.race([ref.get(),new Promise((_,rej)=>setTimeout(()=>rej({code:'timeout'}),10000))]);
+    wallet.ref=ref;wallet.mode='db';
+    if(snap&&snap.exists)cleanWallet(snap.data()||{});
+    else await saveWallet();           // first visit: move this browser's stars into the account
+    store.set('wallet',walletData());
+    refreshWalletUI();
+  }catch(e){wallet.mode='local';}
+}
+function addStars(n,why){W.stars+=n;saveWallet();refreshWalletUI();if(why)note(`+${n} ⭐ ${why}`);}
+let noteTimer=0;function note(t){const el=$('taskNote');el.textContent=t;el.classList.add('show');clearTimeout(noteTimer);noteTimer=setTimeout(()=>el.classList.remove('show'),2600);}
+/* progress events from the game: hits, swish, throws, online, three, level(value=level index reached) */
+function track(ev,val=1){
+  let changed=false;
+  ['d','w','m'].forEach(p=>{const s=taskState(p);TASKS[p].forEach(t=>{
+    if(t.id!==ev)return;const before=s.c[t.id]||0;if(before>=t.n)return;
+    const v=ev==='level'?(val>=3?1:0):before+val;if(v<=before)return;
+    s.c[t.id]=Math.min(t.n,v);changed=true;
+    if(s.c[t.id]>=t.n)note(`Aufgabe erledigt: ${t.t} – Belohnung abholen!`);});});
+  if(changed)saveSoon();
+}
+function earnPoints(n){if(game.mode==='local'||!(n>0))return;W.pts+=n;saveSoon();}
+function openTasks(){let k=0;['d','w','m'].forEach(p=>{const s=taskState(p);TASKS[p].forEach(t=>{if((s.c[t.id]||0)>=t.n&&!s.got[t.id])k++;});});
+  if(ladderState().step===0)k++;return k;}
+function walletLine(){return `<div class="wallet"><span>⭐ <b id="wStars">${W.stars}</b> Sterne</span><span>Punktekonto: <b id="wPts">${fmt(W.pts)}</b></span></div>`;}
+function refreshWalletUI(){const a=$('wStars'),b=$('wPts');if(a)a.textContent=W.stars;if(b)b.textContent=fmt(W.pts);
+  const r=$('rewardsBody');if(r)renderRewards();const sh=$('shopList');if(sh)renderShop();}
+
+/* ---- ad placeholder: 15 s countdown, cannot be skipped ---- */
+var adOn=false;
+function showAd(done){
+  const ov=$('ad'),cd=$('adCd'),btn=$('adDone');ov.hidden=false;btn.hidden=true;adOn=true;radioApply();
+  let left=AD_SECONDS;cd.textContent=`Belohnung in ${left} s`;
+  const iv=setInterval(()=>{left--;if(left>0){cd.textContent=`Belohnung in ${left} s`;return;}
+    clearInterval(iv);cd.textContent='Danke fürs Zuschauen!';btn.hidden=false;btn.focus({preventScroll:true});},1000);
+  btn.onclick=()=>{ov.hidden=true;adOn=false;radioApply();done();};
+}
+
+/* ---- rewards memo: daily ladder + tasks ---- */
+function showRewards(back){
+  memo({to:'Dich',subject:'Belohnungen',big:'Sterne sammeln',
+    body:`${walletLine()}<div id="rewardsBody"></div>`,
+    actions:[{label:'Zum Kiosk',go:()=>showShop(back)},{label:'Zurück',ghost:true,go:back||showStart}],
+    after:renderRewards});
+}
+function renderRewards(){
+  const box=$('rewardsBody');if(!box)return;const L=ladderState();
+  let h=`<div class="sect">TAGES-BONUS</div><p class="hand">Stern 1 gratis, danach je ein Video für den nächsten.</p><div class="ladder">`;
+  LADDER.forEach((n,i)=>{const done=i<L.step,next=i===L.step;
+    h+=`<button data-step="${i}" class="${done?'done':next?'next':''}" ${done||!next?'disabled':''} aria-label="Stufe ${i+1}: ${n} Sterne${i?' nach Werbevideo':''}"><b>${done?'✓':'+'+n}</b>${done?'abgeholt':i===0?'gratis':'▶ Video'}</button>`;});
+  h+='</div>';
+  ['d','w','m'].forEach(p=>{const s=taskState(p);
+    h+=`<div class="sect">${PNAME[p]}E AUFGABEN</div><ul class="tasks">`;
+    TASKS[p].forEach(t=>{const c=s.c[t.id]||0,got=!!s.got[t.id],ok=c>=t.n;
+      h+=`<li><span class="tt">${esc(t.t)} <small>(${c}/${t.n})</small></span>${got?`<span class="rw ok">✓ +${t.r} ⭐</span>`:ok?`<button class="btn small" data-claim="${p}.${t.id}">+${t.r} ⭐ abholen</button>`:`<span class="rw">+${t.r} ⭐</span>`}<span class="bar"><i style="width:${Math.round(c/t.n*100)}%"></i></span></li>`;});
+    h+='</ul>';});
+  box.innerHTML=h;
+  box.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.step,L=ladderState();if(i!==L.step)return;
+    const give=()=>{const L2=ladderState();if(L2.step!==i)return;L2.step=i+1;sfx.swish();addStars(LADDER[i],'Tages-Bonus');};
+    if(i===0)give();else showAd(give);}));
+  box.querySelectorAll('[data-claim]').forEach(b=>b.addEventListener('click',()=>{
+    const [p,id]=b.dataset.claim.split('.');const s=taskState(p),t=TASKS[p].find(x=>x.id===id);
+    if(!t||s.got[id]||(s.c[id]||0)<t.n)return;s.got[id]=1;sfx.swish();addStars(t.r,'Aufgabe');}));
+}
+
+/* ---- kiosk: trade game points for stars ---- */
+function showShop(back){
+  memo({to:'Dich',subject:'Büro-Kiosk',big:'Kiosk',
+    body:`${walletLine()}<p>Tausche deine gesammelten Spielpunkte gegen Sterne. Punkte bekommst du beim Spielen allein und online.</p><ul class="shop" id="shopList"></ul><p class="hand" id="shopMsg" aria-live="polite"></p>`,
+    actions:[{label:'Belohnungen',go:()=>showRewards(back)},{label:'Zurück',ghost:true,go:back||showStart}],
+    after:renderShop});
+}
+function renderShop(){
+  const ul=$('shopList');if(!ul)return;
+  ul.innerHTML=SHOP.map((o,i)=>`<li><div><div class="pk">${o.n} ⭐</div><div class="pr">${fmt(o.p)} Punkte</div></div><button class="btn small" data-buy="${i}" ${W.pts<o.p?'disabled':''}>Kaufen</button></li>`).join('');
+  ul.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{const o=SHOP[+b.dataset.buy];
+    if(W.pts<o.p){$('shopMsg').textContent='Zu wenig Punkte.';return;}
+    W.pts-=o.p;sfx.paper();addStars(o.n,'gekauft');$('shopMsg').textContent=`Gekauft: ${o.n} ⭐`;}));
+}
+function needStarMemo(back){
+  memo({to:'Dich',subject:'Online-Spiel',big:'Kein Stern mehr',
+    body:`${walletLine()}<p>Ein Online-Spiel kostet 1 ⭐. Hol dir Sterne mit dem Tages-Bonus und den Aufgaben – oder tausche Punkte im Kiosk.</p>`,
+    actions:[{label:'Belohnungen',go:()=>showRewards(back)},{label:'Kiosk',ghost:true,go:()=>showShop(back)},{label:'Zurück',ghost:true,go:showStart}]});
+}
 function showStart(){
   game.state='menu';netLeave();game.mode='solo';
   const acts=[{label:'Allein spielen →',go:()=>startSolo(0)},
     {label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},
-    {label:'Freunde einladen',ghost:true,go:showOnlineSetup}];
+    {label:'Freunde einladen (1 ⭐)',ghost:true,go:()=>showOnlineSetup()},
+    {label:'⭐ Belohnungen'+(openTasks()?` (${openTasks()})`:''),ghost:true,go:()=>showRewards()},
+    {label:'Kiosk',ghost:true,go:()=>showShop()}];
   if(bestLevel>0)acts.splice(1,0,{label:`Weiter bei Stufe ${bestLevel+1}`,ghost:true,go:()=>startSolo(bestLevel)});
   memo({to:'Alle Mitarbeitenden',subject:'Papierkorb-Offensive',big:'Paper Toast',
     body:`<p>Ab sofort gilt: Wer den Papierkorb trifft, wird befördert. Pro Stufe hast du ${THROWS} Würfe. Je höher du kommst, desto weiter weg steht der Kübel, desto kleiner wird er – und der Ventilator hilft auch nicht.</p>
+      ${walletLine()}
       <p class="hand">↑ Nach oben wischen = werfen. Länger wischen = weiter. Schräg wischen = zielen.</p>
       ${best>0?`<p>Dein Rekord: <b>${fmt(best)}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
     actions:acts,credit:true});
@@ -932,6 +1104,7 @@ function levelDone(){
   const p=P(),L=levelDef(game.level),need=L.need,h=p.hits;
   const st=h>=need+4||h===THROWS?3:h>=need+2?2:1;
   const bonus=st*100*(game.level+1);p.score+=bonus;
+  earnPoints(bonus);if(st===3)track('three');if(game.mode==='solo')track('level',game.level+1);
   if(p.score>best){best=p.score;store.set('best',best);}
   const next=game.level+1;if(game.mode==='solo'&&next>bestLevel){bestLevel=next;store.set('bestLevel',bestLevel);}
   sfx.win();game.state='menu';updateHUD();
@@ -967,7 +1140,7 @@ function localLevelEnd(){
   const L=levelDef(game.level),next=game.level+1;
   const lines=[];let passed=0;
   game.players.forEach(p=>{if(!p.alive)return;const ok=p.hits>=L.need;
-    if(ok){passed++;const st=p.hits>=L.need+4||p.hits===THROWS?3:p.hits>=L.need+2?2:1;const bonus=st*100*(game.level+1);p.score+=bonus;lines.push([p,`${p.hits}/${THROWS} ${stars(st)} +${bonus}`,true]);}
+    if(ok){passed++;const st=p.hits>=L.need+4||p.hits===THROWS?3:p.hits>=L.need+2?2:1;if(st===3)track('three');const bonus=st*100*(game.level+1);p.score+=bonus;lines.push([p,`${p.hits}/${THROWS} ${stars(st)} +${bonus}`,true]);}
     else{p.alive=false;lines.push([p,`${p.hits}/${THROWS} – freigestellt`,false]);}});
   game.state='menu';updateHUD();
   const ranking=game.players.slice().sort((a,b)=>b.score-a.score);
@@ -1024,10 +1197,11 @@ function showOnlineSetup(code){
         actions:[{label:'Nochmals versuchen',go:()=>showOnlineSetup(code)},{label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
       return;
     }
+    if(W.stars<1)return needStarMemo(()=>showOnlineSetup(code));
     const joining=!!code;
     const saveName=()=>{const v=($('nick').value||'').trim().slice(0,14);net.name=v||'Gast';store.set('nick',net.name);};
     memo({to:'Dich',subject:joining?'Einladung':'Freunde einladen',big:joining?`Raum ${code.toUpperCase()}`:'Online spielen',
-      body:`<p>${joining?'Du wurdest zu einem Spiel eingeladen. ':''}Jede Person spielt auf dem eigenen Gerät. Ihr seht die Punkte der anderen live und ihre Papierkugeln fliegen in eurem Raum mit. Bis zu 4 Spieler pro Raum.</p>
+      body:`<p>${joining?'Du wurdest zu einem Spiel eingeladen. ':''}Ein Online-Spiel kostet 1 ⭐ (du hast ${W.stars}). Jede Person spielt auf dem eigenen Gerät. Ihr seht die Punkte der anderen live und ihre Papierkugeln fliegen in eurem Raum mit. Bis zu 4 Spieler pro Raum.</p>
         <label class="pname solo"><span>Dein Name</span><input id="nick" maxlength="14" autocomplete="off" value="${esc(net.name)}" placeholder="z. B. Lena"></label>
         ${joining?'':`<label class="pname solo"><span>Raum-Code von Freunden (falls du einen hast)</span><input id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="z. B. K7QM"></label><p class="hand" id="codeMsg" aria-live="polite"></p>`}`,
       actions:[{label:joining?'Beitreten →':'Raum erstellen →',go:()=>{saveName();
@@ -1074,6 +1248,7 @@ function renderLobby(){
 }
 function beginOnline(){
   if(net.started)return;net.started=true;clearInterval(net.lobbyTimer);
+  W.stars=Math.max(0,W.stars-1);saveWallet();track('online');
   game.mode='online';game.players=[newPlayer(net.name,0)];hideMemo();startLevel(0,true);
 }
 function onNetPeers(ch){
@@ -1166,6 +1341,7 @@ function drawAim(){
 game.bin.z=-3;resize();
 const inviteCode=(location.hash.match(/^#pt-([a-z0-9]{4})$/)||[])[1];
 if(inviteCode)showOnlineSetup(inviteCode);else showStart();
+initWallet();
 const ld=$('loading');if(ld)ld.textContent='Papierkorb wird geliefert …';
 loadBin(()=>{
   const L=levelDef(0),b=game.bin;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;binHolder.scale.setScalar(L.s);updateBin(0);

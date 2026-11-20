@@ -33,6 +33,15 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
    - Jeder spielt auf dem eigenen Gerät, mit einer Live-Rangliste. Die Würfe der anderen fliegen als farbige Papierkugeln mit.
    - Technik: die `room`-Fähigkeit von claude.ai-Artifacts (`claude.use("room")`, `join()`, nur `presence`, keine Events). Das Spiel ist mit Link freigegeben: Jede Person, die bei claude.ai angemeldet ist und den Link hat, kann mitspielen. Wer nicht angemeldet ist, sieht den Hinweis „bei claude.ai anmelden“ und kann am selben Gerät spielen.
 
+## Sterne ⭐, Belohnungen, Kiosk
+- Ein Online-Spiel kostet 1 ⭐ (wird beim Spielstart abgezogen). Allein und Mehrspieler am Gerät sind gratis. Neue Spieler starten mit 3 ⭐.
+- Tages-Bonus (Leiter, jeden Tag neu): Stufe 1 = +1 ⭐ gratis, Stufen 2–5 = +2/+3/+4/+5 ⭐, jeweils nach einem Werbevideo; immer nur die nächste Stufe ist offen.
+- Werbung ist ein Platzhalter (grauer Kasten „Hier läuft später ein Werbevideo“, 15 s, nicht überspringbar, Radio stumm). Echte Werbung (z. B. Poki-SDK) geht erst ausserhalb von claude.ai.
+- Aufgaben: täglich (10 Treffer, 1 Swish, 30 Würfe: je 1 ⭐), wöchentlich (60 Treffer, Teamleitung erreichen, 3 Online-Spiele: je 3 ⭐), monatlich (250 Treffer 8 ⭐, 20 Swishes 6 ⭐, 15× ★★★ 8 ⭐). Erledigte Aufgaben muss man unter „Belohnungen“ abholen.
+- Kiosk: Spielpunkte (aus Solo- und Online-Spielen) gegen Sterne tauschen: 1 ⭐ = 1'000, 5 ⭐ = 4'500, 12 ⭐ = 10'000 Punkte. Kein Echtgeld (auf claude.ai nicht möglich).
+- Speicherung: im Browser (localStorage „papertoast.wallet“). Der Code kann das claude.ai-Konto (db-Fähigkeit, data/users/<id>/wallet) nutzen, aber db lässt sich bei einem öffentlich geteilten Artifact nicht einschalten.
+- Wichtige Funktionen: W (Wallet), track(), earnPoints(), showRewards(), showShop(), showAd(), needStarMemo(), initWallet().
+
 ## Technik (bitte beibehalten)
 - **Eine HTML-Datei** (`paper-toast/index.html`) mit Inline-CSS und Inline-JS, ohne Build-Schritt.
 - **three.js r147 als klassische Skripte** (keine ES-Module):
