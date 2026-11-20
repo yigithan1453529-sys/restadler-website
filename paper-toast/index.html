@@ -1307,7 +1307,9 @@ const net={api:undefined,room:null,code:null,name:store.get('nick',''),throwSeq:
 
 /* ================= Firebase backend (own website): online rooms + per-player stars =================
    Used when the game runs on its own website (GitHub Pages). Inside a claude.ai artifact the claude.ai room is used instead. */
-const FB_CONFIG=null;   // firebaseConfig from the Firebase console (public identifiers, not secrets)
+const FB_CONFIG={apiKey:"AIzaSyBjARXwRU2Xo89t6r8X2oEOrCfT9nxAl6o",authDomain:"paper-toast.firebaseapp.com",
+  databaseURL:"https://paper-toast-default-rtdb.europe-west1.firebasedatabase.app",projectId:"paper-toast",
+  storageBucket:"paper-toast.firebasestorage.app",messagingSenderId:"372582465966",appId:"1:372582465966:web:17888aec2b6db80bf1c83f"};   // firebaseConfig from the Firebase console (public identifiers, not secrets)
 const ON_CLAUDE=/claudeusercontent\.com$|claude\.ai$/.test(location.hostname);
 const USE_FB=!!FB_CONFIG&&!ON_CLAUDE;
 const fb={ready:null,uid:null,db:null};
