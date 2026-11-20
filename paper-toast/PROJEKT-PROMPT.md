@@ -22,7 +22,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - **Ton:** Alles wird live im Browser erzeugt (WebAudio), es gibt keine Audiodateien.
   - Radio „Büro Eins“: Popmusik, die wie ein kleiner Lautsprecher klingt, mit Jingle.
   - Nur Gemurmel von sieben Kollegen ohne verständliche Worte, dazu ein leiser Büro-Grundton. Keine Sprachausgabe (keine echten Sätze, keine Radio-Ansagen).
-  - Ein Knopf für Radio an/aus, ein Knopf für Ton an/aus.
+  - Ein Knopf für Radio an/aus, ein Knopf für Ton an/aus (unten rechts).
+- Während des Spiels unten links: Haus-Knopf (Pause-Memo mit Weiterspielen / Stufe neu starten / Zum Startbildschirm, das Spiel steht still) und Neustart-Knopf (aktuelle Stufe sofort neu, Punkte auf Stand bei Stufenbeginn).
 
 ## Mehrspieler
 1. **Allein spielen:** Wer eine Stufe nicht schafft, wiederholt sie.
