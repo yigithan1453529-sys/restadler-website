@@ -310,6 +310,9 @@ function tex(w,h,draw,rep){
   return t;
 }
 const rnd=(a,b)=>a+Math.random()*(b-a);
+// two selectable rooms: R1 = Konferenzraum Säntis (original), R2 = Sitzungszimmer Ebenalp (walnut table)
+const R1=new THREE.Group();R1.name='saentis';scene.add(R1);
+const R2=new THREE.Group();R2.name='ebenalp';R2.visible=false;scene.add(R2);
 
 /* ---- environment & lights ---- */
 if(THREE.RoomEnvironment){const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(new THREE.RoomEnvironment(),0.04).texture;}
@@ -320,9 +323,9 @@ sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
 Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7,near:0.5,far:20});sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.02;
 scene.add(sun,sun.target);
 // warm downlights from the pendant frame above the table
-[-3.2,-5.6].forEach(z=>{const l=new THREE.PointLight(0xffe9c8,0.55,6,2);l.position.set(0,2.45,z);scene.add(l);});
+[-3.2,-5.6].forEach(z=>{const l=new THREE.PointLight(0xffe9c8,0.55,6,2);l.position.set(0,2.45,z);R1.add(l);});
 // track spots washing the TV wall
-const tvSpot=new THREE.SpotLight(0xfff0dc,0.6,7,0.6,0.7,1.5);tvSpot.position.set(1.7,2.7,-2.4);tvSpot.target.position.set(2.7,1.3,-3.0);scene.add(tvSpot,tvSpot.target);
+const tvSpot=new THREE.SpotLight(0xfff0dc,0.6,7,0.6,0.7,1.5);tvSpot.position.set(1.7,2.7,-2.4);tvSpot.target.position.set(2.7,1.3,-3.0);R1.add(tvSpot,tvSpot.target);
 
 /* ---- helpers & materials ---- */
 // conference room "Format2": walls at x=±2.6, far wall z=-7.75, near wall z=+0.98, ceiling 2.96
@@ -347,13 +350,13 @@ const floorTex=tex(1024,1024,(g,w,h)=>{
 },[2,3]);
 const RL=ROOM.zFront-ROOM.zBack, RZ=(ROOM.zFront+ROOM.zBack)/2;
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(ROOM.x*2+0.4,RL),new THREE.MeshStandardMaterial({map:floorTex,roughness:.38,envMapIntensity:.7}));
-floor.rotation.x=-Math.PI/2;floor.position.set(0.1,0,RZ);floor.receiveShadow=true;scene.add(floor);
+floor.rotation.x=-Math.PI/2;floor.position.set(0.1,0,RZ);floor.receiveShadow=true;R1.add(floor);
 const shellMat=new THREE.MeshStandardMaterial({color:0xd9d6d1,roughness:.95,side:THREE.BackSide});
-const shell=new THREE.Mesh(new THREE.BoxGeometry(ROOM.x*2+0.5,3.05,RL+0.2),shellMat);shell.position.set(0.1,1.52,RZ);shell.receiveShadow=true;scene.add(shell);
+const shell=new THREE.Mesh(new THREE.BoxGeometry(ROOM.x*2+0.5,3.05,RL+0.2),shellMat);shell.position.set(0.1,1.52,RZ);shell.receiveShadow=true;R1.add(shell);
 // daylight glowing behind the vertical blinds (left wall and far wall)
 const dayMat=new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false});
-const dayL=new THREE.Mesh(new THREE.PlaneGeometry(RL,2.4),dayMat);dayL.position.set(-ROOM.x-0.12,1.45,RZ);dayL.rotation.y=Math.PI/2;scene.add(dayL);
-const dayB=new THREE.Mesh(new THREE.PlaneGeometry(ROOM.x*2,2.4),dayMat);dayB.position.set(0,1.45,ROOM.zBack-0.12);scene.add(dayB);
+const dayL=new THREE.Mesh(new THREE.PlaneGeometry(RL,2.4),dayMat);dayL.position.set(-ROOM.x-0.12,1.45,RZ);dayL.rotation.y=Math.PI/2;R1.add(dayL);
+const dayB=new THREE.Mesh(new THREE.PlaneGeometry(ROOM.x*2,2.4),dayMat);dayB.position.set(0,1.45,ROOM.zBack-0.12);R1.add(dayB);
 
 /* ---- generic GLB loader: .glb next to the page, or its base64 .txt twin ---- */
 function fetchGLB(name){
@@ -378,7 +381,7 @@ const roomMats={
   '2':{color:0x1c1c1e,roughness:.35,metalness:.5},          // cable tray
   '3':{color:0x24110a,roughness:.25},                       // polished table top
 };
-const roomGroup=new THREE.Group();scene.add(roomGroup);
+const roomGroup=new THREE.Group();R1.add(roomGroup);
 loadGLB('office.glb').then(g=>{
   g.scene.traverse(o=>{if(!o.isMesh)return;const spec=roomMats[o.material.name];
     if(spec){o.material=new THREE.MeshStandardMaterial(Object.assign({name:o.material.name},spec));}
@@ -387,6 +390,91 @@ loadGLB('office.glb').then(g=>{
   roomGroup.add(g.scene);
 }).catch(e=>console.warn('Raum konnte nicht geladen werden',e));
 
+
+/* ================= Raum 2: Sitzungszimmer Ebenalp (walnut table from walnut_table.glb, procedural room) ================= */
+const oakTex=tex(1024,1024,(g,w,h)=>{
+  const cols=8,cw=w/cols;
+  for(let c=0;c<cols;c++){let y=-rnd(0,h*0.9);
+    while(y<h){const ph=rnd(h*0.6,h*1.0);g.fillStyle=`hsl(${rnd(30,36)},${rnd(34,44)}%,${rnd(58,66)}%)`;g.fillRect(c*cw,y,cw,ph);
+      g.save();g.beginPath();g.rect(c*cw,y,cw,ph);g.clip();
+      for(let i=0;i<22;i++){g.strokeStyle=`rgba(${Math.random()<.6?'120,80,40':'250,230,200'},${rnd(.06,.16)})`;g.lineWidth=rnd(.6,2);g.beginPath();
+        const x0=c*cw+rnd(0,cw),a=rnd(1,5),f=rnd(.004,.02),q=rnd(0,6);for(let yy=y;yy<=y+ph;yy+=10){const xx=x0+Math.sin(yy*f+q)*a;yy===y?g.moveTo(xx,yy):g.lineTo(xx,yy);}g.stroke();}
+      g.restore();g.fillStyle='rgba(90,60,30,.45)';g.fillRect(c*cw,y,cw,2);y+=ph;}
+    g.fillStyle='rgba(90,60,30,.4)';g.fillRect(c*cw,0,2,h);}
+},[2,3]);
+const viewTex=tex(2048,512,(g,w,h)=>{   // window view: Alpstein ridge, meadows, a chalet
+  const sky=g.createLinearGradient(0,0,0,h*0.7);sky.addColorStop(0,'#6fa8de');sky.addColorStop(1,'#d6ebfa');g.fillStyle=sky;g.fillRect(0,0,w,h);
+  g.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<7;i++){const x=rnd(0,w),y=rnd(30,140);for(let k=0;k<6;k++){g.beginPath();g.ellipse(x+k*28,y+Math.sin(k)*8,rnd(30,55),rnd(12,20),0,0,7);g.fill();}}
+  const ridge=(base,amp,col,snow)=>{g.fillStyle=col;g.beginPath();g.moveTo(0,h);let pts=[];for(let x=0;x<=w;x+=16){const y=base-amp*(0.55*Math.abs(Math.sin(x*0.0031+1.3))+0.35*Math.abs(Math.sin(x*0.011+0.4))+0.1*Math.sin(x*0.05));pts.push([x,y]);g.lineTo(x,y);}g.lineTo(w,h);g.fill();
+    if(snow){g.fillStyle='rgba(255,255,255,.9)';pts.forEach(([x,y],i)=>{if(y<base-amp*0.62&&i%1===0){g.beginPath();g.moveTo(x-10,y+18);g.lineTo(x,y);g.lineTo(x+12,y+20);g.fill();}});}};
+  ridge(h*0.52,h*0.36,'#8a93a3',true);ridge(h*0.62,h*0.2,'#6f7d6a',false);
+  const mg=g.createLinearGradient(0,h*0.6,0,h);mg.addColorStop(0,'#7fb05a');mg.addColorStop(1,'#4f8a3a');g.fillStyle=mg;g.beginPath();g.moveTo(0,h);
+  for(let x=0;x<=w;x+=20)g.lineTo(x,h*0.7+Math.sin(x*0.004)*22+Math.sin(x*0.013)*8);g.lineTo(w,h);g.fill();
+  for(let i=0;i<40;i++){const x=rnd(0,w),y=rnd(h*0.68,h*0.8);g.fillStyle='#2f5a2a';g.beginPath();g.moveTo(x,y-26);g.lineTo(x-9,y);g.lineTo(x+9,y);g.fill();}
+  const cx=w*0.62,cy=h*0.8;g.fillStyle='#f3efe6';g.fillRect(cx,cy-30,60,30);g.fillStyle='#8a3d22';g.beginPath();g.moveTo(cx-8,cy-28);g.lineTo(cx+30,cy-52);g.lineTo(cx+68,cy-28);g.fill();
+  g.fillStyle='#3a6ea8';g.fillRect(cx+10,cy-22,10,10);g.fillRect(cx+40,cy-22,10,10);
+});
+const boardTex=tex(1024,560,(g,w,h)=>{
+  g.fillStyle='#fbfbf8';g.fillRect(0,0,w,h);g.font='700 64px Caveat,"Segoe Print",cursive';g.fillStyle='#1d4fa8';g.fillText('Q4-Ziele',40,90);
+  g.font='500 46px Caveat,"Segoe Print",cursive';g.fillStyle='#222';
+  ['• Papierkorb-Quote 80 %','• Mehr Swishes, weniger Rand','• Ventilator nicht anfassen!'].forEach((t,i)=>g.fillText(t,50,180+i*72));
+  g.strokeStyle='#c8102e';g.lineWidth=6;g.beginPath();g.arc(770,380,90,0,7);g.stroke();g.fillStyle='#c8102e';g.font='700 54px Caveat,cursive';g.fillText('Teamleitung?',650,520);
+});
+(function buildEbenalp(){
+  const X=ROOM.x,ZB=ROOM.zBack,ZF=ROOM.zFront,Hh=ROOM.h,RLn=ZF-ZB,RZn=(ZF+ZB)/2;
+  const wall=c=>new THREE.MeshStandardMaterial({color:c,roughness:.92});
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(X*2+0.4,RLn),new THREE.MeshStandardMaterial({map:oakTex,roughness:.45,envMapIntensity:.6}));
+  fl.rotation.x=-Math.PI/2;fl.position.set(0,0,RZn);fl.receiveShadow=true;R2.add(fl);
+  const plane=(w,h,mat,x,y,z,ry)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.position.set(x,y,z);m.rotation.y=ry||0;m.receiveShadow=true;R2.add(m);return m;};
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(X*2,RLn),wall(0xf7f5f0));ceil.rotation.x=Math.PI/2;ceil.position.set(0,Hh,RZn);R2.add(ceil);
+  plane(X*2,Hh,wall(0xa7b79f),0,Hh/2,ZB);                        // sage back wall
+  plane(X*2,Hh,wall(0xf1ece3),0,Hh/2,ZF,Math.PI);                // front wall
+  plane(RLn,Hh,wall(0xf1ece3),X,Hh/2,RZn,-Math.PI/2);            // right wall
+  // left wall: parapet, big window with the Alpstein view, lintel
+  plane(RLn,0.75,wall(0xf1ece3),-X,0.375,RZn,Math.PI/2);
+  plane(RLn,Hh-2.45,wall(0xf1ece3),-X,2.45+(Hh-2.45)/2,RZn,Math.PI/2);
+  const view=plane(RLn-0.4,1.7,new THREE.MeshBasicMaterial({map:viewTex,toneMapped:false}),-X-0.02,1.6,RZn,Math.PI/2);view.receiveShadow=false;
+  const frameM=new THREE.MeshStandardMaterial({color:0x2b2b2e,roughness:.5,metalness:.4});
+  for(let z=ZF-0.2;z>=ZB+0.1;z-=1.35)box(0.06,1.72,0.06,frameM,-X+0.03,1.6,z,R2);
+  box(0.06,0.05,RLn-0.4,frameM,-X+0.03,2.46,RZn,R2);box(0.24,0.04,RLn-0.4,new THREE.MeshStandardMaterial({color:0xe9e4da,roughness:.6}),-X+0.12,0.76,RZn,R2);
+  // whiteboard on the right wall
+  const wb=new THREE.Group();wb.position.set(X-0.03,1.5,-3.6);wb.rotation.y=-Math.PI/2;R2.add(wb);
+  box(1.9,1.04,0.03,new THREE.MeshStandardMaterial({color:0xb9bec6,metalness:.8,roughness:.3}),0,0,0,wb);
+  const wbs=new THREE.Mesh(new THREE.PlaneGeometry(1.84,0.98),new THREE.MeshStandardMaterial({map:boardTex,roughness:.25}));wbs.position.z=0.017;wb.add(wbs);
+  box(1.2,0.03,0.07,new THREE.MeshStandardMaterial({color:0xb9bec6,metalness:.8,roughness:.3}),0,-0.54,0.03,wb);
+  // framed print on the back wall
+  const pic=new THREE.Group();pic.position.set(1.2,1.65,ZB+0.03);R2.add(pic);
+  box(1.0,0.7,0.03,frameM,0,0,0,pic);const pm=new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.6),new THREE.MeshBasicMaterial({map:viewTex}));pm.position.z=0.017;pic.add(pm);
+  // linear pendant light over the table
+  const lampM=new THREE.MeshStandardMaterial({color:0x1a1a1c,roughness:.4,metalness:.5});
+  box(0.08,0.06,2.6,lampM,0,2.2,-4.13,R2);
+  const glow=new THREE.Mesh(new THREE.PlaneGeometry(0.06,2.55),new THREE.MeshBasicMaterial({color:0xfff3dc,toneMapped:false}));glow.rotation.x=Math.PI/2;glow.position.set(0,2.168,-4.13);R2.add(glow);
+  [-3.2,-5.06].forEach(z=>{cyl(0.004,0.004,Hh-2.23,lampM,0,(Hh+2.23)/2,z,R2,6);});
+  [-3.3,-5.0].forEach(z=>{const l=new THREE.PointLight(0xffefd6,0.6,6,2);l.position.set(0,2.05,z);R2.add(l);});
+  const win=new THREE.PointLight(0xdfeeff,0.35,7,2);win.position.set(-2.0,1.7,-3.5);R2.add(win);
+  // the walnut table
+  loadGLB('walnut_table.glb').then(g=>{g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=.5;}});
+    g.scene.position.set(0,0,-4.13);R2.add(g.scene);}).catch(e=>console.warn('Nussbaumtisch fehlt',e));
+})();
+// chairs for the Ebenalp room: cognac leather shells on slim chrome legs, facing the table
+(function(){
+  const leather=new THREE.MeshStandardMaterial({color:0x8a5428,roughness:.5});
+  const seatG=new THREE.BoxGeometry(0.46,0.07,0.44),backG=new THREE.BoxGeometry(0.46,0.42,0.05);
+  [[-1.0,-2.95],[-1.0,-4.13],[-1.0,-5.3],[1.0,-2.95],[1.0,-4.13],[1.0,-5.3]].forEach(([x,z])=>{
+    const c=new THREE.Group();c.position.set(x,0,z);c.rotation.y=x<0?-Math.PI/2:Math.PI/2;R2.add(c);  // local -z faces the table
+    const seat=new THREE.Mesh(seatG,leather);seat.position.set(0,0.47,0);c.add(seat);
+    const back=new THREE.Mesh(backG,leather);back.position.set(0,0.71,0.21);back.rotation.x=-0.12;c.add(back);
+    [[-0.2,-0.18],[0.2,-0.18],[-0.2,0.18],[0.2,0.18]].forEach(([lx,lz])=>cyl(0.012,0.012,0.44,chrome,lx,0.22,lz,c,8));
+    c.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;}});});
+})();
+/* ---- room registry & switching ---- */
+const ROOMS={
+  saentis:{name:'Konferenzraum Säntis',desc:'Dunkler Holzboden, Lamellenvorhänge, langer Konferenztisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
+  ebenalp:{name:'Sitzungszimmer Ebenalp',desc:'Heller Raum mit Fensterfront aufs Alpstein, Nussbaum-Tisch und Whiteboard.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
+let roomId=store.get('room','saentis');if(!ROOMS[roomId])roomId='saentis';
+function setRoom(id){if(!ROOMS[id])id='saentis';roomId=id;store.set('room',id);
+  Object.entries(ROOMS).forEach(([k,r])=>r.group.visible=k===id);Object.assign(TABLE,ROOMS[id].table);}
+setRoom(roomId);
 /* ---- standing bar table (used on the far levels behind the conference table) ---- */
 const bar=new THREE.Group();scene.add(bar);bar.visible=false;
 const BAR={r:0.36,y:1.06,x:0,z:-7.15};
@@ -399,8 +487,8 @@ const TVW=1024,TVH=310;
 const tvCanvas=document.createElement('canvas');tvCanvas.width=TVW;tvCanvas.height=TVH;
 const tvTex=new THREE.CanvasTexture(tvCanvas);tvTex.encoding=THREE.sRGBEncoding;
 const tvScreen=new THREE.Mesh(new THREE.PlaneGeometry(2.3,0.69),new THREE.MeshBasicMaterial({map:tvTex,toneMapped:false}));
-tvScreen.position.set(2.74,1.535,-3.045);tvScreen.rotation.y=-Math.PI/2;scene.add(tvScreen);
-const tvGlow=new THREE.PointLight(0x7fa8ff,0.35,3.2,2);tvGlow.position.set(2.2,1.5,-3.0);scene.add(tvGlow);
+tvScreen.position.set(2.74,1.535,-3.045);tvScreen.rotation.y=-Math.PI/2;R1.add(tvScreen);
+const tvGlow=new THREE.PointLight(0x7fa8ff,0.35,3.2,2);tvGlow.position.set(2.2,1.5,-3.0);R1.add(tvGlow);
 const tvStats={title:'Willkommen',line2:'',line3:''};let tvBoard=null;
 function updateTV(a,b,c){tvStats.title=a;tvStats.line2=b;tvStats.line3=c;}
 const fish=[];for(let i=0;i<9;i++)fish.push({x:Math.random()*TVW,y:rnd(40,TVH-50),s:rnd(.6,1.4),v:rnd(30,80)*(Math.random()<.5?-1:1),h:rnd(0,360)});
@@ -490,7 +578,7 @@ loadGLB('fan.glb').then(gl=>{
 let ceilMixer=null;
 loadGLB('ceiling_fan.glb').then(gl=>{
   const m=gl.scene;m.scale.setScalar(0.010);m.position.set(0,2.95-7.24*0.010,-2.0);
-  m.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});scene.add(m);
+  m.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});R1.add(m);
   if(gl.animations&&gl.animations.length){ceilMixer=new THREE.AnimationMixer(m);gl.animations.forEach(a=>ceilMixer.clipAction(a).play());}
 }).catch(e=>console.warn('Deckenventilator fehlt',e));
 
@@ -498,17 +586,17 @@ loadGLB('ceiling_fan.glb').then(gl=>{
 loadGLB('desk.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=o.material.metalness>0.3?0.8:0.35;}});
   const cub=g.scene.getObjectByName('cubicle'),cool=g.scene.getObjectByName('cooler');
-  if(cub){cub.rotation.y=-Math.PI/2;cub.position.set(-1.39,0,-1.21);scene.add(cub);}
-  if(cool){cool.position.set(-1.45,0,-6.46);scene.add(cool);}
+  if(cub){cub.rotation.y=-Math.PI/2;cub.position.set(-1.39,0,-1.21);R1.add(cub);}
+  if(cool){cool.position.set(-1.45,0,-6.46);R1.add(cool);const c2=cool.clone(true);c2.position.set(-1.45,0,-6.46);R2.add(c2);}
 }).catch(e=>console.warn('Arbeitsplatz fehlt',e));
 loadGLB('drawer.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.scene.position.set(1.78,0.05,-7.47);scene.add(g.scene);
+  g.scene.position.set(1.78,0.05,-7.47);R1.add(g.scene);
 }).catch(e=>console.warn('Aktenschrank fehlt',e));
 /* small CRT television standing on top of the filing cabinet */
 loadGLB('tv_small.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;scene.add(g.scene);
+  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;R1.add(g.scene);
 }).catch(e=>console.warn('Fernseher fehlt',e));
 
 /* ---- support surfaces for the paper ball and the bin ---- */
@@ -724,8 +812,9 @@ function startLevel(i,keepScore){
   game.cur=Math.max(0,game.players.findIndex(p=>p.alive));
   const b=game.bin;b.z=-L.d;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;
   frameCamera();
-  bar.visible=!!L.bar;
-  if(L.bar){BAR.x=i<9?0:rnd(-0.7,0.7);BAR.z=-L.d;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
+  const useBar=!!L.bar||L.d>ROOMS[roomId].maxTable;
+  bar.visible=useBar;
+  if(useBar){BAR.x=i<9?0:rnd(-0.7,0.7);BAR.z=Math.min(-L.d,TABLE.z1-0.45);b.z=BAR.z;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
   else{b.surf=TABLE.y;const lim=TABLE.hx-b.Rt-0.06;b.amp=L.m>0?Math.min(L.m,TABLE.hx-0.24):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.12+i*0.07));}
   b.omega=0.7+i*0.05;b.phase=rnd(0,6.28);b.y=b.surf+(b.amp>0?0.075:0);
   robot.visible=b.amp>0;
@@ -1092,6 +1181,7 @@ function showStart(){
   game.state='menu';netLeave();game.mode='solo';
   const open=openTasks();
   const acts=[{label:'Allein spielen →',go:()=>startSolo(0)},
+    {label:'Raum: '+ROOMS[roomId].name,ghost:true,go:showRooms},
     {label:'Mit Freunden',ghost:true,go:showFriends},
     {label:'⭐ Sterne & Aufgaben'+(open?` (${open} neu)`:''),ghost:true,go:()=>showRewards()}];
   if(bestLevel>0)acts.splice(1,0,{label:`Weiter bei „${levelDef(bestLevel).t}“`,ghost:true,go:()=>startSolo(bestLevel)});
@@ -1101,6 +1191,11 @@ function showStart(){
       ${walletLine()}
       ${best>0?`<p>Rekord: <b>${fmt(best)}</b> Punkte · höchste Stufe: ${levelDef(bestLevel).t}</p>`:''}`,
     actions:acts,credit:true});
+}
+function showRooms(){
+  memo({to:'Dich',subject:'Raumreservation',big:'Wo spielst du?',
+    body:`<p>Wähle deinen Raum. Die Stufen und Regeln sind überall gleich.</p><ul class="shop">${Object.entries(ROOMS).map(([k,r])=>`<li><div><div class="pk" style="color:var(--ink)">${r.name}${k===roomId?' ✓':''}</div><div class="pr">${r.desc}</div></div></li>`).join('')}</ul>`,
+    actions:[...Object.entries(ROOMS).map(([k,r])=>({label:(k===roomId?'✓ ':'')+r.name,ghost:k!==roomId,go:()=>{setRoom(k);frameCamera();showStart();}})),{label:'Zurück',ghost:true,go:showStart}]});
 }
 function showFriends(){
   memo({to:'Dich',subject:'Mit Freunden spielen',big:'Mit Freunden',

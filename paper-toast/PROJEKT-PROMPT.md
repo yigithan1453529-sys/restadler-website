@@ -33,6 +33,12 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
    - Jeder spielt auf dem eigenen Gerät, mit einer Live-Rangliste. Die Würfe der anderen fliegen als farbige Papierkugeln mit.
    - Technik: die `room`-Fähigkeit von claude.ai-Artifacts (`claude.use("room")`, `join()`, nur `presence`, keine Events). Das Spiel ist mit Link freigegeben: Jede Person, die bei claude.ai angemeldet ist und den Link hat, kann mitspielen. Wer nicht angemeldet ist, sieht den Hinweis „bei claude.ai anmelden“ und kann am selben Gerät spielen.
 
+## Räume (Spieler wählt im Startbildschirm „Raum: …“, gespeichert in localStorage „papertoast.room“)
+- Konferenzraum Säntis (R1): der ursprüngliche Raum (office.glb, Arbeitsplatz-Ecke, Aktenschrank, BÜRO·TV, Röhren-TV, Deckenventilator).
+- Sitzungszimmer Ebenalp (R2): heller Raum, selbst gebaut im Code: heller Eichenboden, salbeigrüne Rückwand, Fensterfront mit gemalter Alpstein-Aussicht links, Whiteboard „Q4-Ziele“ rechts, Bild an der Rückwand, lineare Pendelleuchte, 6 Lederstühle, Wasserspender. Tisch: walnut_table.glb (aus den gelieferten meetingtable.obj + Walnut.jpg; 3,46 × 1,26 m, Platte 0,80 m, Tisch z −2,40 bis −5,86).
+- Im Ebenalp-Raum stehen Stufen mit mehr als 5,55 m Distanz auf dem Stehtisch hinter dem Tisch (mind. 0,45 m hinter dem Tischende).
+- Code: ROOMS, setRoom(), showRooms(), Gruppen R1/R2; TABLE wird beim Raumwechsel umgestellt. Ventilatoren und Stehtisch sind in beiden Räumen.
+
 ## Sterne ⭐, Belohnungen, Kiosk
 - Ein Online-Spiel kostet 1 ⭐ (wird beim Spielstart abgezogen). Allein und Mehrspieler am Gerät sind gratis. Neue Spieler starten mit 3 ⭐.
 - Tages-Bonus (Leiter, jeden Tag neu): Stufe 1 = +1 ⭐ gratis, Stufen 2–5 = +2/+3/+4/+5 ⭐, jeweils nach einem Werbevideo; immer nur die nächste Stufe ist offen.
@@ -58,6 +64,7 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
   - `fan.glb`: Vintage-Ventilator, Knoten „body“ und „blades“ (Flügel drehen um die x-Achse)
   - `ceiling_fan.glb`: Deckenventilator mit eigener Animation (AnimationMixer)
   - `tv_small.glb`: kleiner Röhren-TV
+  - `walnut_table.glb`: Nussbaum-Sitzungstisch (Raum Ebenalp)
 - **Koordinaten:** Kamera bei (0; 1,6; 0,5), Blick nach −z. Der Tisch geht von x ±0,84 und z −2,37 bis −6,59, seine Platte liegt auf 0,73 m Höhe. Wände bei x ±2,6, Rückwand bei z −7,75, Decke bei 2,95 m.
 - **Wichtige Funktionen im Code:** `levelDef()` / `LEVELS` (Stufen), `startLevel()`, `stepBall()` (Physik), `surfaceAt()` (Tisch- und Stehtisch-Flächen), `throwBall()`, `finishThrow()` (Spielerwechsel), `updateHUD()`, `memo()` (Menüs), `drawTV()`, `radio…` / `sfx` (Ton), `net…` (Online-Raum).
 - **Regeln für claude.ai-Artifacts:**
