@@ -40,6 +40,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - Im Raum Bern stehen Stufen mit mehr als 5,55 m Distanz auf dem Stehtisch hinter dem Tisch (mind. 0,45 m hinter dem Tischende).
 - Code: ROOMS, setRoom(), showRooms(), Gruppen R1/R2; TABLE wird beim Raumwechsel umgestellt. Ventilatoren und Stehtisch sind in beiden Räumen.
 
+- Ankara (R3): aus der gelieferten PaperToss_Buero.glb (Blender, mit Texturen) → ankara.glb (Texturen 512 px WebP, meshopt-komprimiert, ca. 2,2 MB; braucht meshopt_decoder.js von jsdelivr). Grossraumbüro 8 × 6 m, um 90° gedreht: Tür hinter dem Spieler, Blick auf Whiteboard und Uhr. POV im Gang zwischen 4 Arbeitsplätzen (Bürostühle 0,42 m zu den Tischen geschoben). Der Papierkorb steht AUF DEM BODEN (ROOMS.ankara.floor), Kamera schaut tiefer (lookY 0,35), Höchstdistanz 6,3 m, Wände x ±3, Rückwand z −7,0, Decke 2,8 m (ROOM wird beim Raumwechsel umgestellt). Schreibtische sind fest (Kugel kann darauf liegen bleiben, ANK_DESKS). Vor den Fenstern Skyline von Ankara (Atakule, Anıtkabir). Der Kübel und die Papierkugeln am Boden aus dem Modell wurden entfernt (das Spiel bringt eigene).
+
 ## Sterne ⭐, Belohnungen, Kiosk
 - Ein Online-Spiel kostet 1 ⭐ (wird beim Spielstart abgezogen). Allein und Mehrspieler am Gerät sind gratis. Neue Spieler starten mit 3 ⭐.
 - Tages-Bonus (Leiter, jeden Tag neu): Stufe 1 = +1 ⭐ gratis, Stufen 2–5 = +2/+3/+4/+5 ⭐, jeweils nach einem Werbevideo; immer nur die nächste Stufe ist offen.

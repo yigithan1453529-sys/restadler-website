@@ -17,6 +17,9 @@ Deckenventilator (ceiling_fan.glb): "Ceiling Ventilator - Dirt (Animated)" von B
 Röhren-TV (tv_small.glb): "Tv Small" von Cyber_Monkey (Sketchfab), CC BY 4.0
   https://sketchfab.com/3d-models/tv-small-d28392d2dfc747a39bad7266387359c9
 
+Raum Ankara (ankara.glb): aus der gelieferten Datei PaperToss_Buero.glb mit eigenen Texturen,
+  Texturen verkleinert (WebP), Geometrie komprimiert (meshopt).
+
 Konferenzraum (office.glb): aus der gelieferten Datei Format2.FBX umgewandelt,
   vereinfacht (ca. 12 % der Dreiecke) und nach Material zusammengefasst.
   Die Original-Texturen waren nicht in der FBX-Datei enthalten.
