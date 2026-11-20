@@ -78,14 +78,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 .board li small{grid-column:2/4;font-size:14px;opacity:.7;margin-top:-3px}
 .board li.cur{font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
 .board li.out{opacity:.45;text-decoration:line-through}
-/* power meter: fixed on the right edge, away from the finger */
-#power{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:50%;transform:translate(14px,-50%);width:46px;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;transition:opacity .15s,transform .15s;pointer-events:none}
-#power.on{opacity:1;transform:translate(0,-50%)}
-#powerTrack{position:relative;width:26px;height:min(40vh,300px);background:rgba(253,253,251,.92);border:2px solid var(--ink);border-radius:15px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.35)}
-#powerTrack::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to top,transparent 0 calc(10% - 1px),rgba(29,39,66,.25) calc(10% - 1px) 10%)}
-#powerFill{position:absolute;left:0;right:0;bottom:0;height:0;background:#3fb35a}
-#powerPct{font-family:var(--hand);font-size:24px;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);font-variant-numeric:tabular-nums;white-space:nowrap}
-#powerLbl{font-family:var(--type);font-size:10px;letter-spacing:.2em;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8)}
 /* ---------- memo overlays ---------- */
 .overlay{position:fixed;inset:0;display:grid;place-items:center;background:var(--scrim);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-bottom,0px));overflow-y:auto;box-sizing:border-box}
 .memo{position:relative;width:min(520px,100%);box-sizing:border-box;background:var(--paper);color:var(--ink);padding:26px 28px 24px;transform:rotate(-.6deg);box-shadow:0 22px 50px -12px rgba(0,0,0,.6);background-image:repeating-linear-gradient(to bottom,transparent 0 27px,var(--rule) 27px 28px);background-position:0 120px;animation:slide .45s cubic-bezier(.2,.9,.3,1.2)}
@@ -134,7 +126,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 @media (max-width:480px){
   .names{grid-template-columns:1fr}
   #turn{top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));font-size:21px}
-  #powerTrack{height:min(34vh,240px)}
   .memo{padding:22px 18px 20px}
   .note{padding:8px 11px 10px}
   .n-big{font-size:23px}.n-row{font-size:19px}.n-small{font-size:15px}
@@ -204,7 +195,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
   </div>
 </div>
 <div id="turn" hidden><i id="turnDot"></i><span id="turnName"></span> ist dran</div>
-<div id="power" role="meter" aria-label="Wurfkraft" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="powerTrack"><div id="powerFill"></div></div><div id="powerPct">0 %</div><div id="powerLbl">KRAFT</div></div>
 <div id="hint" hidden>↑ nach oben wischen &amp; loslassen</div>
 <div id="toast"><div class="t1"></div><div class="t2"></div></div>
 <div id="taskNote" aria-live="polite"></div>
@@ -288,8 +278,13 @@ const sfx={
 
 /* ================= three.js setup ================= */
 const stage=$('stage');
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+// performance: phones get a lighter start, then quality adapts to the measured frame rate (see adaptQuality)
+const DPR=window.devicePixelRatio||1;
+const MOBILE=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||Math.min(screen.width,screen.height)<700;
+const renderer=new THREE.WebGLRenderer({antialias:DPR<2,powerPreference:'high-performance'});
+const QUALITY=[{pr:0.75,shadow:false},{pr:1,shadow:false},{pr:1.25,shadow:true},{pr:MOBILE?1.5:2,shadow:true}];
+let quality=MOBILE?2:3;
+renderer.setPixelRatio(Math.min(DPR,QUALITY[quality].pr));
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.92;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -319,7 +314,7 @@ if(THREE.RoomEnvironment){const pm=new THREE.PMREMGenerator(renderer);scene.envi
 scene.add(new THREE.HemisphereLight(0xfff4e6,0x5a4030,0.5));
 const sun=new THREE.DirectionalLight(0xfff2de,1.15);
 sun.position.set(-6,4.2,-2.5);sun.target.position.set(1,0,-3.5);
-sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+sun.castShadow=QUALITY[quality].shadow;sun.shadow.mapSize.set(MOBILE?1024:2048,MOBILE?1024:2048);
 Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7,near:0.5,far:20});sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.02;
 scene.add(sun,sun.target);
 // warm downlights from the pendant frame above the table
@@ -411,13 +406,15 @@ const roomMats={
   '3':{color:0x24110a,roughness:.25},                       // polished table top
 };
 const roomGroup=new THREE.Group();R1.add(roomGroup);
+let londonLoaded=false;
+function loadLondon(){if(londonLoaded)return;londonLoaded=true;
 loadGLB('office.glb').then(g=>{
   g.scene.traverse(o=>{if(!o.isMesh)return;const spec=roomMats[o.material.name];
     if(spec){o.material=new THREE.MeshStandardMaterial(Object.assign({name:o.material.name},spec));}
     o.material.envMapIntensity=o.material.metalness>0.4?0.9:0.4;
     const n=o.material.name;o.castShadow=!/#52|#70|#63/.test(n);o.receiveShadow=true;});
   roomGroup.add(g.scene);
-}).catch(e=>console.warn('Raum konnte nicht geladen werden',e));
+}).catch(e=>{londonLoaded=false;console.warn('Raum konnte nicht geladen werden',e);});}
 
 
 /* ================= Raum 2: Bern (walnut table from walnut_table.glb, procedural room) ================= */
@@ -472,10 +469,19 @@ const boardTex=tex(1024,560,(g,w,h)=>{
   // left wall: parapet, big window with the Alpstein view, lintel
   plane(RLn,0.75,wall(0xf1ece3),-X,0.375,RZn,Math.PI/2);
   plane(RLn,Hh-2.45,wall(0xf1ece3),-X,2.45+(Hh-2.45)/2,RZn,Math.PI/2);
-  const view=plane(RLn-0.4,1.7,new THREE.MeshBasicMaterial({map:viewTex,toneMapped:false}),-X-0.02,1.6,RZn,Math.PI/2);view.receiveShadow=false;
+  // window behind closed curtains: soft daylight glows through the fabric
+  const glowWin=plane(RLn-0.4,1.7,new THREE.MeshBasicMaterial({color:0xfff6e6,toneMapped:false}),-X-0.02,1.6,RZn,Math.PI/2);glowWin.receiveShadow=false;
+  const curtainTex=tex(512,512,(g,w,h)=>{g.fillStyle='#c8b48f';g.fillRect(0,0,w,h);
+    for(let i=0;i<4000;i++){g.fillStyle=`rgba(${Math.random()<.5?'255,250,235':'90,70,40'},${rnd(.03,.08)})`;g.fillRect(rnd(0,w),rnd(0,h),rnd(1,3),rnd(4,14));}
+    const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba(60,40,20,.18)');gr.addColorStop(.12,'rgba(0,0,0,0)');gr.addColorStop(.9,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(60,40,20,.22)');g.fillStyle=gr;g.fillRect(0,0,w,h);},[6,1]);
+  const curtainMat=new THREE.MeshStandardMaterial({map:curtainTex,roughness:.92,side:THREE.DoubleSide,emissive:0x5a4a32,emissiveIntensity:.35});
+  const cw=RLn-0.2,chh=2.55,cg=new THREE.PlaneGeometry(cw,chh,220,1);const cp=cg.attributes.position;
+  for(let i=0;i<cp.count;i++){const x=cp.getX(i);cp.setZ(i,0.045*Math.sin(x*16)+0.015*Math.sin(x*41));}
+  cg.computeVertexNormals();
+  const curtain=new THREE.Mesh(cg,curtainMat);curtain.position.set(-X+0.14,0.05+chh/2,RZn);curtain.rotation.y=Math.PI/2;curtain.receiveShadow=true;R2.add(curtain);
+  cyl(0.015,0.015,cw+0.1,new THREE.MeshStandardMaterial({color:0x8a8f96,metalness:.8,roughness:.3}),-X+0.14,2.62,RZn,R2,12).rotation.x=Math.PI/2;
   const frameM=new THREE.MeshStandardMaterial({color:0x2b2b2e,roughness:.5,metalness:.4});
-  for(let z=ZF-0.2;z>=ZB+0.1;z-=1.35)box(0.06,1.72,0.06,frameM,-X+0.03,1.6,z,R2);
-  box(0.06,0.05,RLn-0.4,frameM,-X+0.03,2.46,RZn,R2);box(0.24,0.04,RLn-0.4,new THREE.MeshStandardMaterial({color:0xe9e4da,roughness:.6}),-X+0.12,0.76,RZn,R2);
+  // (window frames are hidden behind the closed curtains)
   // whiteboard on the right wall
   const wb=new THREE.Group();wb.position.set(X-0.03,1.5,-3.6);wb.rotation.y=-Math.PI/2;R2.add(wb);
   box(1.9,1.04,0.03,new THREE.MeshStandardMaterial({color:0xb9bec6,metalness:.8,roughness:.3}),0,0,0,wb);
@@ -491,12 +497,22 @@ const boardTex=tex(1024,560,(g,w,h)=>{
   [-3.2,-5.06].forEach(z=>{cyl(0.004,0.004,Hh-2.23,lampM,0,(Hh+2.23)/2,z,R2,6);});
   [-3.3,-5.0].forEach(z=>{const l=new THREE.PointLight(0xffefd6,0.6,6,2);l.position.set(0,2.05,z);R2.add(l);});
   const win=new THREE.PointLight(0xdfeeff,0.35,7,2);win.position.set(-2.0,1.7,-3.5);R2.add(win);
-  // the walnut table
-  loadGLB('walnut_table.glb').then(g=>{g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=.5;}});
-    g.scene.position.set(0,0,-4.13);R2.add(g.scene);}).catch(e=>console.warn('Nussbaumtisch fehlt',e));
+  // recessed ceiling downlights
+  const dlM=new THREE.MeshBasicMaterial({color:0xfff4e0,toneMapped:false});
+  [[-1.4,-1.6],[1.4,-1.6],[-1.4,-6.6],[1.4,-6.6]].forEach(([x,z])=>{const d=new THREE.Mesh(new THREE.CircleGeometry(0.09,24),dlM);d.rotation.x=Math.PI/2;d.position.set(x,Hh-0.005,z);R2.add(d);});
+  const dl=new THREE.PointLight(0xffefd6,0.35,7,2);dl.position.set(0,2.6,-6.6);R2.add(dl);
 })();
-// chairs for the Ebenalp room: cognac leather shells on slim chrome legs, facing the table
-(function(){
+// Bern: the walnut table and the leather chairs from the London room are loaded when the room is first chosen
+let bernLoaded=false;
+function loadBern(){if(bernLoaded)return;bernLoaded=true;
+  loadGLB('walnut_table.glb').then(g=>{g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=.5;}});
+    g.scene.position.set(0,0,-4.13);R2.add(g.scene);}).catch(e=>{bernLoaded=false;console.warn('Nussbaumtisch fehlt',e);});
+  loadGLB('chair.glb').then(g=>{
+    g.scene.traverse(o=>{if(!o.isMesh)return;const spec=roomMats[o.material.name];if(spec)o.material=new THREE.MeshStandardMaterial(Object.assign({name:o.material.name},spec));o.material.envMapIntensity=.4;o.castShadow=true;o.receiveShadow=true;});
+    [[-0.98,-2.95],[-0.98,-4.13],[-0.98,-5.3],[0.98,-2.95],[0.98,-4.13],[0.98,-5.3]].forEach(([x,z])=>{const c=g.scene.clone(true);c.position.set(x,0,z);c.rotation.y=x<0?Math.PI:0;R2.add(c);});
+  }).catch(e=>console.warn('Stühle fehlen',e));
+}
+(function(){return;  // old procedural chairs (replaced by chair.glb)
   const leather=new THREE.MeshStandardMaterial({color:0x8a5428,roughness:.5});
   const seatG=new THREE.BoxGeometry(0.46,0.07,0.44),backG=new THREE.BoxGeometry(0.46,0.42,0.05);
   [[-1.0,-2.95],[-1.0,-4.13],[-1.0,-5.3],[1.0,-2.95],[1.0,-4.13],[1.0,-5.3]].forEach(([x,z])=>{
@@ -509,11 +525,14 @@ const boardTex=tex(1024,560,(g,w,h)=>{
 /* ---- room registry & switching ---- */
 const ROOMS={
   london:{name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
-  bern:{name:'Bern',desc:'Heller Sitzungsraum mit Blick auf Bundeshaus, Münster und Alpen, Nussbaum-Tisch und Whiteboard.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
+  bern:{name:'Bern',desc:'Heller Sitzungsraum mit Nussbaum-Tisch, Lederstühlen, Whiteboard und geschlossenen Vorhängen.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
 let roomId=({saentis:'london',ebenalp:'bern'})[store.get('room','london')]||store.get('room','london');if(!ROOMS[roomId])roomId='london';
 function setRoom(id){if(!ROOMS[id])id='london';roomId=id;store.set('room',id);
-  Object.entries(ROOMS).forEach(([k,r])=>r.group.visible=k===id);Object.assign(TABLE,ROOMS[id].table);}
+  Object.entries(ROOMS).forEach(([k,r])=>r.group.visible=k===id);Object.assign(TABLE,ROOMS[id].table);
+  if(id==='london')loadLondon();else loadBern();}
 setRoom(roomId);
+// fetch the other room quietly after the first one is up, so switching rooms is instant
+setTimeout(()=>{loadLondon();loadBern();},9000);
 /* ---- standing bar table (used on the far levels behind the conference table) ---- */
 const bar=new THREE.Group();scene.add(bar);bar.visible=false;
 const BAR={r:0.36,y:1.06,x:0,z:-7.15};
@@ -614,11 +633,13 @@ loadGLB('fan.glb').then(gl=>{
 }).catch(e=>console.warn('Ventilator fehlt',e));
 
 /* ---- animated ceiling fan above the front part of the table (decoration only) ---- */
-let ceilMixer=null;
+let ceilMixer=null,ceilMixer2=null;
 loadGLB('ceiling_fan.glb').then(gl=>{
   const m=gl.scene;m.scale.setScalar(0.010);m.position.set(0,2.95-7.24*0.010,-2.0);
   m.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});R1.add(m);
   if(gl.animations&&gl.animations.length){ceilMixer=new THREE.AnimationMixer(m);gl.animations.forEach(a=>ceilMixer.clipAction(a).play());}
+  const m2=THREE.SkeletonUtils?THREE.SkeletonUtils.clone(m):m.clone(true);m2.position.set(0,2.95-7.24*0.010,-1.9);R2.add(m2);
+  if(gl.animations&&gl.animations.length){ceilMixer2=new THREE.AnimationMixer(m2);gl.animations.forEach(a=>ceilMixer2.clipAction(a).play());}
 }).catch(e=>console.warn('Deckenventilator fehlt',e));
 
 /* ---- extra furniture: workstation corner, water cooler, filing cabinet ---- */
@@ -630,12 +651,12 @@ loadGLB('desk.glb').then(g=>{
 }).catch(e=>console.warn('Arbeitsplatz fehlt',e));
 loadGLB('drawer.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.scene.position.set(1.78,0.05,-7.47);R1.add(g.scene);
+  g.scene.position.set(1.78,0.05,-7.47);R1.add(g.scene);const d2=g.scene.clone(true);R2.add(d2);
 }).catch(e=>console.warn('Aktenschrank fehlt',e));
 /* small CRT television standing on top of the filing cabinet */
 loadGLB('tv_small.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;R1.add(g.scene);
+  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;R1.add(g.scene);const t2=g.scene.clone(true);R2.add(t2);
 }).catch(e=>console.warn('Fernseher fehlt',e));
 
 /* ---- support surfaces for the paper ball and the bin ---- */
@@ -1486,8 +1507,19 @@ renderMute();
 
 /* ================= main loop ================= */
 let last=performance.now();const STEP=1/480;
+// adaptive quality: every 2 s look at the frame rate; below ~40 fps step down (sharpness, then shadows), recover once if there is plenty of headroom
+const perf={t0:performance.now(),n:0,good:0,raised:false};
+function setQuality(q){quality=Math.max(0,Math.min(QUALITY.length-1,q));renderer.setPixelRatio(Math.min(DPR,QUALITY[quality].pr));sun.castShadow=QUALITY[quality].shadow;resize();}
+function adaptQuality(now){
+  perf.n++;const span=now-perf.t0;if(span<2000)return;
+  const fps=perf.n*1000/span;perf.t0=now;perf.n=0;
+  if(document.hidden||span>4000)return;
+  if(fps<40&&quality>0){setQuality(quality-1);perf.good=0;}
+  else if(fps>58){if(++perf.good>=3&&!perf.raised&&quality<QUALITY.length-1){perf.raised=true;setQuality(quality+1);}}
+  else perf.good=0;
+}
 function frame(now){
-  requestAnimationFrame(frame);
+  requestAnimationFrame(frame);adaptQuality(now);
   let dt=Math.min(0.05,(now-last)/1000);last=now;game.t+=dt;
   const t=game.t;
   const oldX=game.bin.x;updateBin(t);const binDX=game.bin.x-oldX;
@@ -1514,7 +1546,7 @@ function frame(now){
   const w=game.wind;
   fans.forEach(f=>{const active=(w>0&&f.side<0)||(w<0&&f.side>0);const target=active?Math.abs(w)*14:0;f.spin+=(target-f.spin)*Math.min(1,dt*2);f.blades.rotation.x+=f.spin*dt*(f.side<0?-1:1);
     f.head.rotation.y=f.baseRot+Math.sin(t*0.6+f.side)*0.08;});
-  if(ceilMixer)ceilMixer.update(dt);
+  if(ceilMixer&&R1.visible)ceilMixer.update(dt);if(ceilMixer2&&R2.visible)ceilMixer2.update(dt);
   streakMat.opacity+=((Math.min(0.35,Math.abs(w)*0.12))-streakMat.opacity)*Math.min(1,dt*3);
   if(streakMat.opacity>0.005){for(let i=0;i<STREAKS;i++){const s=streakData[i];s.x+=w*s.s*dt*0.9;
       if(s.x>3.2){s.x=-3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-7.5,game.bin.z-1),-0.5);}if(s.x<-3.2){s.x=3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-7.5,game.bin.z-1),-0.5);}
@@ -1523,21 +1555,17 @@ function frame(now){
   streaks.visible=streakMat.opacity>0.005;
   if(game.state==='menu'){camera.position.set(CAM.x+Math.sin(t*0.25)*0.25,CAM.y+0.05,CAM.z);camera.lookAt(0,LOOKY,game.bin.z);}
   else{camera.position.copy(CAM);camera.lookAt(0,LOOKY,game.bin.z);}
-  drawTV(t);
+  if(R1.visible)drawTV(t);
   renderer.render(scene,camera);
   drawAim();
 }
-// swipe line under the finger; the power meter lives fixed on the right edge
+// swipe line under the finger; no power display – the throw is played by feel
+let aimDirty=false;
 function drawAim(){
-  const w=window.innerWidth,h=window.innerHeight;actx.clearRect(0,0,w,h);
-  const pw=$('power');
-  if(!drag){if(pw.classList.contains('on'))pw.classList.remove('on');return;}
-  const dx=drag.x-drag.x0,dy=drag.y-drag.y0;
-  const s=Math.max(0,Math.min(1.1,-dy/refLen()));const pct=Math.round(s/1.1*100);
-  const col=s<0.45?'#3fb35a':s<0.75?'#f2b705':'#ef5b35';
-  if(!pw.classList.contains('on'))pw.classList.add('on');
-  $('powerFill').style.height=pct+'%';$('powerFill').style.background=col;$('powerPct').textContent=pct+' %';
-  pw.setAttribute('aria-valuenow',pct);
+  if(!drag&&!aimDirty)return;
+  const w=window.innerWidth,h=window.innerHeight;actx.clearRect(0,0,w,h);aimDirty=false;
+  if(!drag)return;aimDirty=true;
+  const dy=drag.y-drag.y0;const col='#ffffff';
   if(dy>-8)return;
   actx.lineCap='round';actx.setLineDash([2,10]);actx.lineWidth=5;actx.strokeStyle='rgba(255,255,255,.85)';
   actx.beginPath();actx.moveTo(drag.x0,drag.y0);actx.lineTo(drag.x,drag.y);actx.stroke();actx.setLineDash([]);

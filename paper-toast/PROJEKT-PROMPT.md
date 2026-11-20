@@ -4,7 +4,7 @@ Du hilfst mir, mein Browser-Spiel **„Paper Toast“** weiterzuentwickeln. Antw
 
 ## Das Spiel
 Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerknüllte Papierkugel in einen Papierkorb aus Drahtgitter.
-- **Steuerung:** mit Finger oder Maus nach oben wischen. Die Länge des Wischens bestimmt die Kraft, die Richtung bestimmt das Ziel. Eine Kraftanzeige (grün → gelb → rot, mit Prozent) sitzt fest am **rechten Bildschirmrand**, nicht unter dem Finger. Unter dem Finger erscheint nur eine gestrichelte Wischlinie.
+- **Steuerung:** mit Finger oder Maus nach oben wischen. Die Länge des Wischens bestimmt die Kraft, die Richtung bestimmt das Ziel. Es gibt keine Kraftanzeige mehr – geworfen wird nach Gefühl. Unter dem Finger erscheint nur eine weisse gestrichelte Wischlinie.
 - **Ablauf:** Pro Stufe gibt es 10 Würfe, und man braucht 3–5 Treffer, um befördert zu werden.
 - **Die Stufen sind eine Büro-Karriere:** Praktikum → Lehre → Sachbearbeitung → Teamleitung → Abteilungsleitung → Bereichsleitung → Direktion → Vizepräsidium → CEO → Verwaltungsrat, danach endlos „Legende I, II …“.
 - **So wird es schwerer:** grössere Distanz (3,2–7,15 m), kleinerer Kübel, Wind von Standventilatoren (Stärke und Richtung oben in der Anzeige). In Stufe 5 und 8 fährt der Kübel auf einem Saugroboter über den Tisch.
@@ -35,7 +35,7 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 
 ## Räume (Spieler wählt im Startbildschirm „Raum: …“, gespeichert in localStorage „papertoast.room“)
 - London (R1): der ursprüngliche Konferenzraum, hinter den Lamellen Londoner Skyline (Big Ben, London Eye, St Paul’s, Shard, Tower Bridge, Themse) und ein grosses London-Bild an der Rückwand (office.glb, Arbeitsplatz-Ecke, Aktenschrank, BÜRO·TV, Röhren-TV, Deckenventilator).
-- Bern (R2): heller Raum, selbst gebaut im Code: heller Eichenboden, salbeigrüne Rückwand, Fensterfront links mit Blick auf Bern (Altstadt, Münster, Bundeshaus mit Schweizer Fahne, Aare, Berner Alpen), Bild an der Rückwand, Whiteboard „Q4-Ziele“ rechts, Bild an der Rückwand, lineare Pendelleuchte, 6 Lederstühle, Wasserspender. Tisch: walnut_table.glb (aus den gelieferten meetingtable.obj + Walnut.jpg; 3,46 × 1,26 m, Platte 0,80 m, Tisch z −2,40 bis −5,86).
+- Bern (R2): heller Raum (Fenster links mit geschlossenen, beigen Vorhängen mit Faltenwurf; Lederstühle aus dem London-Raum als chair.glb; Deckenventilator, Aktenschrank mit Röhren-TV und Wasserspender als Kopien aus London; Deckenspots), selbst gebaut im Code: heller Eichenboden, salbeigrüne Rückwand, Fensterfront links mit Blick auf Bern (Altstadt, Münster, Bundeshaus mit Schweizer Fahne, Aare, Berner Alpen), Bild an der Rückwand, Whiteboard „Q4-Ziele“ rechts, Bild an der Rückwand, lineare Pendelleuchte, 6 Lederstühle, Wasserspender. Tisch: walnut_table.glb (aus den gelieferten meetingtable.obj + Walnut.jpg; 3,46 × 1,26 m, Platte 0,80 m, Tisch z −2,40 bis −5,86).
 - Im Raum Bern stehen Stufen mit mehr als 5,55 m Distanz auf dem Stehtisch hinter dem Tisch (mind. 0,45 m hinter dem Tischende).
 - Code: ROOMS, setRoom(), showRooms(), Gruppen R1/R2; TABLE wird beim Raumwechsel umgestellt. Ventilatoren und Stehtisch sind in beiden Räumen.
 
@@ -70,7 +70,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
   - `fan.glb`: Vintage-Ventilator, Knoten „body“ und „blades“ (Flügel drehen um die x-Achse)
   - `ceiling_fan.glb`: Deckenventilator mit eigener Animation (AnimationMixer)
   - `tv_small.glb`: kleiner Röhren-TV
-  - `walnut_table.glb`: Nussbaum-Sitzungstisch (Raum Ebenalp)
+  - `walnut_table.glb`: Nussbaum-Sitzungstisch (Raum Bern)
+  - `chair.glb`: ein Lederstuhl, aus office.glb herausgelöst (Materialnamen 1/5/10 wie im London-Raum)
 - **Koordinaten:** Kamera bei (0; 1,6; 0,5), Blick nach −z. Der Tisch geht von x ±0,84 und z −2,37 bis −6,59, seine Platte liegt auf 0,73 m Höhe. Wände bei x ±2,6, Rückwand bei z −7,75, Decke bei 2,95 m.
 - **Wichtige Funktionen im Code:** `levelDef()` / `LEVELS` (Stufen), `startLevel()`, `stepBall()` (Physik), `surfaceAt()` (Tisch- und Stehtisch-Flächen), `throwBall()`, `finishThrow()` (Spielerwechsel), `updateHUD()`, `memo()` (Menüs), `drawTV()`, `radio…` / `sfx` (Ton), `net…` (Online-Raum).
 - **Regeln für claude.ai-Artifacts:**
@@ -96,3 +97,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - Zum Schluss jeder Änderung: kurz sagen, was neu ist und was ich testen soll.
 
 Code und Modelle liegen im GitHub-Repository `yigithan1453529-sys/restadler-website`, Ordner `paper-toast/`, Branch `ccr-32d61d97-f5a22c`.
+
+## Leistung (flüssig auf allen Geräten)
+- Handys starten mit Pixel-Faktor 1,5 und Schattenkarte 1024, Computer mit 2 und 2048; Kantenglättung nur bei Bildschirmen mit Pixel-Faktor < 2.
+- adaptQuality(): misst alle 2 s die Bildrate; unter 40 fps eine Stufe runter (Schärfe 1,25 → 1 ohne Schatten → 0,75), bei viel Reserve einmal eine Stufe hoch.
+- Räume laden ihre Modelle erst bei Bedarf (loadLondon/loadBern), der andere Raum wird nach 9 s still nachgeladen. BÜRO·TV und Deckenventilator-Animation laufen nur im sichtbaren Raum.
