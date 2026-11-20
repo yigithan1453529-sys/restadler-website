@@ -17,7 +17,7 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - **HUD:** gelbe Post-it-Zettel mit Handschrift (Font „Caveat“). Links stehen Stufe, Treffer und Würfe, rechts Punkte bzw. die Rangliste.
 - **Menüs:** „INTERNES MEMO der Personalabteilung“ im Schreibmaschinen-Font („Special Elite“) mit Stempel „BEFÖRDERT“ (grün) oder „ABGELEHNT“ (rot).
 - **Raum:** Konferenzraum mit dunklem Holzboden, Lamellenvorhängen mit Tageslicht, schwarzen Pendelleuchten, Strahlerschiene, grauer Schrankwand und einem breiten TV. Dazu kommen 16 hellbraune Lederstühle und ein langer Tisch mit dunkler Platte.
-- **Möbel:** vorne links eine Arbeitsplatz-Ecke (L-Tisch, PC, Pinnwand, Regale, Ordner), hinten links ein Wasserspender, hinten rechts ein schwarzer Aktenschrank, links und rechts Standventilatoren mit Chromkorb und grünen LEDs.
+- **Möbel:** vorne links eine Arbeitsplatz-Ecke (L-Tisch, PC, Pinnwand, Regale, Ordner), hinten links ein Wasserspender, hinten rechts ein schwarzer Aktenschrank mit einem kleinen Röhren-TV obendrauf, links und rechts je ein Vintage-Tischventilator (türkis, Chromkorb) auf einem schwarzen Beistelltisch, über dem vorderen Tischteil ein drehender Deckenventilator (nur Dekoration).
 - **TV „BÜRO·TV“:** wechselt alle 12 s zwischen News mit Laufband (zeigt den Spielstand), Wetter (Appenzell, St. Gallen, Zürich), „Papierkorb-Liga“ (Rangliste der Spieler) und Aquarium.
 - **Ton:** Alles wird live im Browser erzeugt (WebAudio), es gibt keine Audiodateien.
   - Radio „Büro Eins“: Popmusik, die wie ein kleiner Lautsprecher klingt, mit Jingle.
@@ -31,7 +31,7 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
    - Ein Raum-Code mit 4 Zeichen und ein Einladungslink `…#pt-abcd`.
    - In der Lobby sieht man alle Spieler. Drückt jemand „Spiel starten“, startet das Spiel bei allen.
    - Jeder spielt auf dem eigenen Gerät, mit einer Live-Rangliste. Die Würfe der anderen fliegen als farbige Papierkugeln mit.
-   - Technik: die `room`-Fähigkeit von claude.ai-Artifacts (`claude.use("room")`, `join()`, nur `presence`, keine Events). Das funktioniert nur für angemeldete claude.ai-Nutzer mit Zugriff aufs Spiel, nicht über einen öffentlichen Link.
+   - Technik: die `room`-Fähigkeit von claude.ai-Artifacts (`claude.use("room")`, `join()`, nur `presence`, keine Events). Das Spiel ist mit Link freigegeben: Jede Person, die bei claude.ai angemeldet ist und den Link hat, kann mitspielen. Wer nicht angemeldet ist, sieht den Hinweis „bei claude.ai anmelden“ und kann am selben Gerät spielen.
 
 ## Technik (bitte beibehalten)
 - **Eine HTML-Datei** (`paper-toast/index.html`) mit Inline-CSS und Inline-JS, ohne Build-Schritt.
@@ -44,6 +44,9 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
   - `office.glb`: Konferenzraum
   - `desk.glb`: Knoten „cubicle“ (Arbeitsplatz-Ecke) und „cooler“ (Wasserspender)
   - `drawer.glb`: Aktenschrank
+  - `fan.glb`: Vintage-Ventilator, Knoten „body“ und „blades“ (Flügel drehen um die x-Achse)
+  - `ceiling_fan.glb`: Deckenventilator mit eigener Animation (AnimationMixer)
+  - `tv_small.glb`: kleiner Röhren-TV
 - **Koordinaten:** Kamera bei (0; 1,6; 0,5), Blick nach −z. Der Tisch geht von x ±0,84 und z −2,37 bis −6,59, seine Platte liegt auf 0,73 m Höhe. Wände bei x ±2,6, Rückwand bei z −7,75, Decke bei 2,95 m.
 - **Wichtige Funktionen im Code:** `levelDef()` / `LEVELS` (Stufen), `startLevel()`, `stepBall()` (Physik), `surfaceAt()` (Tisch- und Stehtisch-Flächen), `throwBall()`, `finishThrow()` (Spielerwechsel), `updateHUD()`, `memo()` (Menüs), `drawTV()`, `radio…` / `sfx` (Ton), `net…` (Online-Raum).
 - **Regeln für claude.ai-Artifacts:**
@@ -54,7 +57,8 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 
 ## Quellen (Pflichtangabe)
 - Papierkorb: „Trash Can“ von rickmaolly (Sketchfab), Lizenz CC BY 4.0. Die Namensnennung muss im Startbildschirm bleiben.
-- Konferenzraum, Arbeitsplatz-Ecke und Aktenschrank stammen aus Dateien, die ich geliefert habe (Format2.FBX, office_desktop.zip, office_drawer.glb). Sie wurden vereinfacht und komprimiert. Für den Raum und die Arbeitsplatz-Ecke fehlten die Original-Texturen, deshalb sind die Farben selbst gewählt.
+- Weitere Sketchfab-Modelle, alle CC BY 4.0 (Namensnennung steht ebenfalls im Startbildschirm): „Office Props Pack“ von seenoise (Arbeitsplatz-Ecke und Wasserspender, mit Original-Texturen), „Office Drawer“ von Mkky (Aktenschrank), „Vintage Ventilator“ von Özlem Çandır, „Ceiling Ventilator – Dirt (Animated)“ von Berk Gedik, „Tv Small“ von Cyber_Monkey. Texturen verkleinert (512/256 px) und als WebP gespeichert.
+- Der Konferenzraum stammt aus der gelieferten Format2.FBX. Er wurde vereinfacht und komprimiert. Die Original-Texturen fehlten, deshalb sind die Farben selbst gewählt.
 
 ## Bekannte offene Punkte / Ideen
 - Den Online-Modus mit echten Mitspielern auf claude.ai testen. Bisher wurde er nur mit einem nachgebauten Raum getestet.

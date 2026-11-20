@@ -4,13 +4,21 @@ Papierkorb: "Trash Can" von rickmaolly (Sketchfab), CC BY 4.0
   https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627
   Texturen auf 1024 px verkleinert und als WebP gespeichert.
 
+Arbeitsplatz-Ecke + Wasserspender (desk.glb): "Office Props Pack" von seenoise (Sketchfab), CC BY 4.0
+  https://sketchfab.com/3d-models/office-props-pack-260ff7a37a674505903708a0dc513e7e
+  Mit Original-Texturen, auf 512/256 px verkleinert, WebP.
+Aktenschrank (drawer.glb): "Office Drawer" von Mkky (Sketchfab), CC BY 4.0
+  https://sketchfab.com/3d-models/office-drawer-48dae122a1694609886c84ae17a15d01
+  Texturen auf 1024 px verkleinert und als WebP gespeichert.
+Ventilatoren (fan.glb): "Vintage Ventilator" von Özlem Çandır (Sketchfab), CC BY 4.0
+  https://sketchfab.com/3d-models/vintage-ventilator-e17c65e0c8604407900a93104b965ce3
+Deckenventilator (ceiling_fan.glb): "Ceiling Ventilator - Dirt (Animated)" von Berk Gedik (Sketchfab), CC BY 4.0
+  https://sketchfab.com/3d-models/ceiling-ventilator-dirt-animated-140fda1faf9040a8986e00bbf6f86b80
+Röhren-TV (tv_small.glb): "Tv Small" von Cyber_Monkey (Sketchfab), CC BY 4.0
+  https://sketchfab.com/3d-models/tv-small-d28392d2dfc747a39bad7266387359c9
+
 Konferenzraum (office.glb): aus der gelieferten Datei Format2.FBX umgewandelt,
   vereinfacht (ca. 12 % der Dreiecke) und nach Material zusammengefasst.
   Die Original-Texturen waren nicht in der FBX-Datei enthalten.
 
 Musik, Radio-Stimmen, Geräusche und TV-Programm werden im Browser erzeugt.
-
-Arbeitsplatz-Ecke (desk.glb): aus der gelieferten office_desktop.zip (SceneFinal.obj) umgewandelt,
-  ohne Original-Texturen; Farben pro Material neu vergeben.
-Aktenschrank (drawer.glb): aus der gelieferten office_drawer.glb (Sketchfab-Export),
-  Texturen auf 1024 px verkleinert und als WebP gespeichert.

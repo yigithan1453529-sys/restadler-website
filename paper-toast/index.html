@@ -427,35 +427,35 @@ function drawTV(t){
 }
 drawTV(0);
 
-/* ---- pedestal fans (black cross base, chrome cage, LED control box) ---- */
-const holeTex=tex(512,512,(g,w,h)=>{g.fillStyle='#000';g.fillRect(0,0,w,h);g.fillStyle='#fff';
-  const cap=Math.round(h*0.26);g.fillRect(0,0,w,cap);g.fillStyle='#000';const rows=6;
-  for(let r=0;r<rows;r++){const y0=18+r*(cap-28)/rows,rh=(cap-28)/rows-5;const cols=r<1?12:r<3?20:28;
-    for(let c=0;c<cols;c++){const cw=w/cols;const x=c*cw+3+(r%2)*cw/2;const rr=Math.min(rh,cw)*0.35;
-      g.beginPath();g.moveTo(x+rr,y0);g.arcTo(x+cw-6,y0,x+cw-6,y0+rh,rr);g.arcTo(x+cw-6,y0+rh,x,y0+rh,rr);g.arcTo(x,y0+rh,x,y0,rr);g.arcTo(x,y0,x+cw-6,y0,rr);g.fill();}}});
-holeTex.encoding=THREE.LinearEncoding;
-const cageMat=new THREE.MeshStandardMaterial({color:0xf0f0f0,metalness:1,roughness:.18,alphaMap:holeTex,alphaTest:.5,side:THREE.DoubleSide});
+/* ---- vintage desk fans on small black side tables (model: fan.glb, nodes "body" + "blades") ---- */
+const FAN_STAND=0.78;
 function makeFan(side){
-  const g=new THREE.Group();scene.add(g);g.rotation.y=-side*Math.PI/2;
-  for(let i=0;i<4;i++){const leg=box(0.06,0.035,0.34,black,0,0.02,0,g);leg.geometry.translate(0,0,0.17);leg.rotation.y=i*Math.PI/2+Math.PI/4;}
-  cyl(0.045,0.05,0.04,black,0,0.05,0,g,16);cyl(0.017,0.017,0.78,black,0,0.45,0,g,12);cyl(0.024,0.024,0.04,black,0,0.84,0,g,12);cyl(0.012,0.012,0.36,frameWhite,0,1.02,0,g,10);
-  box(0.055,0.12,0.035,black,0,0.98,0.03,g);
-  for(let i=0;i<4;i++){const led=new THREE.Mesh(new THREE.SphereGeometry(0.005,6,4),new THREE.MeshBasicMaterial({color:i<2?0x39ff6a:0x2a4a33}));led.position.set(0.012,0.95+i*0.02,0.049);g.add(led);}
-  const head=new THREE.Group();head.position.set(0,1.28,0);g.add(head);
-  const motor=cyl(0.07,0.075,0.14,black,0,-0.01,-0.12,head,24);motor.rotation.x=Math.PI/2;
-  cyl(0.008,0.008,0.03,chrome,0,0.07,-0.13,head,8);cyl(0.02,0.02,0.1,black,0,-0.06,-0.08,head,10);
-  head.add(new THREE.Mesh(new THREE.TorusGeometry(0.2,0.009,8,48),chrome));
-  const capGeo=new THREE.SphereGeometry(0.2,40,20,0,Math.PI*2,0,0.82);
-  const front=new THREE.Mesh(capGeo,cageMat);front.rotation.x=Math.PI/2;front.scale.set(1,0.32,1);front.position.z=-0.2*0.32*Math.cos(0.82);head.add(front);
-  const backC=new THREE.Mesh(capGeo,cageMat);backC.rotation.x=-Math.PI/2;backC.scale.set(1,0.28,1);backC.position.z=0.2*0.28*Math.cos(0.82)-0.01;head.add(backC);
-  const hub=cyl(0.035,0.035,0.012,chrome,0,0,0.065,head,20);hub.rotation.x=Math.PI/2;
+  const g=new THREE.Group();scene.add(g);
+  cyl(0.2,0.2,0.03,new THREE.MeshStandardMaterial({color:0x2a160c,roughness:.35}),0,FAN_STAND-0.015,0,g,32);
+  cyl(0.03,0.03,FAN_STAND-0.03,black,0,(FAN_STAND-0.03)/2,0,g,12);
+  cyl(0.17,0.19,0.025,black,0,0.012,0,g,32);
+  const head=new THREE.Group();head.position.y=FAN_STAND;head.rotation.y=side<0?Math.PI:0;g.add(head);  // model blows towards -x
   const blades=new THREE.Group();head.add(blades);
-  for(let i=0;i<5;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,8),black);b.scale.set(0.55,1,0.08);b.position.y=0.09;const p=new THREE.Group();p.rotation.z=i/5*Math.PI*2;p.add(b);b.rotation.y=0.35;blades.add(p);}
-  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});
-  return {g,blades,head,side,spin:0};
+  g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+  return {g,blades,head,side,spin:0,baseRot:head.rotation.y};
 }
 const fans=[makeFan(-1),makeFan(1)];
 fans[0].g.position.set(-2.2,0,-3);fans[1].g.position.set(2.2,0,-3);
+loadGLB('fan.glb').then(gl=>{
+  fans.forEach((f,i)=>{const m=i?gl.scene.clone(true):gl.scene;
+    m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+    const bl=m.getObjectByName('blades');
+    if(bl){f.blades.position.copy(bl.position);bl.position.set(0,0,0);f.blades.add(bl);}
+    f.head.add(m);});
+}).catch(e=>console.warn('Ventilator fehlt',e));
+
+/* ---- animated ceiling fan above the front part of the table (decoration only) ---- */
+let ceilMixer=null;
+loadGLB('ceiling_fan.glb').then(gl=>{
+  const m=gl.scene;m.scale.setScalar(0.010);m.position.set(0,2.95-7.24*0.010,-2.0);
+  m.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});scene.add(m);
+  if(gl.animations&&gl.animations.length){ceilMixer=new THREE.AnimationMixer(m);gl.animations.forEach(a=>ceilMixer.clipAction(a).play());}
+}).catch(e=>console.warn('Deckenventilator fehlt',e));
 
 /* ---- extra furniture: workstation corner, water cooler, filing cabinet ---- */
 loadGLB('desk.glb').then(g=>{
@@ -468,6 +468,11 @@ loadGLB('drawer.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
   g.scene.position.set(1.78,0.05,-7.47);scene.add(g.scene);
 }).catch(e=>console.warn('Aktenschrank fehlt',e));
+/* small CRT television standing on top of the filing cabinet */
+loadGLB('tv_small.glb').then(g=>{
+  g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;scene.add(g.scene);
+}).catch(e=>console.warn('Fernseher fehlt',e));
 
 /* ---- support surfaces for the paper ball and the bin ---- */
 function surfaceAt(x,z,bottomY){
@@ -892,7 +897,7 @@ function memo({to,subject,big,body,stamp,stampGreen,actions,credit,after}){
     ${stamp?`<div class="stamp${stampGreen?' green':''}">${stamp}</div>`:''}
     <div class="big">${big}</div>${body}
     <div class="actions">${actions.map((a,i)=>`<button class="btn${a.ghost?' ghost':''}" id="act${i}"${a.disabled?' disabled':''}>${a.label}</button>`).join('')}</div>
-    ${credit?`<div class="credit">Papierkorb-Modell: „Trash Can“ von <a href="https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627" target="_blank" rel="noopener">rickmaolly</a>, Lizenz <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.<div id="loading"></div></div>`:''}
+    ${credit?`<div class="credit">Papierkorb-Modell: „Trash Can“ von <a href="https://sketchfab.com/3d-models/trash-can-a65eb3a1b6f149d7a78f7f44e80c7627" target="_blank" rel="noopener">rickmaolly</a>, Lizenz <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Ebenfalls CC BY 4.0: „Office Props Pack“ von <a href="https://sketchfab.com/3d-models/office-props-pack-260ff7a37a674505903708a0dc513e7e" target="_blank" rel="noopener">seenoise</a>, „Office Drawer“ von <a href="https://sketchfab.com/3d-models/office-drawer-48dae122a1694609886c84ae17a15d01" target="_blank" rel="noopener">Mkky</a>, „Vintage Ventilator“ von <a href="https://sketchfab.com/3d-models/vintage-ventilator-e17c65e0c8604407900a93104b965ce3" target="_blank" rel="noopener">Özlem Çandır</a>, „Ceiling Ventilator – Dirt (Animated)“ von <a href="https://sketchfab.com/3d-models/ceiling-ventilator-dirt-animated-140fda1faf9040a8986e00bbf6f86b80" target="_blank" rel="noopener">Berk Gedik</a>, „Tv Small“ von <a href="https://sketchfab.com/3d-models/tv-small-d28392d2dfc747a39bad7266387359c9" target="_blank" rel="noopener">Cyber_Monkey</a>.<div id="loading"></div></div>`:''}
   </div>`;
   m.hidden=false;$('hud').hidden=true;$('turn').hidden=true;
   actions.forEach((a,i)=>$('act'+i).addEventListener('click',()=>{ac();radioStart();a.go();}));
@@ -1006,7 +1011,7 @@ function showOnlineSetup(code){
   roomApi().then(api=>{
     if(!api){
       memo({to:'Dich',subject:'Freunde einladen',big:'Online nicht verfügbar',
-        body:`<p>Das Online-Spiel funktioniert nur, wenn ihr dieses Spiel auf claude.ai geöffnet habt und dort angemeldet seid. Personen, die nur über einen öffentlichen Link kommen, können sich nicht verbinden.</p><p>Ihr könnt aber am selben Gerät gegeneinander spielen.</p>`,
+        body:`<p>Für das Online-Spiel musst du bei claude.ai angemeldet sein. Melde dich an und öffne den Link danach noch einmal.</p><p>Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`,
         actions:[{label:'Mehrspieler am Gerät',go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
       return;
     }
@@ -1034,7 +1039,7 @@ function inviteLink(){return INVITE_BASE+'#pt-'+net.code;}
 function showLobby(){
   game.state='menu';
   memo({to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
-    body:`<p>Schick diesen Link an bis zu 3 Freunde. Sie brauchen Zugriff auf dieses Spiel auf claude.ai.</p>
+    body:`<p>Schick diesen Link an bis zu 3 Freunde. Wer bei claude.ai angemeldet ist, kann sofort mitspielen.</p>
       <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
       <p class="hand" id="copyMsg" aria-live="polite"></p>
       <ol class="rank" id="lobbyList"></ol>`,
@@ -1109,8 +1114,9 @@ function frame(now){
   for(let i=ghosts.length-1;i>=0;i--){const g=ghosts[i];g.t+=dt;const n=Math.max(1,Math.round(dt/(1/240)));for(let k=0;k<n;k++)stepGhost(g,dt/n);g.mesh.position.copy(g.p);g.mesh.rotation.x+=dt*6;
     if(g.t>3.2){g.mesh.material=g.mesh.material;scene.remove(g.mesh);ghosts.splice(i,1);}}
   const w=game.wind;
-  fans.forEach(f=>{const active=(w>0&&f.side<0)||(w<0&&f.side>0);const target=active?Math.abs(w)*14:0;f.spin+=(target-f.spin)*Math.min(1,dt*2);f.blades.rotation.z+=f.spin*dt;
-    f.head.rotation.y=Math.sin(t*0.6+f.side)*0.08;});
+  fans.forEach(f=>{const active=(w>0&&f.side<0)||(w<0&&f.side>0);const target=active?Math.abs(w)*14:0;f.spin+=(target-f.spin)*Math.min(1,dt*2);f.blades.rotation.x+=f.spin*dt*(f.side<0?-1:1);
+    f.head.rotation.y=f.baseRot+Math.sin(t*0.6+f.side)*0.08;});
+  if(ceilMixer)ceilMixer.update(dt);
   streakMat.opacity+=((Math.min(0.35,Math.abs(w)*0.12))-streakMat.opacity)*Math.min(1,dt*3);
   if(streakMat.opacity>0.005){for(let i=0;i<STREAKS;i++){const s=streakData[i];s.x+=w*s.s*dt*0.9;
       if(s.x>3.2){s.x=-3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-7.5,game.bin.z-1),-0.5);}if(s.x<-3.2){s.x=3.2;s.y=rnd(.4,2.2);s.z=rnd(Math.max(-7.5,game.bin.z-1),-0.5);}
