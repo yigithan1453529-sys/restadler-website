@@ -50,6 +50,12 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - Speicherung: im Browser (localStorage „papertoast.wallet“). Der Code kann das claude.ai-Konto (db-Fähigkeit, data/users/<id>/wallet) nutzen, aber db lässt sich bei einem öffentlich geteilten Artifact nicht einschalten.
 - Wichtige Funktionen: W (Wallet), track(), earnPoints(), showRewards(), showShop(), showAd(), needStarMemo(), initWallet().
 
+## Online über Firebase (seit 20.11.2026)
+- Spiel-Adresse (öffentlich, ohne claude.ai-Konto): https://yigithan1453529-sys.github.io/restadler-website/paper-toast/ (GitHub Pages aus Branch ccr-32d61d97-f5a22c, Ordner /root; jede gespeicherte Änderung ist nach ca. 1 Minute online).
+- Firebase-Projekt „paper-toast“ (Spark, gratis): anonyme Anmeldung, Realtime Database in Belgien (europe-west1), Regeln: rooms/$code/players/$uid nur eigener Eintrag schreibbar, users/$uid nur selbst lesen/schreiben. Autorisierte Domain: yigithan1453529-sys.github.io.
+- Im Code: FB_CONFIG, USE_FB (aus, wenn das Spiel als claude.ai-Artifact läuft – dort weiter die room-Fähigkeit), fbInit(), fbRoomApi() (gleiche Schnittstelle wie der claude.ai-Raum), Sterne unter users/<uid>/wallet.
+- Sterne hängen am anonymen Firebase-Konto des Browsers (pro Gerät/Browser).
+
 ## Technik (bitte beibehalten)
 - **Eine HTML-Datei** (`paper-toast/index.html`) mit Inline-CSS und Inline-JS, ohne Build-Schritt.
 - **three.js r147 als klassische Skripte** (keine ES-Module):

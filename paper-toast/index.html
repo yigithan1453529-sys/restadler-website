@@ -1410,7 +1410,7 @@ function inviteLink(){return (USE_FB?location.origin+location.pathname:INVITE_BA
 function showLobby(){
   game.state='menu';
   memo({to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
-    body:`<p>Schick diesen Link an bis zu 3 Freunde.${USE_FB?'':' Wer bei claude.ai angemeldet ist, kann mitspielen.'} Klappt der Link nicht: Spiel öffnen, „Freunde einladen“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
+    body:`<p>Schick diesen Link an bis zu 3 Freunde.${USE_FB?'':' Wer bei claude.ai angemeldet ist, kann mitspielen.'} Klappt der Link nicht: Spiel öffnen, „Mit Freunden“ → „Online“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
       <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
       <p class="hand" id="copyMsg" aria-live="polite"></p>
       <ol class="rank" id="lobbyList"></ol><p class="hand" id="giftInfo" aria-live="polite"></p>`,
