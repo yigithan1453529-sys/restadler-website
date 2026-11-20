@@ -1117,6 +1117,14 @@ async function saveWallet(){
 let saveTimer=0;function saveSoon(){clearTimeout(saveTimer);saveTimer=setTimeout(saveWallet,1500);}
 async function initWallet(){
   const local=store.get('wallet',null);if(local)cleanWallet(local);
+  if(USE_FB){try{
+    const f=await fbInit();if(!f)return;
+    const r=f.db.ref('users/'+f.uid+'/wallet');
+    wallet.ref={set:d=>r.set(d)};wallet.mode='db';
+    const sn=await r.get();
+    if(sn.exists())cleanWallet(sn.val()||{});else await saveWallet();
+    store.set('wallet',walletData());refreshWalletUI();
+  }catch(e){console.warn('Sterne nur lokal',e);wallet.mode='local';}return;}
   try{
     const c=window.claude;if(!c||typeof c.use!=='function')return;
     const [db,user]=await Promise.all([c.use('db'),c.use('user')]);
@@ -1296,8 +1304,45 @@ function localLevelEnd(){
 
 /* ---- online: friends play on their own devices in a shared room (claude.ai "room") ---- */
 const net={api:undefined,room:null,code:null,name:store.get('nick',''),throwSeq:0,seen:{},joinedAt:0,goSeen:0,started:false,unsub:null,lobbyTimer:0,last:{}};
+
+/* ================= Firebase backend (own website): online rooms + per-player stars =================
+   Used when the game runs on its own website (GitHub Pages). Inside a claude.ai artifact the claude.ai room is used instead. */
+const FB_CONFIG=null;   // firebaseConfig from the Firebase console (public identifiers, not secrets)
+const ON_CLAUDE=/claudeusercontent\.com$|claude\.ai$/.test(location.hostname);
+const USE_FB=!!FB_CONFIG&&!ON_CLAUDE;
+const fb={ready:null,uid:null,db:null};
+function fbInit(){
+  if(fb.ready)return fb.ready;
+  if(!USE_FB)return fb.ready=Promise.resolve(null);
+  const base='https://cdn.jsdelivr.net/npm/firebase@10.14.1/';
+  const load=src=>new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=()=>rej(new Error('load '+src));document.head.appendChild(sc);});
+  const work=load(base+'firebase-app-compat.js')
+    .then(()=>Promise.all([load(base+'firebase-auth-compat.js'),load(base+'firebase-database-compat.js')]))
+    .then(()=>{firebase.initializeApp(FB_CONFIG);fb.db=firebase.database();
+      return new Promise((res,rej)=>{const off=firebase.auth().onAuthStateChanged(u=>{if(u){off();fb.uid=u.uid;res(fb);}});
+        firebase.auth().signInAnonymously().catch(rej);});});
+  const timeout=new Promise(res=>setTimeout(()=>res(null),12000));
+  return fb.ready=Promise.race([work,timeout]).then(r=>{if(!r)fb.ready=null;return r;},e=>{console.warn('Firebase nicht erreichbar',e);fb.ready=null;return null;});
+}
+// same interface as the claude.ai room: join(name) → {presence, onPeers, peers, leave}
+function fbRoomApi(){return {join:async name=>{
+  const ref=fb.db.ref('rooms/'+name+'/players'),me=ref.child(fb.uid);
+  await me.onDisconnect().remove();
+  let cur={};const peers=new Map(),fns=[];
+  const emit=joined=>fns.slice().forEach(f=>{try{f({joined})}catch(e){console.warn(e)}});
+  ref.on('child_added',sn=>{peers.set(sn.key,sn.val()||{});emit(sn.key!==fb.uid?[{peer:sn.key,sameTab:false}]:[]);});
+  ref.on('child_changed',sn=>{peers.set(sn.key,sn.val()||{});emit([]);});
+  ref.on('child_removed',sn=>{peers.delete(sn.key);emit([]);});
+  return {
+    presence(patch){cur=Object.assign({},cur,patch);for(const k in cur)if(cur[k]===null||cur[k]===undefined)delete cur[k];
+      return me.set(Object.assign({},cur,{ts:firebase.database.ServerValue.TIMESTAMP}));},
+    onPeers(fn){fns.push(fn);setTimeout(()=>fn({joined:[]}),0);return ()=>{const i=fns.indexOf(fn);if(i>=0)fns.splice(i,1);};},
+    peers(){return [...peers].map(([k,v])=>({peer:k,kind:'viewer',sameTab:k===fb.uid,presence:v}));},
+    leave(){ref.off();try{me.onDisconnect().cancel();}catch(e){}return me.remove();}
+  };}};}
 function roomApi(){
   if(net.api!==undefined)return Promise.resolve(net.api);
+  if(USE_FB)return fbInit().then(f=>{net.api=f?fbRoomApi():undefined;return net.api||null;});
   const c=window.claude;if(!c||typeof c.use!=='function')return Promise.resolve(null);
   return c.use('room').then(r=>{net.api=r||undefined;return r||null;},()=>{net.api=undefined;return null;});
 }
@@ -1327,7 +1372,8 @@ function showOnlineSetup(code){
     if(net.wait!==tok)return;   // player went back meanwhile
     if(!api){
       memo({to:'Dich',subject:'Freunde einladen',big:'Keine Verbindung',
-        body:`<p>Der Online-Raum ist gerade nicht erreichbar. Das Online-Spiel läuft nur, wenn das Spiel direkt auf claude.ai geöffnet ist und du dort angemeldet bist.</p><p>Tipp: Den Link im Browser öffnen (nicht als Vorschau) und kurz warten. Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`,
+        body:USE_FB?`<p>Der Online-Server ist gerade nicht erreichbar. Prüfe deine Internetverbindung und versuche es nochmals.</p><p>Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`
+          :`<p>Der Online-Raum ist gerade nicht erreichbar. Hier auf claude.ai läuft das Online-Spiel nur für angemeldete Personen mit Zugriff.</p><p>Tipp: Spielt auf der eigenen Spiel-Webseite – dort braucht niemand ein Konto. Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`,
         actions:[{label:'Nochmals versuchen',go:()=>showOnlineSetup(code)},{label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
       return;
     }
@@ -1358,11 +1404,11 @@ async function enterRoom(code){
   showLobby();
   setTimeout(()=>{if(net.code===code&&netPlayers().length>=4&&!netPlayers().some(p=>p.me)){netLeave();memo({to:'Dich',subject:'Raum voll',big:'Leider voll',body:'<p>In diesem Raum spielen schon 4 Personen.</p>',actions:[{label:'Eigenen Raum erstellen',go:()=>showOnlineSetup()},{label:'Zum Start',ghost:true,go:showStart}]});}},2500);
 }
-function inviteLink(){return INVITE_BASE+'#pt-'+net.code;}
+function inviteLink(){return (USE_FB?location.origin+location.pathname:INVITE_BASE)+'#pt-'+net.code;}
 function showLobby(){
   game.state='menu';
   memo({to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
-    body:`<p>Schick diesen Link an bis zu 3 Freunde. Wer bei claude.ai angemeldet ist, kann mitspielen. Klappt der Link nicht: Spiel öffnen, „Freunde einladen“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
+    body:`<p>Schick diesen Link an bis zu 3 Freunde.${USE_FB?'':' Wer bei claude.ai angemeldet ist, kann mitspielen.'} Klappt der Link nicht: Spiel öffnen, „Freunde einladen“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
       <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
       <p class="hand" id="copyMsg" aria-live="polite"></p>
       <ol class="rank" id="lobbyList"></ol><p class="hand" id="giftInfo" aria-live="polite"></p>`,
