@@ -385,7 +385,7 @@ const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x3a2a1e);
 scene.fog=new THREE.Fog(0x3a2a1e,16,30);
 const camera=new THREE.PerspectiveCamera(50,1,0.05,60);
-const CAM=new THREE.Vector3(0,1.6,0.5);let LOOKY=0.95;   // look-at height; lower in Ankara where the bin stands on the floor
+const CAM=new THREE.Vector3(0,1.6,0.5);const HAND=new THREE.Vector3(0,1.27,-0.08);let LOOKY=0.95;   // look-at height; lower in Ankara where the bin stands on the floor
 camera.position.copy(CAM);
 
 function tex(w,h,draw,rep){
@@ -633,10 +633,18 @@ const ankaraTex=tex(2048,512,(g,w,h)=>{   // view out of the windows: Ankara wit
   g.fillStyle='#e8e0cc';g.fillRect(kx-13,base-200,2,52);
   g.fillStyle='rgba(120,110,95,.35)';g.fillRect(0,base,w,h-base);
 });
+// seated POV: the player sits on office chair 1 (model coords x=-2.154, z=-0.5) and faces the room's own waste basket (0,0).
+// The whole room is turned and moved so that this chair is at the camera and the basket lies straight ahead (-z).
+const ANK={chair:[-2.154,-0.5],bin:[0,0]};
+(function(){const dx=ANK.bin[0]-ANK.chair[0],dz=ANK.bin[1]-ANK.chair[1];ANK.L=Math.hypot(dx,dz);ANK.th=Math.atan2(dx,-dz);
+  const c=Math.cos(ANK.th),sn=Math.sin(ANK.th);
+  ANK.toWorld=(x,z)=>[x*c+z*sn+ANK.px,-x*sn+z*c+ANK.pz];
+  ANK.px=0;ANK.pz=0;const w=ANK.toWorld(ANK.chair[0],ANK.chair[1]);ANK.px=-w[0];ANK.pz=0.5-w[1];
+  ANK.toModel=(x,z)=>{const X=x-ANK.px,Z=z-ANK.pz;return [X*c-Z*sn,X*sn+Z*c];};})();
 let ankaraLoaded=false;
 function loadAnkara(){if(ankaraLoaded)return;ankaraLoaded=true;
   loadGLB('ankara.glb').then(g=>{
-    const m=g.scene;m.rotation.y=Math.PI/2;m.position.set(0,0,-3);
+    const m=g.scene;m.rotation.y=ANK.th;m.position.set(ANK.px,0,ANK.pz);
     m.traverse(o=>{if(!o.isMesh)return;o.receiveShadow=true;o.castShadow=!/Teppich|Wand|Decke|Rohboden|Rohdecke/.test(o.material.name||'');
       const mt=o.material;if(mt.name==='M_Glas'){mt.transparent=true;mt.opacity=0.18;mt.depthWrite=false;o.castShadow=false;}
       if(mt.name==='M_Leuchte'){mt.emissiveIntensity=1.4;}if(mt.envMapIntensity!==undefined)mt.envMapIntensity=0.55;});
@@ -644,25 +652,26 @@ function loadAnkara(){if(ankaraLoaded)return;ankaraLoaded=true;
   }).catch(e=>{ankaraLoaded=false;console.warn('Raum Ankara fehlt',e);});
 }
 (function buildAnkara(){
-  // skyline behind the three windows on the left wall (model's north wall → x = -3)
-  const view=new THREE.Mesh(new THREE.PlaneGeometry(9,2.6),new THREE.MeshBasicMaterial({map:ankaraTex,toneMapped:false}));
-  view.position.set(-3.6,1.55,-3);view.rotation.y=Math.PI/2;R3.add(view);
-  // ceiling light panels (model) + matching lights
-  [[-1.25,-1],[1.25,-1],[-1.25,-5],[1.25,-5]].forEach(([x,z])=>{const l=new THREE.PointLight(0xffefd6,0.45,7,2);l.position.set(x,2.55,z);R3.add(l);});
-  const win=new THREE.PointLight(0xdfeeff,0.4,7,2);win.position.set(-2.3,1.6,-3);R3.add(win);
+  const at=(x,y,z,obj)=>{const w=ANK.toWorld(x,z);obj.position.set(w[0],y,w[1]);R3.add(obj);return obj;};
+  // skyline outside the three windows on the model's north wall (z=-3)
+  const view=at(0,1.55,-3.6,new THREE.Mesh(new THREE.PlaneGeometry(9,2.6),new THREE.MeshBasicMaterial({map:ankaraTex,toneMapped:false})));view.rotation.y=ANK.th;
+  [[-2,-1.25],[2,-1.25],[-2,1.25],[2,1.25]].forEach(([x,z])=>at(x,2.55,z,new THREE.PointLight(0xffefd6,0.45,7,2)));
+  at(0,1.6,-2.4,new THREE.PointLight(0xdfeeff,0.4,7,2));
 })();
-// desks in Ankara are solid: a ball can land on them (x,z ranges after the 90° turn), top at 0.75 m
-const ANK_DESKS=[[-1.7,-0.9,-1.6,0],[0.9,1.7,-1.6,0],[-1.7,-0.9,-6,-4.4],[0.9,1.7,-6,-4.4]];
+// desks in Ankara are solid: model rectangles x∈±[1.4,3], z∈±[0.9,1.7], top 0.75 m
+function ankDesk(x,z){const q=ANK.toModel(x,z),ax=Math.abs(q[0]),az=Math.abs(q[1]);return ax>1.4&&ax<3&&az>0.9&&az<1.7;}
 /* ---- room registry & switching ---- */
 const ROOMS={
   london:{name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
-  ankara:{name:'Ankara',desc:'Grossraumbüro mit Teppich, Arbeitsplätzen und Blick auf Atakule – der Papierkorb steht auf dem Boden.',group:R3,table:{hx:0,z0:0,z1:0,y:0},maxTable:99,floor:true,maxD:6.3,lookY:0.35,room:{x:3.0,zBack:-7.0,zFront:1.0,h:2.8}},
+  ankara:{name:'Ankara',desc:'Grossraumbüro: Du sitzt auf deinem Bürostuhl und triffst den Papierkorb am Boden. Der Wind macht es schwer.',group:R3,table:{hx:0,z0:0,z1:0,y:0},maxTable:99,floor:true,fixedBin:true,lookY:0.2,cam:[0,1.18,0.5],hand:[0.06,0.92,0.08],room:{x:6,zBack:-9,zFront:2,h:2.8}},
   bern:{name:'Bern',desc:'Heller Sitzungsraum mit Nussbaum-Tisch, Lederstühlen, Whiteboard und geschlossenen Vorhängen.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
 let roomId=({saentis:'london',ebenalp:'bern'})[store.get('room','london')]||store.get('room','london');if(!ROOMS[roomId])roomId='london';
 const ROOM0=Object.assign({},ROOM);
 function setRoom(id){if(!ROOMS[id])id='london';roomId=id;store.set('room',id);
   Object.entries(ROOMS).forEach(([k,r])=>r.group.visible=k===id);Object.assign(TABLE,ROOMS[id].table);
   Object.assign(ROOM,ROOMS[id].room||ROOM0);LOOKY=ROOMS[id].lookY||0.95;
+  const hd=ROOMS[id].hand||[0,1.27,-0.08];HAND.set(hd[0],hd[1],hd[2]);
+  try{binHolder.visible=!ROOMS[id].fixedBin;resize();}catch(e){}   // not yet defined during the first call at start-up
   if(id==='london')loadLondon();else if(id==='bern')loadBern();else loadAnkara();}
 setRoom(roomId);
 // fetch the other room quietly after the first one is up, so switching rooms is instant
@@ -798,7 +807,7 @@ function surfaceAt(x,z,bottomY){
   let s=0;
   if(Math.abs(x)<TABLE.hx&&z<TABLE.z0&&z>TABLE.z1&&bottomY>=TABLE.y-0.03)s=TABLE.y;
   if(bar.visible&&Math.hypot(x-BAR.x,z-BAR.z)<BAR.r&&bottomY>=BAR.y-0.03)s=Math.max(s,BAR.y);
-  if(R3.visible)for(const d of ANK_DESKS)if(x>d[0]&&x<d[1]&&z>d[2]&&z<d[3]&&bottomY>=0.72)s=Math.max(s,0.75);
+  if(R3.visible&&bottomY>=0.72&&ankDesk(x,z))s=Math.max(s,0.75);
   return s;
 }
 
@@ -967,7 +976,8 @@ function resize(){
   // keep a wide horizontal view (about 78°) so the whole office fits; portrait phones step back a little and get a taller view
   const hf=(camera.aspect<0.8?70:78)*Math.PI/180,vf=2*Math.atan(Math.tan(hf/2)/camera.aspect)*180/Math.PI;
   camera.fov=Math.min(118,Math.max(56,vf));
-  if(camera.aspect<0.8)CAM.set(0,1.72,0.88);else CAM.set(0,1.6,0.5);
+  const rc=ROOMS[roomId]&&ROOMS[roomId].cam;
+  if(rc)CAM.set(rc[0],rc[1],rc[2]);else if(camera.aspect<0.8)CAM.set(0,1.72,0.88);else CAM.set(0,1.6,0.5);
   camera.updateProjectionMatrix();
   const dpr=Math.min(window.devicePixelRatio||1,2);aim.width=w*dpr;aim.height=h*dpr;actx.setTransform(dpr,0,0,dpr,0,0);
   frameCamera();
@@ -976,7 +986,7 @@ window.addEventListener('resize',resize);
 
 /* ================= game state ================= */
 const G=9.81, DRAG=0.012, PITCH=40*Math.PI/180;
-const HAND=new THREE.Vector3(0,1.27,-0.08);
+
 const PCOL=[{bg:'#ffe45c',tint:0xfff6c2},{bg:'#9fd0ff',tint:0xc4e2ff},{bg:'#a8e6a1',tint:0xcaf3c4},{bg:'#ffb3c7',tint:0xffd3df}];
 const INVITE_BASE='https://claude.ai/artifact/W2ayCue2cvzyECQZVfyABD';
 function newPlayer(name,color){return {name,color,score:0,levelStartScore:0,hits:0,throwsLeft:THROWS,results:[],streak:0,targetHit:false,alive:true};}
@@ -996,12 +1006,15 @@ function startLevel(i,keepScore){
   game.level=i;const L=levelDef(i);
   game.players.forEach(p=>{if(!keepScore)p.score=p.levelStartScore;p.levelStartScore=p.score;p.hits=0;p.throwsLeft=p.alive?THROWS:0;p.results=[];p.streak=0;p.targetHit=false;});
   game.cur=Math.max(0,game.players.findIndex(p=>p.alive));
-  const RM=ROOMS[roomId],D=Math.min(L.d,RM.maxD||99);
+  const RM=ROOMS[roomId],D=RM.fixedBin?ANK.L-0.5+0.5:Math.min(L.d,RM.maxD||99);
   const b=game.bin;b.z=-D;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;
+  binHolder.visible=!RM.fixedBin;
+  if(RM.fixedBin){b.z=0.5-ANK.L;b.H=0.347;b.Rt=0.1725;b.Rb=0.133;}
   frameCamera();
   const useBar=!RM.floor&&(!!L.bar||L.d>RM.maxTable);
   bar.visible=useBar;
   if(useBar){BAR.x=i<9?0:rnd(-0.7,0.7);BAR.z=Math.min(-L.d,TABLE.z1-0.45);b.z=BAR.z;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
+  else if(RM.fixedBin){b.surf=0;b.amp=0;b.baseX=0;}
   else if(RM.floor){b.surf=0;const lim=0.35;b.amp=L.m>0?Math.min(L.m,0.45):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.1+i*0.05));}
   else{b.surf=TABLE.y;const lim=TABLE.hx-b.Rt-0.06;b.amp=L.m>0?Math.min(L.m,TABLE.hx-0.24):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.12+i*0.07));}
   b.omega=0.7+i*0.05;b.phase=rnd(0,6.28);b.y=b.surf+(b.amp>0?0.075:0);
