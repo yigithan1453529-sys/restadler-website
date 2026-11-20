@@ -652,7 +652,12 @@ const streakData=[];for(let i=0;i<STREAKS;i++)streakData.push({x:rnd(-3,3),y:rnd
 const aim=$('aim');const actx=aim.getContext('2d');
 function resize(){
   const w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);
-  camera.aspect=w/h;camera.fov=camera.aspect<0.8?72:60;camera.updateProjectionMatrix();
+  camera.aspect=w/h;
+  // keep a wide horizontal view (about 78°) so the whole office fits; portrait phones step back a little and get a taller view
+  const hf=(camera.aspect<0.8?70:78)*Math.PI/180,vf=2*Math.atan(Math.tan(hf/2)/camera.aspect)*180/Math.PI;
+  camera.fov=Math.min(118,Math.max(56,vf));
+  if(camera.aspect<0.8)CAM.set(0,1.72,0.88);else CAM.set(0,1.6,0.5);
+  camera.updateProjectionMatrix();
   const dpr=Math.min(window.devicePixelRatio||1,2);aim.width=w*dpr;aim.height=h*dpr;actx.setTransform(dpr,0,0,dpr,0,0);
   frameCamera();
 }
@@ -986,8 +991,8 @@ function localLevelEnd(){
 const net={api:undefined,room:null,code:null,name:store.get('nick',''),throwSeq:0,seen:{},joinedAt:0,goSeen:0,started:false,unsub:null,lobbyTimer:0,last:{}};
 function roomApi(){
   if(net.api!==undefined)return Promise.resolve(net.api);
-  const c=window.claude;if(!c||typeof c.use!=='function'){net.api=null;return Promise.resolve(null);}
-  return c.use('room').then(r=>{net.api=r||null;return net.api;},()=>{net.api=null;return null;});
+  const c=window.claude;if(!c||typeof c.use!=='function')return Promise.resolve(null);
+  return c.use('room').then(r=>{net.api=r||undefined;return r||null;},()=>{net.api=undefined;return null;});
 }
 function netPlayers(){
   if(!net.room)return [{name:net.name||'Du',color:0,score:P().score,lv:game.level,me:true}];
@@ -1008,20 +1013,30 @@ function netLeave(){
 const CODE_CHARS='abcdefghjkmnpqrstuvwxyz23456789';
 function newCode(){let s='';for(let i=0;i<4;i++)s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return s;}
 function showOnlineSetup(code){
+  memo({to:'Dich',subject:code?'Einladung':'Freunde einladen',big:'Verbinde …',body:'<p>Einen Moment, der Online-Raum wird geöffnet.</p>',
+    actions:[{label:'Zurück',ghost:true,go:()=>{net.wait=0;showStart();}}]});
+  const tok=net.wait=(net.wait||0)+1;
   roomApi().then(api=>{
+    if(net.wait!==tok)return;   // player went back meanwhile
     if(!api){
-      memo({to:'Dich',subject:'Freunde einladen',big:'Online nicht verfügbar',
-        body:`<p>Für das Online-Spiel musst du bei claude.ai angemeldet sein. Melde dich an und öffne den Link danach noch einmal.</p><p>Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`,
-        actions:[{label:'Mehrspieler am Gerät',go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
+      memo({to:'Dich',subject:'Freunde einladen',big:'Keine Verbindung',
+        body:`<p>Der Online-Raum ist gerade nicht erreichbar. Das Online-Spiel läuft nur, wenn das Spiel direkt auf claude.ai geöffnet ist und du dort angemeldet bist.</p><p>Tipp: Den Link im Browser öffnen (nicht als Vorschau) und kurz warten. Ihr könnt aber auch am selben Gerät gegeneinander spielen.</p>`,
+        actions:[{label:'Nochmals versuchen',go:()=>showOnlineSetup(code)},{label:'Mehrspieler am Gerät',ghost:true,go:showLocalSetup},{label:'Zurück',ghost:true,go:showStart}]});
       return;
     }
     const joining=!!code;
+    const saveName=()=>{const v=($('nick').value||'').trim().slice(0,14);net.name=v||'Gast';store.set('nick',net.name);};
     memo({to:'Dich',subject:joining?'Einladung':'Freunde einladen',big:joining?`Raum ${code.toUpperCase()}`:'Online spielen',
       body:`<p>${joining?'Du wurdest zu einem Spiel eingeladen. ':''}Jede Person spielt auf dem eigenen Gerät. Ihr seht die Punkte der anderen live und ihre Papierkugeln fliegen in eurem Raum mit. Bis zu 4 Spieler pro Raum.</p>
-        <label class="pname solo"><span>Dein Name</span><input id="nick" maxlength="14" autocomplete="off" value="${esc(net.name)}" placeholder="z. B. Lena"></label>`,
-      actions:[{label:joining?'Beitreten →':'Raum erstellen →',go:()=>{const v=($('nick').value||'').trim().slice(0,14);net.name=v||'Gast';store.set('nick',net.name);enterRoom(code||newCode());}},
+        <label class="pname solo"><span>Dein Name</span><input id="nick" maxlength="14" autocomplete="off" value="${esc(net.name)}" placeholder="z. B. Lena"></label>
+        ${joining?'':`<label class="pname solo"><span>Raum-Code von Freunden (falls du einen hast)</span><input id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="z. B. K7QM"></label><p class="hand" id="codeMsg" aria-live="polite"></p>`}`,
+      actions:[{label:joining?'Beitreten →':'Raum erstellen →',go:()=>{saveName();
+          const jc=joining?code:(($('joinCode')&&$('joinCode').value)||'').trim().toLowerCase();
+          if(!joining&&jc){if(!/^[a-z0-9]{4}$/.test(jc)){$('codeMsg').textContent='Der Code hat 4 Zeichen.';return;}return enterRoom(jc);}
+          enterRoom(code||newCode());}},
         {label:'Zurück',ghost:true,go:showStart}],
-      after:()=>{const i=$('nick');if(i)i.focus({preventScroll:true});}});
+      after:()=>{const i=$('nick');if(i)i.focus({preventScroll:true});
+        const j=$('joinCode');if(j)j.addEventListener('input',()=>{const btn=$('act0');if(btn)btn.textContent=j.value.trim()?'Mit Code beitreten →':'Raum erstellen →';});}});
   });
 }
 async function enterRoom(code){
@@ -1039,7 +1054,7 @@ function inviteLink(){return INVITE_BASE+'#pt-'+net.code;}
 function showLobby(){
   game.state='menu';
   memo({to:'Euer Team',subject:'Online-Spiel',big:`Raum ${net.code.toUpperCase()}`,
-    body:`<p>Schick diesen Link an bis zu 3 Freunde. Wer bei claude.ai angemeldet ist, kann sofort mitspielen.</p>
+    body:`<p>Schick diesen Link an bis zu 3 Freunde. Wer bei claude.ai angemeldet ist, kann mitspielen. Klappt der Link nicht: Spiel öffnen, „Freunde einladen“ und den Code <b>${net.code.toUpperCase()}</b> eingeben.</p>
       <div class="invite"><input id="inviteLink" readonly value="${esc(inviteLink())}" aria-label="Einladungslink"><button class="btn small" id="copyLink">Kopieren</button></div>
       <p class="hand" id="copyMsg" aria-live="polite"></p>
       <ol class="rank" id="lobbyList"></ol>`,
