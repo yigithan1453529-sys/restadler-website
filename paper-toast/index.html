@@ -54,6 +54,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
 #radioBtn{position:fixed;right:calc(max(16px,env(safe-area-inset-right,0px)) + 54px);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;border:0;background:rgba(253,253,251,.9);color:var(--ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 #radioBtn svg{width:22px;height:22px}
 /* in-game buttons bottom left: back to the menu, restart the level */
+#windTag{position:fixed;transform:translate(-50%,0);color:#fff;font:700 22px var(--hand);text-shadow:0 2px 6px rgba(0,0,0,.7);pointer-events:none;text-align:center;line-height:1}
+#windTag small{display:block;font-size:28px;line-height:.8}
 #gameBtns{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:10px}
 #gameBtns button{width:44px;height:44px;border-radius:50%;border:0;background:rgba(253,253,251,.9);color:var(--ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 #gameBtns svg{width:22px;height:22px}
@@ -275,6 +277,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:#2b2f3a;color:var(--in
   </div>
 </div>
 <div id="turn" hidden><i id="turnDot"></i><span id="turnName"></span> ist dran</div>
+<div id="windTag" hidden></div>
 <div id="hint" hidden>↑ nach oben wischen &amp; loslassen</div>
 <div id="toast"><div class="t1"></div><div class="t2"></div></div>
 <div id="taskNote" aria-live="polite"></div>
@@ -669,9 +672,9 @@ function loadAnkara(){if(ankaraLoaded)return;ankaraLoaded=true;
 function ankDesk(x,z){const q=ANK.toModel(x,z),ax=Math.abs(q[0]),az=Math.abs(q[1]);return ax>1.4&&ax<3&&az>0.9&&az<1.7;}
 /* ---- room registry & switching ---- */
 const ROOMS={
-  london:{floorPlan:[1.15,1.3,1.45],name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
+  london:{cam:[0,1.25,0.88],hand:[0,0.835,0.53],desk:{y:0.8,z:0.48},floorPlan:[[0,-1.4],[-0.5,-1.7],[0.5,-1.85],[-0.55,-1.95]],name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
   ankara:{name:'Ankara',desc:'Grossraumbüro: Du sitzt auf deinem Bürostuhl und triffst den Papierkorb am Boden. Der Wind macht es schwer.',group:R3,table:{hx:0,z0:0,z1:0,y:0},maxTable:99,floor:true,fixedBin:true,lookY:0.2,cam:[0,1.18,0.5],hand:[0.06,0.92,0.08],room:{x:6,zBack:-9,zFront:2,h:2.8}},
-  bern:{light:{hemi:0.08,sun:0.18,exp:0.88},name:'Bern',desc:'Dunkler, warmer Sitzungsraum mit Nussbaum-Tisch, Lederstühlen, Whiteboard und geschlossenen Vorhängen.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
+  bern:{cam:[0,1.25,0.88],hand:[0,0.835,0.53],desk:{y:0.8,z:0.48},floorPlan:[[0,-1.5],[-0.3,-1.75],[0.3,-1.95],[0,-2.1]],light:{hemi:0.08,sun:0.18,exp:0.88},name:'Bern',desc:'Dunkler, warmer Sitzungsraum mit Nussbaum-Tisch, Lederstühlen, Whiteboard und geschlossenen Vorhängen.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
 let roomId=({saentis:'london',ebenalp:'bern'})[store.get('room','london')]||store.get('room','london');if(!ROOMS[roomId])roomId='london';
 const ROOM0=Object.assign({},ROOM);
 function setRoom(id){if(!ROOMS[id])id='london';roomId=id;store.set('room',id);
@@ -681,6 +684,7 @@ function setRoom(id){if(!ROOMS[id])id='london';roomId=id;store.set('room',id);
   const hd=ROOMS[id].hand||[0,1.27,-0.08];HAND.set(hd[0],hd[1],hd[2]);
   try{binHolder.visible=!ROOMS[id].fixedBin;resize();}catch(e){}   // not yet defined during the first call at start-up
   if(id==='bern')dimBern();
+  try{placeDeskSetup();}catch(e){}
   if(id==='london')loadLondon();else if(id==='bern')loadBern();else loadAnkara();}
 // Bern is a dark room: keep the bright studio reflections low on everything in it
 function ownMats(o){o.traverse(x=>{if(x.isMesh)x.material=Array.isArray(x.material)?x.material.map(m=>m.clone()):x.material.clone();});return o;}
@@ -779,6 +783,19 @@ function makeFan(side){
 }
 const fans=[makeFan(-1),makeFan(1)];
 fans[0].g.position.set(-2.2,0,-3);fans[1].g.position.set(2.2,0,-3);
+/* ---- your own desk in the foreground (seated POV like Paper Toss): ball on the edge, small desk fan in the corner ---- */
+const myDesk=new THREE.Group();scene.add(myDesk);
+{const top=new THREE.MeshStandardMaterial({color:0x6e4a28,roughness:.55,envMapIntensity:.25});const edge=new THREE.MeshStandardMaterial({color:0x8a6a3a,roughness:.5});
+ box(1.6,0.035,0.6,top,0,-0.0175,0.3,myDesk);box(1.6,0.03,0.014,edge,0,-0.017,0.0,myDesk);   // origin = far (front) edge
+ myDesk.traverse(o=>{if(o.isMesh){o.receiveShadow=true;o.castShadow=false;}});}
+const DESK_FAN_SCALE=0.42;
+function placeDeskSetup(){   // called whenever the room or camera changes
+  const RM=ROOMS[roomId];const seated=!!RM.desk;myDesk.visible=seated;
+  if(seated){const d=RM.desk;myDesk.position.set(0,d.y,d.z);}
+  fans.forEach(f=>{f.g.children.forEach(c=>{if(c!==f.head)c.visible=!seated;});
+    if(seated){const d=RM.desk;f.head.scale.setScalar(DESK_FAN_SCALE);f.g.position.set(f.side*0.3,d.y-FAN_STAND,d.z+0.14);}
+    else{f.head.scale.setScalar(1);}});
+}
 loadGLB('fan.glb').then(gl=>{
   fans.forEach((f,i)=>{const m=i?gl.scene.clone(true):gl.scene;
     m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
@@ -1012,15 +1029,24 @@ const tintMats=PCOL.map(c=>new THREE.MeshStandardMaterial({map:paperTex,color:c.
 const ghostMats=PCOL.map(c=>new THREE.MeshStandardMaterial({map:paperTex,color:c.tint,roughness:.95,flatShading:true,transparent:true,opacity:.85}));
 const ballMatFor=i=>game.mode==='local'?tintMats[game.players[i].color]:ballMat;
 
+const _wv=new THREE.Vector3();
+function updateWindTag(w){
+  const el=$('windTag');const on=(game.state==='aim'||game.state==='flying')&&$('menu').hidden;
+  if(!on){if(!el.hidden)el.hidden=true;return;}
+  const b=game.bin;_wv.set(b.x,b.y,b.z+b.Rt+0.05).project(camera);
+  const x=(_wv.x*.5+.5)*innerWidth,y=(-_wv.y*.5+.5)*innerHeight+10;
+  el.hidden=false;el.style.left=x+'px';el.style.top=y+'px';
+  const t=Math.abs(w).toFixed(2)+'<small>'+(w>0?'→':w<0?'←':'·')+'</small>';if(el.innerHTML!==t)el.innerHTML=t;
+}
 function frameCamera(){camera.position.copy(CAM);camera.lookAt(0,LOOKY,game.bin.z);}
 
 function startLevel(i,keepScore){
   game.level=i;const L=levelDef(i);
   game.players.forEach(p=>{if(!keepScore)p.score=p.levelStartScore;p.levelStartScore=p.score;p.hits=0;p.throwsLeft=p.alive?THROWS:0;p.results=[];p.streak=0;p.targetHit=false;});
   game.cur=Math.max(0,game.players.findIndex(p=>p.alive));
-  const RM=ROOMS[roomId],FP=RM.floorPlan&&RM.floorPlan[i];   // early levels: bin on the floor in front of the table
-  const D=RM.fixedBin?ANK.L:FP?FP:Math.min(L.d,RM.maxD||99);
-  LOOKY=FP?0.35:(RM.lookY||0.95);
+  const RM=ROOMS[roomId],FP=RM.floorPlan&&RM.floorPlan[i];   // early levels: bin on the floor (x,z), Paper-Toss distance
+  const D=RM.fixedBin?ANK.L:FP?-FP[1]:Math.min(L.d,RM.maxD||99);
+  LOOKY=FP?0.2:(RM.lookY||0.95);
   const b=game.bin;b.z=-D;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;
   binHolder.visible=!RM.fixedBin;
   if(RM.fixedBin){b.z=0.5-ANK.L;b.H=0.347;b.Rt=0.1725;b.Rb=0.133;}
@@ -1029,7 +1055,7 @@ function startLevel(i,keepScore){
   bar.visible=useBar;
   if(useBar){BAR.x=i<9?0:rnd(-0.7,0.7);BAR.z=Math.min(-L.d,TABLE.z1-0.45);b.z=BAR.z;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
   else if(RM.fixedBin){b.surf=0;b.amp=0;b.baseX=0;}
-  else if(FP){b.surf=0;b.amp=0;b.baseX=i===0?0:rnd(-1,1)*0.15;}
+  else if(FP){b.surf=0;b.amp=0;b.baseX=FP[0];}
   else if(RM.floor){b.surf=0;const lim=0.35;b.amp=L.m>0?Math.min(L.m,0.45):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.1+i*0.05));}
   else{b.surf=TABLE.y;const lim=TABLE.hx-b.Rt-0.06;b.amp=L.m>0?Math.min(L.m,TABLE.hx-0.24):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.12+i*0.07));}
   b.omega=0.7+i*0.05;b.phase=rnd(0,6.28);b.y=b.surf+(b.amp>0?0.075:0);
@@ -1039,7 +1065,7 @@ function startLevel(i,keepScore){
   floorBalls.forEach(m=>scene.remove(m));floorBalls.length=0;
   ghosts.forEach(g=>scene.remove(g.mesh));ghosts.length=0;
   if(trail){scene.remove(trail);trail=null;}
-  fans.forEach(f=>{f.g.position.z=Math.min(-2.7,Math.max(-6,b.z*0.6));});
+  if(RM.desk)placeDeskSetup();else fans.forEach(f=>{f.g.position.z=Math.min(-2.7,Math.max(-6,b.z*0.6));});
   updateBin(0);
   newWind();spawnBall();updateHUD();showTurn();
   $('hint').hidden=!(i===0);
@@ -1747,6 +1773,8 @@ function frame(now){
   for(let i=ghosts.length-1;i>=0;i--){const g=ghosts[i];g.t+=dt;const n=Math.max(1,Math.round(dt/(1/240)));for(let k=0;k<n;k++)stepGhost(g,dt/n);g.mesh.position.copy(g.p);g.mesh.rotation.x+=dt*6;
     if(g.t>3.2){g.mesh.material=g.mesh.material;scene.remove(g.mesh);ghosts.splice(i,1);}}
   const w=game.wind;
+  if(myDesk.visible)fans.forEach(f=>{f.g.visible=(w>0&&f.side<0)||(w<0&&f.side>0)||(w===0&&f.side<0);});else fans.forEach(f=>f.g.visible=true);
+  updateWindTag(w);
   fans.forEach(f=>{const active=(w>0&&f.side<0)||(w<0&&f.side>0);const target=active?Math.abs(w)*14:0;f.spin+=(target-f.spin)*Math.min(1,dt*2);f.blades.rotation.x+=f.spin*dt*(f.side<0?-1:1);
     f.head.rotation.y=f.baseRot+Math.sin(t*0.6+f.side)*0.08;});
   if(ceilMixer&&R1.visible)ceilMixer.update(dt);if(ceilMixer2&&R2.visible)ceilMixer2.update(dt);

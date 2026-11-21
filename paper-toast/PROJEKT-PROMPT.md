@@ -109,3 +109,10 @@ Code und Modelle liegen im GitHub-Repository `yigithan1453529-sys/restadler-webs
 
 ## Startmenü (modern)
 - Eigener Startbildschirm (showStart, Klasse .start) statt Memo: dunkler Verlauf über der 3D-Szene, Titel „Paper Toast“, Chips (Sterne, Punkte, Rekord), grosser gelber „Spielen“-Knopf, „Weiter bei …“, drei Kacheln (Mit Freunden, Raum, Sterne mit Zähler), Quellen & Lizenzen aufklappbar (Pflicht-Namensnennung). Im gleichen modernen Stil (dunkle Glas-Karte, panel() bzw. memo({modern:true})): Mit Freunden, Mehrspieler am Gerät, Online-Einrichtung und Lobby, Raumwahl, Belohnungen und Kiosk. Im Memo-Stil bleiben Pause, Stufen-Ende/Beförderung und Spielende.
+
+## Paper-Toss-POV (London, Bern) – Stand 21.11.2026
+- Wie im Original «Paper Toss» (2009): Man sitzt am eigenen Pult. Unten im Bild die Pultkante (myDesk, Holz), darauf die Papierkugel (HAND 0/0,835/0,53, Kamera 0/1,25/0,88).
+- Stufen 1–4: Kübel am Boden, ca. 2,3–2,8 m entfernt, leicht seitlich versetzt (ROOMS.*.floorPlan). Ab Stufe 5 auf dem Sitzungstisch, Stufe 10 auf der Bar-Ablage.
+- Kleiner Tischventilator vorne in der Ecke auf der Windseite (placeDeskSetup, Massstab 0,42); Standventilatoren dort ausgeblendet.
+- Windzahl mit Pfeil direkt unter dem Kübel (#windTag, updateWindTag).
+- Ankara bleibt 1:1 (eigener Sitz-POV, Modell-Korb).
