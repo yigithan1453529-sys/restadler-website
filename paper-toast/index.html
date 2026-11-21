@@ -371,9 +371,11 @@ const stage=$('stage');
 // performance: phones get a lighter start, then quality adapts to the measured frame rate (see adaptQuality)
 const DPR=window.devicePixelRatio||1;
 const MOBILE=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||Math.min(screen.width,screen.height)<700;
-const renderer=new THREE.WebGLRenderer({antialias:DPR<2,powerPreference:'high-performance'});
-const QUALITY=[{pr:0.75,shadow:false},{pr:1,shadow:false},{pr:1.25,shadow:true},{pr:MOBILE?1.5:2,shadow:true}];
-let quality=MOBILE?2:3;
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+// quality steps: never below full pixel density 1 (no blur); slow devices first lose shadows, then sharpness above 1
+const QUALITY=[{pr:1,shadow:false},{pr:1.5,shadow:false},{pr:2,shadow:false},{pr:2,shadow:true}];
+let quality=3;
+const MAXANISO=renderer.capabilities.getMaxAnisotropy();
 renderer.setPixelRatio(Math.min(DPR,QUALITY[quality].pr));
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.92;
@@ -390,7 +392,7 @@ camera.position.copy(CAM);
 
 function tex(w,h,draw,rep){
   const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);
-  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=MAXANISO;
   if(rep){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep[0],rep[1]);}
   return t;
 }
@@ -478,7 +480,9 @@ function fetchGLB(name){
   return fetch(name).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer();}).then(b=>{const u=new Uint8Array(b,0,4);if(u[0]!==0x67||u[1]!==0x6c)throw 0;return b;})
     .catch(()=>fetch(name+'.txt').then(r=>{if(!r.ok)throw new Error('missing '+name);return r.text();}).then(t=>{const raw=atob(t.trim());const a=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)a[i]=raw.charCodeAt(i);return a.buffer;}));
 }
-function loadGLB(name){return fetchGLB(name).then(buf=>new Promise((res,rej)=>{const l=new THREE.GLTFLoader();if(window.MeshoptDecoder)l.setMeshoptDecoder(MeshoptDecoder);l.parse(buf,'',res,rej);}));}
+// every model texture gets full anisotropic filtering, so floors and walls stay crisp at flat viewing angles
+function sharpen(root){root.traverse(o=>{if(!o.isMesh)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{['map','normalMap','roughnessMap','metalnessMap','emissiveMap','aoMap'].forEach(k=>{if(m[k]){m[k].anisotropy=MAXANISO;m[k].needsUpdate=true;}});});});}
+function loadGLB(name){return fetchGLB(name).then(buf=>new Promise((res,rej)=>{const l=new THREE.GLTFLoader();if(window.MeshoptDecoder)l.setMeshoptDecoder(MeshoptDecoder);l.parse(buf,'',g=>{sharpen(g.scene);res(g);},rej);}));}
 
 /* ---- the conference room model ---- */
 const roomMats={
@@ -1453,7 +1457,7 @@ function levelDone(){
   sfx.win();game.state='menu';updateHUD();
   memo({to:'Dich',subject:'Beförderung',stamp:'BEFÖRDERT',stampGreen:true,big:levelDef(next).t,
     body:`<p>${h} von ${THROWS} Treffern ${stars(st)} &nbsp;Bonus +${bonus}</p><p>Stand: <b>${fmt(p.score)}</b> Punkte. Deine neue Position:</p>${nextInfo(next)}`,
-    actions:[{label:'Neuen Job antreten →',go:()=>{hideMemo();startLevel(next,true);}}]});
+    actions:[{label:'Neuen Job antreten →',go:()=>{hideMemo();startLevel(next,true);}},{label:'Stufe wiederholen',ghost:true,go:()=>{hideMemo();startLevel(game.level,false);}},{label:'Zum Start',ghost:true,go:showStart}]});
 }
 function levelFailed(){
   const p=P(),L=levelDef(game.level);

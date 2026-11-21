@@ -40,7 +40,7 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 - Im Raum Bern stehen Stufen mit mehr als 5,55 m Distanz auf dem Stehtisch hinter dem Tisch (mind. 0,45 m hinter dem Tischende).
 - Code: ROOMS, setRoom(), showRooms(), Gruppen R1/R2; TABLE wird beim Raumwechsel umgestellt. Ventilatoren und Stehtisch sind in beiden Räumen.
 
-- Ankara (R3): aus der gelieferten PaperToss_Buero.glb, UNVERÄNDERT übernommen (alle Möbel, Stühle, eigener Papierkorb und Papierkugeln am Boden an ihren Original-Plätzen; nur Texturen auf 512 px WebP verkleinert und Geometrie meshopt-komprimiert, ca. 2,4 MB). POV sitzend: Der Spieler sitzt auf Bürostuhl 1 (Modell x −2,154 / z −0,5, Augenhöhe 1,18 m) und schaut zum Papierkorb des Modells (0/0), 2,21 m entfernt; der ganze Raum wird dafür gedreht/verschoben (ANK.toWorld/toModel). Der Spiel-Kübel ist hier unsichtbar, getroffen wird der Modell-Korb (H 0,347, Rt 0,1725, Rb 0,133). Distanz ist fest; die Stufen unterscheiden sich in Ankara nur durch Wind und nötige Treffer (wie beim klassischen Paper Toss). Schreibtische sind fest (ankDesk). Skyline von Ankara vor den Fenstern, Wind-Ventilatoren links/rechts als Zusatz.
+- Ankara (R3): aus der gelieferten PaperToss_Buero.glb, 1:1 übernommen (alle Möbel, Stühle, eigener Papierkorb und Papierkugeln an ihren Original-Plätzen; Original-PNG-Texturen und volle Geometrie, nur verlustarm meshopt-gepackt, ca. 6,9 MB). POV sitzend: Der Spieler sitzt auf Bürostuhl 1 (Modell x −2,154 / z −0,5, Augenhöhe 1,18 m) und schaut zum Papierkorb des Modells (0/0), 2,21 m entfernt; der ganze Raum wird dafür gedreht/verschoben (ANK.toWorld/toModel). Der Spiel-Kübel ist hier unsichtbar, getroffen wird der Modell-Korb (H 0,347, Rt 0,1725, Rb 0,133). Distanz ist fest; die Stufen unterscheiden sich in Ankara nur durch Wind und nötige Treffer (wie beim klassischen Paper Toss). Schreibtische sind fest (ankDesk). Skyline von Ankara vor den Fenstern, Wind-Ventilatoren links/rechts als Zusatz.
 
 ## Sterne ⭐, Belohnungen, Kiosk
 - Ein Online-Spiel kostet 1 ⭐ (wird beim Spielstart abgezogen). Allein und Mehrspieler am Gerät sind gratis. Neue Spieler starten mit 3 ⭐.
@@ -101,9 +101,10 @@ Man steht am Kopfende eines Konferenztisches in einem Büro und wirft eine zerkn
 
 Code und Modelle liegen im GitHub-Repository `yigithan1453529-sys/restadler-website`, Ordner `paper-toast/`, Branch `ccr-32d61d97-f5a22c`.
 
-## Leistung (flüssig auf allen Geräten)
-- Handys starten mit Pixel-Faktor 1,5 und Schattenkarte 1024, Computer mit 2 und 2048; Kantenglättung nur bei Bildschirmen mit Pixel-Faktor < 2.
-- adaptQuality(): misst alle 2 s die Bildrate; unter 40 fps eine Stufe runter (Schärfe 1,25 → 1 ohne Schatten → 0,75), bei viel Reserve einmal eine Stufe hoch.
+## Leistung und Schärfe
+- Regel: gelieferte Raum-Dateien 1:1 übernehmen, keine Verkleinerung/Vereinfachung.
+- Kantenglättung immer an, alle Texturen mit maximaler anisotroper Filterung (sharpen()). Qualitätsstufen nie unter Pixel-Faktor 1: zuerst fallen die Schatten weg, dann die Zusatzschärfe (2 → 1,5 → 1).
+- adaptQuality(): misst alle 2 s die Bildrate; unter 40 fps eine Stufe runter, bei viel Reserve einmal eine Stufe hoch.
 - Räume laden ihre Modelle erst bei Bedarf (loadLondon/loadBern), der andere Raum wird nach 9 s still nachgeladen. BÜRO·TV und Deckenventilator-Animation laufen nur im sichtbaren Raum.
 
 ## Startmenü (modern)
