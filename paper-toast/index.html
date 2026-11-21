@@ -404,7 +404,7 @@ const R3=new THREE.Group();R3.name='ankara';R3.visible=false;scene.add(R3);
 
 /* ---- environment & lights ---- */
 if(THREE.RoomEnvironment){const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(new THREE.RoomEnvironment(),0.04).texture;}
-scene.add(new THREE.HemisphereLight(0xfff4e6,0x5a4030,0.5));
+const HEMI=new THREE.HemisphereLight(0xfff4e6,0x5a4030,0.5);scene.add(HEMI);
 const sun=new THREE.DirectionalLight(0xfff2de,1.15);
 sun.position.set(-6,4.2,-2.5);sun.target.position.set(1,0,-3.5);
 sun.castShadow=QUALITY[quality].shadow;sun.shadow.mapSize.set(MOBILE?1024:2048,MOBILE?1024:2048);
@@ -516,7 +516,7 @@ loadGLB('office.glb').then(g=>{
 const oakTex=tex(1024,1024,(g,w,h)=>{
   const cols=8,cw=w/cols;
   for(let c=0;c<cols;c++){let y=-rnd(0,h*0.9);
-    while(y<h){const ph=rnd(h*0.6,h*1.0);g.fillStyle=`hsl(${rnd(30,36)},${rnd(34,44)}%,${rnd(58,66)}%)`;g.fillRect(c*cw,y,cw,ph);
+    while(y<h){const ph=rnd(h*0.6,h*1.0);g.fillStyle=`hsl(${rnd(22,30)},${rnd(30,40)}%,${rnd(24,32)}%)`;g.fillRect(c*cw,y,cw,ph);
       g.save();g.beginPath();g.rect(c*cw,y,cw,ph);g.clip();
       for(let i=0;i<22;i++){g.strokeStyle=`rgba(${Math.random()<.6?'120,80,40':'250,230,200'},${rnd(.06,.16)})`;g.lineWidth=rnd(.6,2);g.beginPath();
         const x0=c*cw+rnd(0,cw),a=rnd(1,5),f=rnd(.004,.02),q=rnd(0,6);for(let yy=y;yy<=y+ph;yy+=10){const xx=x0+Math.sin(yy*f+q)*a;yy===y?g.moveTo(xx,yy):g.lineTo(xx,yy);}g.stroke();}
@@ -557,19 +557,19 @@ const boardTex=tex(1024,560,(g,w,h)=>{
   const fl=new THREE.Mesh(new THREE.PlaneGeometry(X*2+0.4,RLn),new THREE.MeshStandardMaterial({map:oakTex,roughness:.45,envMapIntensity:.6}));
   fl.rotation.x=-Math.PI/2;fl.position.set(0,0,RZn);fl.receiveShadow=true;R2.add(fl);
   const plane=(w,h,mat,x,y,z,ry)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.position.set(x,y,z);m.rotation.y=ry||0;m.receiveShadow=true;R2.add(m);return m;};
-  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(X*2,RLn),wall(0xf7f5f0));ceil.rotation.x=Math.PI/2;ceil.position.set(0,Hh,RZn);R2.add(ceil);
-  plane(X*2,Hh,wall(0xa7b79f),0,Hh/2,ZB);                        // sage back wall
-  plane(X*2,Hh,wall(0xf1ece3),0,Hh/2,ZF,Math.PI);                // front wall
-  plane(RLn,Hh,wall(0xf1ece3),X,Hh/2,RZn,-Math.PI/2);            // right wall
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(X*2,RLn),wall(0x2a2a2c));ceil.rotation.x=Math.PI/2;ceil.position.set(0,Hh,RZn);R2.add(ceil);
+  plane(X*2,Hh,wall(0x262f2b),0,Hh/2,ZB);                        // deep green back wall
+  plane(X*2,Hh,wall(0x323d37),0,Hh/2,ZF,Math.PI);                // front wall
+  plane(RLn,Hh,wall(0x323d37),X,Hh/2,RZn,-Math.PI/2);            // right wall
   // left wall: parapet, big window with the Alpstein view, lintel
-  plane(RLn,0.75,wall(0xf1ece3),-X,0.375,RZn,Math.PI/2);
-  plane(RLn,Hh-2.45,wall(0xf1ece3),-X,2.45+(Hh-2.45)/2,RZn,Math.PI/2);
+  plane(RLn,0.75,wall(0x323d37),-X,0.375,RZn,Math.PI/2);
+  plane(RLn,Hh-2.45,wall(0x323d37),-X,2.45+(Hh-2.45)/2,RZn,Math.PI/2);
   // window behind closed curtains: soft daylight glows through the fabric
-  const glowWin=plane(RLn-0.4,1.7,new THREE.MeshBasicMaterial({color:0xfff6e6,toneMapped:false}),-X-0.02,1.6,RZn,Math.PI/2);glowWin.receiveShadow=false;
-  const curtainTex=tex(512,512,(g,w,h)=>{g.fillStyle='#c8b48f';g.fillRect(0,0,w,h);
-    for(let i=0;i<4000;i++){g.fillStyle=`rgba(${Math.random()<.5?'255,250,235':'90,70,40'},${rnd(.03,.08)})`;g.fillRect(rnd(0,w),rnd(0,h),rnd(1,3),rnd(4,14));}
+  const glowWin=plane(RLn-0.4,1.7,new THREE.MeshBasicMaterial({color:0x4a3a2c}),-X-0.02,1.6,RZn,Math.PI/2);glowWin.receiveShadow=false;
+  const curtainTex=tex(512,512,(g,w,h)=>{g.fillStyle='#5a1822';g.fillRect(0,0,w,h);   // burgundy velvet
+    for(let i=0;i<4000;i++){g.fillStyle=`rgba(${Math.random()<.5?'140,60,70':'20,5,8'},${rnd(.05,.12)})`;g.fillRect(rnd(0,w),rnd(0,h),rnd(1,3),rnd(4,14));}
     const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba(60,40,20,.18)');gr.addColorStop(.12,'rgba(0,0,0,0)');gr.addColorStop(.9,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(60,40,20,.22)');g.fillStyle=gr;g.fillRect(0,0,w,h);},[6,1]);
-  const curtainMat=new THREE.MeshStandardMaterial({map:curtainTex,roughness:.92,side:THREE.DoubleSide,emissive:0x5a4a32,emissiveIntensity:.35});
+  const curtainMat=new THREE.MeshStandardMaterial({map:curtainTex,roughness:.92,side:THREE.DoubleSide,emissive:0x1a0508,emissiveIntensity:.4});
   const cw=RLn-0.2,chh=2.55,cg=new THREE.PlaneGeometry(cw,chh,220,1);const cp=cg.attributes.position;
   for(let i=0;i<cp.count;i++){const x=cp.getX(i);cp.setZ(i,0.045*Math.sin(x*16)+0.015*Math.sin(x*41));}
   cg.computeVertexNormals();
@@ -590,21 +590,24 @@ const boardTex=tex(1024,560,(g,w,h)=>{
   box(0.08,0.06,2.6,lampM,0,2.2,-4.13,R2);
   const glow=new THREE.Mesh(new THREE.PlaneGeometry(0.06,2.55),new THREE.MeshBasicMaterial({color:0xfff3dc,toneMapped:false}));glow.rotation.x=Math.PI/2;glow.position.set(0,2.168,-4.13);R2.add(glow);
   [-3.2,-5.06].forEach(z=>{cyl(0.004,0.004,Hh-2.23,lampM,0,(Hh+2.23)/2,z,R2,6);});
-  [-3.3,-5.0].forEach(z=>{const l=new THREE.PointLight(0xffefd6,0.6,6,2);l.position.set(0,2.05,z);R2.add(l);});
-  const win=new THREE.PointLight(0xdfeeff,0.35,7,2);win.position.set(-2.0,1.7,-3.5);R2.add(win);
+  [-3.3,-5.0].forEach(z=>{const l=new THREE.PointLight(0xffd9a8,0.55,5,2);l.position.set(0,2.05,z);R2.add(l);});
+  // warm pool of light from the pendant onto the walnut table, and a picture light on the back wall
+  const pool=new THREE.SpotLight(0xffd59a,2.2,7,0.62,0.7,1.6);pool.position.set(0,2.15,-4.13);pool.target.position.set(0,0.8,-4.13);pool.castShadow=true;pool.shadow.mapSize.set(1024,1024);R2.add(pool,pool.target);
+  const picL=new THREE.SpotLight(0xffe2b8,1.4,4,0.5,0.6,1.5);picL.position.set(1.2,2.6,ZB+0.9);picL.target.position.set(1.2,1.65,ZB);R2.add(picL,picL.target);
+  const win=new THREE.PointLight(0xffd2a0,0.12,6,2);win.position.set(-2.0,1.7,-3.5);R2.add(win);
   // recessed ceiling downlights
   const dlM=new THREE.MeshBasicMaterial({color:0xfff4e0,toneMapped:false});
   [[-1.4,-1.6],[1.4,-1.6],[-1.4,-6.6],[1.4,-6.6]].forEach(([x,z])=>{const d=new THREE.Mesh(new THREE.CircleGeometry(0.09,24),dlM);d.rotation.x=Math.PI/2;d.position.set(x,Hh-0.005,z);R2.add(d);});
-  const dl=new THREE.PointLight(0xffefd6,0.35,7,2);dl.position.set(0,2.6,-6.6);R2.add(dl);
+  const dl=new THREE.PointLight(0xffd9a8,0.18,6,2);dl.position.set(0,2.6,-6.6);R2.add(dl);
 })();
 // Bern: the walnut table and the leather chairs from the London room are loaded when the room is first chosen
 let bernLoaded=false;
 function loadBern(){if(bernLoaded)return;bernLoaded=true;
   loadGLB('walnut_table.glb').then(g=>{g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=.5;}});
-    g.scene.position.set(0,0,-4.13);R2.add(g.scene);}).catch(e=>{bernLoaded=false;console.warn('Nussbaumtisch fehlt',e);});
+    g.scene.position.set(0,0,-4.13);R2.add(g.scene);dimBern();}).catch(e=>{bernLoaded=false;console.warn('Nussbaumtisch fehlt',e);});
   loadGLB('chair.glb').then(g=>{
     g.scene.traverse(o=>{if(!o.isMesh)return;const spec=roomMats[o.material.name];if(spec)o.material=new THREE.MeshStandardMaterial(Object.assign({name:o.material.name},spec));o.material.envMapIntensity=.4;o.castShadow=true;o.receiveShadow=true;});
-    [[-0.98,-2.95],[-0.98,-4.13],[-0.98,-5.3],[0.98,-2.95],[0.98,-4.13],[0.98,-5.3]].forEach(([x,z])=>{const c=g.scene.clone(true);c.position.set(x,0,z);c.rotation.y=x<0?Math.PI:0;R2.add(c);});
+    [[-0.98,-2.95],[-0.98,-4.13],[-0.98,-5.3],[0.98,-2.95],[0.98,-4.13],[0.98,-5.3]].forEach(([x,z])=>{const c=g.scene.clone(true);c.position.set(x,0,z);c.rotation.y=x<0?Math.PI:0;R2.add(c);});dimBern();
   }).catch(e=>console.warn('Stühle fehlen',e));
 }
 (function(){return;  // old procedural chairs (replaced by chair.glb)
@@ -666,17 +669,22 @@ function loadAnkara(){if(ankaraLoaded)return;ankaraLoaded=true;
 function ankDesk(x,z){const q=ANK.toModel(x,z),ax=Math.abs(q[0]),az=Math.abs(q[1]);return ax>1.4&&ax<3&&az>0.9&&az<1.7;}
 /* ---- room registry & switching ---- */
 const ROOMS={
-  london:{name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
+  london:{floorPlan:[1.15,1.3,1.45],name:'London',desc:'Konferenzraum mit Blick auf Big Ben und Tower Bridge: dunkler Holzboden, Lamellen, langer Tisch und BÜRO·TV.',group:R1,table:{hx:0.84,z0:-2.37,z1:-6.59,y:0.73},maxTable:99},
   ankara:{name:'Ankara',desc:'Grossraumbüro: Du sitzt auf deinem Bürostuhl und triffst den Papierkorb am Boden. Der Wind macht es schwer.',group:R3,table:{hx:0,z0:0,z1:0,y:0},maxTable:99,floor:true,fixedBin:true,lookY:0.2,cam:[0,1.18,0.5],hand:[0.06,0.92,0.08],room:{x:6,zBack:-9,zFront:2,h:2.8}},
-  bern:{name:'Bern',desc:'Heller Sitzungsraum mit Nussbaum-Tisch, Lederstühlen, Whiteboard und geschlossenen Vorhängen.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
+  bern:{light:{hemi:0.08,sun:0.18,exp:0.88},name:'Bern',desc:'Dunkler, warmer Sitzungsraum mit Nussbaum-Tisch, Lederstühlen, Whiteboard und geschlossenen Vorhängen.',group:R2,table:{hx:0.63,z0:-2.4,z1:-5.86,y:0.80},maxTable:5.55}};
 let roomId=({saentis:'london',ebenalp:'bern'})[store.get('room','london')]||store.get('room','london');if(!ROOMS[roomId])roomId='london';
 const ROOM0=Object.assign({},ROOM);
 function setRoom(id){if(!ROOMS[id])id='london';roomId=id;store.set('room',id);
   Object.entries(ROOMS).forEach(([k,r])=>r.group.visible=k===id);Object.assign(TABLE,ROOMS[id].table);
   Object.assign(ROOM,ROOMS[id].room||ROOM0);LOOKY=ROOMS[id].lookY||0.95;
+  const lt=ROOMS[id].light||{hemi:0.5,sun:1.15,exp:0.92};HEMI.intensity=lt.hemi;sun.intensity=lt.sun;renderer.toneMappingExposure=lt.exp;
   const hd=ROOMS[id].hand||[0,1.27,-0.08];HAND.set(hd[0],hd[1],hd[2]);
   try{binHolder.visible=!ROOMS[id].fixedBin;resize();}catch(e){}   // not yet defined during the first call at start-up
+  if(id==='bern')dimBern();
   if(id==='london')loadLondon();else if(id==='bern')loadBern();else loadAnkara();}
+// Bern is a dark room: keep the bright studio reflections low on everything in it
+function ownMats(o){o.traverse(x=>{if(x.isMesh)x.material=Array.isArray(x.material)?x.material.map(m=>m.clone()):x.material.clone();});return o;}
+function dimBern(){R2.traverse(o=>{if(o.isMesh&&o.material&&o.material.envMapIntensity!==undefined)o.material.envMapIntensity=Math.min(o.material.envMapIntensity,0.22);});}
 setRoom(roomId);
 // fetch the other room quietly after the first one is up, so switching rooms is instant
 setTimeout(()=>{loadLondon();loadBern();},9000);setTimeout(loadAnkara,14000);
@@ -785,7 +793,7 @@ loadGLB('ceiling_fan.glb').then(gl=>{
   const m=gl.scene;m.scale.setScalar(0.010);m.position.set(0,2.95-7.24*0.010,-2.0);
   m.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});R1.add(m);
   if(gl.animations&&gl.animations.length){ceilMixer=new THREE.AnimationMixer(m);gl.animations.forEach(a=>ceilMixer.clipAction(a).play());}
-  const m2=THREE.SkeletonUtils?THREE.SkeletonUtils.clone(m):m.clone(true);m2.position.set(0,2.95-7.24*0.010,-1.9);R2.add(m2);
+  const m2=ownMats(m.clone(true));m2.position.set(0,2.95-7.24*0.010,-1.9);R2.add(m2);
   if(gl.animations&&gl.animations.length){ceilMixer2=new THREE.AnimationMixer(m2);gl.animations.forEach(a=>ceilMixer2.clipAction(a).play());}
 }).catch(e=>console.warn('Deckenventilator fehlt',e));
 
@@ -794,16 +802,16 @@ loadGLB('desk.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material.envMapIntensity=o.material.metalness>0.3?0.8:0.35;}});
   const cub=g.scene.getObjectByName('cubicle'),cool=g.scene.getObjectByName('cooler');
   if(cub){cub.rotation.y=-Math.PI/2;cub.position.set(-1.39,0,-1.21);R1.add(cub);}
-  if(cool){cool.position.set(-1.45,0,-6.46);R1.add(cool);const c2=cool.clone(true);c2.position.set(-1.45,0,-6.46);R2.add(c2);}
+  if(cool){cool.position.set(-1.45,0,-6.46);R1.add(cool);const c2=ownMats(cool.clone(true));c2.position.set(-1.45,0,-6.46);R2.add(c2);}
 }).catch(e=>console.warn('Arbeitsplatz fehlt',e));
 loadGLB('drawer.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.scene.position.set(1.78,0.05,-7.47);R1.add(g.scene);const d2=g.scene.clone(true);R2.add(d2);
+  g.scene.position.set(1.78,0.05,-7.47);R1.add(g.scene);const d2=ownMats(g.scene.clone(true));R2.add(d2);dimBern();
 }).catch(e=>console.warn('Aktenschrank fehlt',e));
 /* small CRT television standing on top of the filing cabinet */
 loadGLB('tv_small.glb').then(g=>{
   g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;R1.add(g.scene);const t2=g.scene.clone(true);R2.add(t2);
+  g.scene.position.set(1.95,0.05+2.05+0.168,-7.3);g.scene.rotation.y=-Math.PI/2-0.2;R1.add(g.scene);const t2=ownMats(g.scene.clone(true));R2.add(t2);dimBern();
 }).catch(e=>console.warn('Fernseher fehlt',e));
 
 /* ---- support surfaces for the paper ball and the bin ---- */
@@ -1010,15 +1018,18 @@ function startLevel(i,keepScore){
   game.level=i;const L=levelDef(i);
   game.players.forEach(p=>{if(!keepScore)p.score=p.levelStartScore;p.levelStartScore=p.score;p.hits=0;p.throwsLeft=p.alive?THROWS:0;p.results=[];p.streak=0;p.targetHit=false;});
   game.cur=Math.max(0,game.players.findIndex(p=>p.alive));
-  const RM=ROOMS[roomId],D=RM.fixedBin?ANK.L-0.5+0.5:Math.min(L.d,RM.maxD||99);
+  const RM=ROOMS[roomId],FP=RM.floorPlan&&RM.floorPlan[i];   // early levels: bin on the floor in front of the table
+  const D=RM.fixedBin?ANK.L:FP?FP:Math.min(L.d,RM.maxD||99);
+  LOOKY=FP?0.35:(RM.lookY||0.95);
   const b=game.bin;b.z=-D;b.s=L.s;b.H=BIN0.H*L.s;b.Rt=BIN0.Rt*L.s;b.Rb=BIN0.Rb*L.s;
   binHolder.visible=!RM.fixedBin;
   if(RM.fixedBin){b.z=0.5-ANK.L;b.H=0.347;b.Rt=0.1725;b.Rb=0.133;}
   frameCamera();
-  const useBar=!RM.floor&&(!!L.bar||L.d>RM.maxTable);
+  const useBar=!RM.floor&&!FP&&(!!L.bar||L.d>RM.maxTable);
   bar.visible=useBar;
   if(useBar){BAR.x=i<9?0:rnd(-0.7,0.7);BAR.z=Math.min(-L.d,TABLE.z1-0.45);b.z=BAR.z;bar.position.set(BAR.x,0,BAR.z);b.surf=BAR.y;b.baseX=BAR.x;b.amp=0;}
   else if(RM.fixedBin){b.surf=0;b.amp=0;b.baseX=0;}
+  else if(FP){b.surf=0;b.amp=0;b.baseX=i===0?0:rnd(-1,1)*0.15;}
   else if(RM.floor){b.surf=0;const lim=0.35;b.amp=L.m>0?Math.min(L.m,0.45):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.1+i*0.05));}
   else{b.surf=TABLE.y;const lim=TABLE.hx-b.Rt-0.06;b.amp=L.m>0?Math.min(L.m,TABLE.hx-0.24):0;b.baseX=L.m>0?0:(i===0?0:rnd(-1,1)*Math.min(lim,0.12+i*0.07));}
   b.omega=0.7+i*0.05;b.phase=rnd(0,6.28);b.y=b.surf+(b.amp>0?0.075:0);
